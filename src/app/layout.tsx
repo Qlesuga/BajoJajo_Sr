@@ -1,5 +1,7 @@
 import "~/styles/globals.css";
 
+import { Providers } from "./providers";
+
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 
@@ -17,7 +19,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
       <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <Providers>
+          <TRPCReactProvider>{children}</TRPCReactProvider>
+        </Providers>
       </body>
     </html>
   );
