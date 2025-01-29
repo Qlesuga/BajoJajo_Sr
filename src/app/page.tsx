@@ -1,9 +1,9 @@
-import Link from "next/link";
-
+import Image from "next/image";
 import { LatestPost } from "~/app/_components/post";
 import { auth } from "~/server/auth";
 import { api, HydrateClient } from "~/trpc/server";
-import { Button } from "@heroui/button";
+import LogInForm from "./_components/LogInForm";
+import LogOutForm from "./_components/LogOutForm";
 
 export default async function Home() {
   const hello = await api.post.hello({ text: "from tRPC" });
@@ -16,6 +16,7 @@ export default async function Home() {
   return (
     <HydrateClient>
       <main className="flex min-h-screen flex-col items-center justify-center bg-gray-900 text-white">
+        <Image src="/smoleg.webp" alt="smoleg" width={250} height={250} />
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
           <div className="flex flex-col items-center gap-2">
             <p className="text-2xl text-white">
@@ -26,15 +27,9 @@ export default async function Home() {
               <p className="text-center text-2xl text-white">
                 {session && <span>Logged in as {session.user?.name}</span>}
               </p>
-              <Link
-                href={session ? "/api/auth/signout" : "/api/auth/signin"}
-                className="rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
-              >
-                {session ? "Sign out" : "Sign in"}
-              </Link>
+              {session ? <LogOutForm /> : <LogInForm />}
             </div>
           </div>
-
           {session?.user && <LatestPost />}
         </div>
       </main>
