@@ -2,13 +2,24 @@
 
 import { Card, CardBody, Progress } from "@heroui/react";
 import { Image } from "@heroui/react";
+import { useEffect, useState } from "react";
 import "~/styles/player.css";
+import { api } from "~/trpc/react";
+
 function Player() {
+  const { data, refetch } = api.post.getSecretMessage.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+  });
+  const [time, setTime] = useState(0);
+  useEffect(() => {
+    setTimeout(() => setTime(time + 1), 1000);
+  });
+  console.log(data);
   return (
     <div className="w-full dark">
       <Card
         className="w-screen"
-        shadow="sm"
+        shadow="none"
         isBlurred
         style={{ backgroundColor: "hsl(var(--heroui-background))" }}
       >
@@ -16,12 +27,12 @@ function Player() {
           <div className="flex h-full w-full flex-row gap-8">
             <Image src="/test_thumbnail.jpg" alt="thumbnail" width={98} />
             <div className="flex flex-grow flex-col">
-              <p>Duvet</p>
-              <p>Bôa</p>
+              <p>duvet</p>
+              <p>boa</p>
               <Progress
-                aria-label="Downloading..."
+                aria-label="Progress"
                 showValueLabel={true}
-                value={40}
+                value={time}
                 size="md"
               />
             </div>
