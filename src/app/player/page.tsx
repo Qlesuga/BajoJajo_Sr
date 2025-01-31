@@ -1,44 +1,46 @@
 "use client";
 
-import { Card, CardBody, Progress } from "@heroui/react";
-import { Image } from "@heroui/react";
-import { useEffect, useState } from "react";
 import "~/styles/player.css";
 import { api } from "~/trpc/react";
+import PlayerComponent from "../_components/playerComponent";
 
 function Player() {
-  const { data, refetch } = api.post.getSecretMessage.useQuery(undefined, {
-    refetchOnWindowFocus: false,
-  });
-  const [time, setTime] = useState(0);
-  useEffect(() => {
-    setTimeout(() => setTime(time + 1), 1000);
-  });
-  console.log(data);
+  const { data } = api.song.hello.useQuery(undefined);
+  const b64toBlob = (b64Data: String, contentType = "", sliceSize = 512) => {
+    const byteCharacters = atob(b64Data);
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+      const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    const blob = new Blob(byteArrays, { type: contentType });
+    return blob;
+  };
+
   return (
     <div className="w-full dark">
-      <Card
-        className="w-screen"
-        shadow="none"
-        isBlurred
-        style={{ backgroundColor: "hsl(var(--heroui-background))" }}
-      >
-        <CardBody className="h-full w-full">
-          <div className="flex h-full w-full flex-row gap-8">
-            <Image src="/test_thumbnail.jpg" alt="thumbnail" width={98} />
-            <div className="flex flex-grow flex-col">
-              <p>duvet</p>
-              <p>boa</p>
-              <Progress
-                aria-label="Progress"
-                showValueLabel={true}
-                value={time}
-                size="md"
-              />
-            </div>
-          </div>
-        </CardBody>
-      </Card>
+      {typeof data !== "undefined" ? (
+        <PlayerComponent
+          name={data.songTitle}
+          artist={data.songAuthor}
+          length={data.songLength}
+          image={data.songThumbnail}
+          songBlobUrl={URL.createObjectURL(
+            b64toBlob(data.songBlob, "audio/mp3"),
+          )}
+        />
+      ) : (
+        "Loading"
+      )}
     </div>
   );
 }
