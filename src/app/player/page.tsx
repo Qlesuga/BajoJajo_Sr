@@ -5,7 +5,18 @@ import { api } from "~/trpc/react";
 import PlayerComponent from "../_components/playerComponent";
 
 function Player() {
-  const { data } = api.song.nextSong.useQuery(undefined);
+  //const { data } = api.song.nextSong.useQuery(undefined);
+  const test = api.song.songSubscription.useSubscription(undefined, {
+    onData: (data) => {
+      console.log("cos", data);
+    },
+    onError(err) {
+      console.error("Subscription error:", err);
+    },
+    onStarted() {
+      console.log("Stared");
+    },
+  });
   const b64toBlob = (b64Data: string, contentType = "", sliceSize = 512) => {
     const byteCharacters = atob(b64Data);
     const byteArrays = [];

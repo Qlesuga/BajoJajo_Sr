@@ -1,8 +1,18 @@
-import { z } from "zod";
 import ytdl from "@distube/ytdl-core";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { EventEmitter, on } from "stream";
+import { auth } from "~/server/auth";
 
 let i = 0;
+
+const watchedUsers: Record<string, EventEmitter> = {};
+
+setInterval(() => {
+  Object.keys(watchedUsers).map((key) => {
+    watchedUsers[key]?.emit("add", key);
+  });
+}, 2000);
+
 export const songRouter = createTRPCRouter({
   nextSong: publicProcedure.query(async () => {
     const url = "https://www.youtube.com/watch?v=0u1a1lF02Ac";
@@ -31,5 +41,20 @@ export const songRouter = createTRPCRouter({
       songThumbnail: thumbnails[1] ? thumbnails[1].url : "",
       songBlob: data.toString("base64"),
     };
+  }),
+  songSubscription: publicProcedure.subscription(async function* (opts) {
+    const user = await auth();
+    if (!user) {
+      return;
+    }
+    const emitter = new EventEmitter();
+    watchedUsers[user.user.id] = emitter;
+    for await (const [data] of on(emitter, "add", {
+      signal: opts.signal,
+    })) {
+      console.log(data);
+      yield data;
+    }
+    yield "aha";
   }),
 });
