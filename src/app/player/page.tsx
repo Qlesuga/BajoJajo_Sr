@@ -5,8 +5,8 @@ import { api } from "~/trpc/react";
 import PlayerComponent from "../_components/playerComponent";
 
 function Player() {
-  const { data } = api.song.hello.useQuery(undefined);
-  const b64toBlob = (b64Data: String, contentType = "", sliceSize = 512) => {
+  const { data } = api.song.nextSong.useQuery(undefined);
+  const b64toBlob = (b64Data: string, contentType = "", sliceSize = 512) => {
     const byteCharacters = atob(b64Data);
     const byteArrays = [];
 

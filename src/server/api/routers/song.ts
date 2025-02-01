@@ -4,7 +4,7 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 let i = 0;
 export const songRouter = createTRPCRouter({
-  hello: publicProcedure.query(async () => {
+  nextSong: publicProcedure.query(async () => {
     const url = "https://www.youtube.com/watch?v=0u1a1lF02Ac";
     const { videoDetails } = await ytdl.getBasicInfo(url);
     const { title, lengthSeconds, ownerChannelName, thumbnails } = videoDetails;
@@ -28,7 +28,7 @@ export const songRouter = createTRPCRouter({
       songTitle: title,
       songAuthor: ownerChannelName,
       songLength: parseInt(lengthSeconds),
-      songThumbnail: thumbnails[1]?.url,
+      songThumbnail: thumbnails[1] ? thumbnails[1].url : "",
       songBlob: data.toString("base64"),
     };
   }),

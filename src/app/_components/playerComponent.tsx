@@ -1,8 +1,8 @@
 "use client";
 
-import { Card, CardBody, Progress, Image } from "@heroui/react";
+import { Card, CardBody, Progress, Image, CardFooter } from "@heroui/react";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 interface PlayerComponentProps {
   name: string;
   artist: string;
@@ -12,12 +12,20 @@ interface PlayerComponentProps {
 }
 
 function PlayerComponent({
-  name = "Duvet",
-  artist = "Boa",
-  image = "/test_thumbnail.jpg",
-  length = 20,
+  name,
+  artist,
+  image,
+  length,
   songBlobUrl,
 }: PlayerComponentProps) {
+  const audio = useRef(new Audio(songBlobUrl));
+  audio.current.loop = false;
+  const playAudio = () => {
+    audio.current.play().catch((e) => console.log(e));
+  };
+  const stopAudio = () => {
+    audio.current.pause();
+  };
   const [time, setTime] = useState(0);
   const timer = setTimeout(() => {
     setTime(time + 1);
@@ -46,7 +54,10 @@ function PlayerComponent({
           </div>
         </div>
       </CardBody>
-      <audio controls={true} src={songBlobUrl} />
+      <CardFooter>
+        <button onClick={playAudio}>play</button>
+        <button onClick={stopAudio}>stop</button>
+      </CardFooter>
     </Card>
   );
 }
