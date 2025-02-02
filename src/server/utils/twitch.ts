@@ -1,12 +1,22 @@
 "server-only";
 
+import { DiskCache } from "./cache";
+
 interface TwitchOAuthToken {
   access_token: string;
   expires_in: number;
   token_type: string;
 }
 
+const TWITCH_OAUTH_TOKEN_CACHE = "twitch-oauth-token";
+
 export const getAppAccessToken = async (): Promise<TwitchOAuthToken> => {
+  const authToken = await DiskCache.get<TwitchOAuthToken>(
+    TWITCH_OAUTH_TOKEN_CACHE,
+  );
+  if (authToken) {
+    return authToken;
+  }
   const headers = {
     "Content-Type": "application/x-www-form-urlencoded",
   };
@@ -24,26 +34,32 @@ export const getAppAccessToken = async (): Promise<TwitchOAuthToken> => {
     );
   }
 
-  const data: unknown = await response.json();
+  const newTwitchToken: unknown = await response.json();
   if (
-    typeof data === "object" &&
-    data !== null &&
-    "access_token" in data &&
-    "expires_in" in data &&
-    "token_type" in data
+    typeof newTwitchToken === "object" &&
+    newTwitchToken !== null &&
+    "access_token" in newTwitchToken &&
+    "expires_in" in newTwitchToken &&
+    "token_type" in newTwitchToken
   ) {
-    const typedData = data as Record<string, unknown>;
+    const typedData = newTwitchToken as Record<string, unknown>;
 
     if (
       typeof typedData.access_token === "string" &&
       typeof typedData.expires_in === "number" &&
       typeof typedData.token_type === "string"
     ) {
-      return {
+      const token: TwitchOAuthToken = {
         access_token: typedData.access_token,
         expires_in: typedData.expires_in,
         token_type: typedData.token_type,
       };
+      await DiskCache.set<TwitchOAuthToken>(
+        TWITCH_OAUTH_TOKEN_CACHE,
+        token,
+        typedData.expires_in,
+      );
+      return token;
     }
   }
   throw new Error("Invalid response format from Twitch API");
