@@ -2,8 +2,15 @@ import ytdl from "@distube/ytdl-core";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { EventEmitter, on } from "stream";
 import { auth } from "~/server/auth";
+import { getAppAccessToken } from "~/server/utils/twitch";
 
-let i = 0;
+getAppAccessToken()
+  .then((data) => {
+    console.log(data);
+  })
+  .catch((error) => {
+    console.log(error);
+  });
 
 const watchedUsers: Record<string, EventEmitter> = {};
 
@@ -31,9 +38,6 @@ export const songRouter = createTRPCRouter({
         resolve(data);
       });
     });
-    i++;
-    console.log(i);
-    console.log(data);
     return {
       songTitle: title,
       songAuthor: ownerChannelName,
@@ -52,7 +56,6 @@ export const songRouter = createTRPCRouter({
     for await (const [data] of on(emitter, "add", {
       signal: opts.signal,
     })) {
-      console.log(data);
       yield data;
     }
     yield "aha";
