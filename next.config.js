@@ -3,7 +3,7 @@
  * for Docker builds.
  */
 import "./src/env.js";
-
+import "./src/server/utils/cache.ts";
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
