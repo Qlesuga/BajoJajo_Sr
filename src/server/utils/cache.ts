@@ -4,7 +4,7 @@ import path from "path";
 interface CacheEntry<T> {
   data: T;
   timestamp: number;
-  expiersIn: number;
+  expiersIn: number | null;
 }
 
 export class DiskCache {
@@ -25,7 +25,7 @@ export class DiskCache {
   public static async set<T>(
     key: string,
     data: T,
-    expiersIn: number,
+    expiersIn: number | null = null,
   ): Promise<void> {
     await DiskCache.initializeCache();
     const filePath = DiskCache.getCacheFilePath(key);
@@ -50,7 +50,10 @@ export class DiskCache {
       // eslint-disable-next-line
       const entry: CacheEntry<T> = JSON.parse(content);
 
-      if (Date.now() - entry.timestamp > entry.expiersIn * 1000) {
+      if (
+        entry.expiersIn != null &&
+        Date.now() - entry.timestamp > entry.expiersIn * 1000
+      ) {
         return null;
       }
 

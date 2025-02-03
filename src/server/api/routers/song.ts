@@ -2,9 +2,9 @@ import ytdl from "@distube/ytdl-core";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { EventEmitter, on } from "stream";
 import { auth } from "~/server/auth";
-import { getAppAccessToken } from "~/server/utils/twitch";
+import { getTwitchConduitId } from "~/server/utils/twitchConduit";
 
-getAppAccessToken()
+getTwitchConduitId()
   .then((data) => {
     console.log(data);
   })

@@ -10,10 +10,8 @@ interface TwitchOAuthToken {
 
 const TWITCH_OAUTH_TOKEN_CACHE = "twitch-oauth-token";
 
-export const getAppAccessToken = async (): Promise<TwitchOAuthToken> => {
-  const authToken = await DiskCache.get<TwitchOAuthToken>(
-    TWITCH_OAUTH_TOKEN_CACHE,
-  );
+export const getTwitchAppAccessToken = async (): Promise<string> => {
+  const authToken = await DiskCache.get<string>(TWITCH_OAUTH_TOKEN_CACHE);
   if (authToken) {
     return authToken;
   }
@@ -54,12 +52,12 @@ export const getAppAccessToken = async (): Promise<TwitchOAuthToken> => {
         expires_in: typedData.expires_in,
         token_type: typedData.token_type,
       };
-      await DiskCache.set<TwitchOAuthToken>(
+      await DiskCache.set<string>(
         TWITCH_OAUTH_TOKEN_CACHE,
-        token,
+        token.access_token,
         typedData.expires_in,
       );
-      return token;
+      return token.access_token;
     }
   }
   throw new Error("Invalid response format from Twitch API");
