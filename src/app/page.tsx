@@ -6,12 +6,7 @@ import LogInForm from "./_components/LogInForm";
 import LogOutForm from "./_components/LogOutForm";
 
 export default async function Home() {
-  const hello = await api.post.hello({ text: "from tRPC" });
   const session = await auth();
-
-  if (session?.user) {
-    void api.post.getLatest.prefetch();
-  }
 
   return (
     <HydrateClient>
@@ -19,10 +14,6 @@ export default async function Home() {
         <Image src="/smoleg.webp" alt="smoleg" width={250} height={250} />
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
           <div className="flex flex-col items-center gap-2">
-            <p className="text-2xl text-white">
-              {hello ? hello.greeting : "Loading tRPC query..."}
-            </p>
-
             <div className="flex flex-col items-center justify-center gap-4">
               <p className="text-center text-2xl text-white">
                 {session && <span>Logged in as {session.user?.name}</span>}
@@ -30,7 +21,6 @@ export default async function Home() {
               {session ? <LogOutForm /> : <LogInForm />}
             </div>
           </div>
-          {session?.user && <LatestPost />}
         </div>
       </main>
     </HydrateClient>
