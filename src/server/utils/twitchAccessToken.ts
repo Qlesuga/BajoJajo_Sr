@@ -5,10 +5,11 @@ interface RefreshTokenResponse {
   refresh_token: string;
   expires_in: number;
   scope: string[];
-  token_type: "bearer";
+  token_type: string;
 }
 
 const CACHE_ACCESS_TOKEN = "twitch-access-token";
+
 export async function getAccessToken(): Promise<string> {
   const accessToken = await DiskCache.get<string>(CACHE_ACCESS_TOKEN);
   if (accessToken) {
@@ -27,7 +28,7 @@ export async function getAccessToken(): Promise<string> {
       refresh_token: process.env.TWITCH_REFRESH_TOKEN,
     }),
   });
-  const body: RefreshTokenResponse = (await res.json()) as RefreshTokenResponse;
+  const body = (await res.json()) as RefreshTokenResponse;
   console.log(body);
   await DiskCache.set<string>(
     CACHE_ACCESS_TOKEN,

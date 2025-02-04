@@ -17,6 +17,7 @@ export async function createTwitchChatSubscription() {
         type: "channel.chat.message",
         version: "1",
         condition: {
+          "content-type": "application/json",
           broadcaster_user_id: "1245134202",
           user_id: "1245134202",
         },

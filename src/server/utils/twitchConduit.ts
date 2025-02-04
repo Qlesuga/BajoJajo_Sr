@@ -1,4 +1,3 @@
-import { error } from "console";
 import { DiskCache } from "./cache";
 import { getTwitchAppAccessToken } from "./twitchAuth";
 
@@ -11,8 +10,8 @@ interface TwitchCreateConduitResponse {
 }
 
 let isConduitValidated = false;
-export async function getTwitchConduitId() {
-  const conduitId = await DiskCache.get(CACHE_TWITCH_CONDUIT_ID);
+export async function getTwitchConduitId(): Promise<string> {
+  const conduitId = await DiskCache.get<string>(CACHE_TWITCH_CONDUIT_ID);
   if (conduitId && isConduitValidated) {
     return conduitId;
   }
@@ -96,7 +95,7 @@ export async function cos() {
             id: "0",
             transport: {
               method: "webhook",
-              callback: "https://2c34-95-160-184-208.ngrok-free.app/api/test",
+              callback: "",
               secret: process.env.TWITCH_WEBHOOK_SECRET,
             },
           },
