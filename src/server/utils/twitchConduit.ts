@@ -55,6 +55,7 @@ export async function getTwitchConduitId() {
       console.info(`Deleted conduit id: ${conduitData.id}`);
     }
   }
+
   const createConduitResponse = await fetch(TWITCH_CREATE_CONDUIT_URL, {
     method: "POST",
     headers: {
@@ -68,10 +69,40 @@ export async function getTwitchConduitId() {
   });
   const createConduitResponseBody: TwitchCreateConduitResponse =
     (await createConduitResponse.json()) as TwitchCreateConduitResponse;
-  console.log(createConduitResponseBody);
   await DiskCache.set<string>(
     CACHE_TWITCH_CONDUIT_ID,
     createConduitResponseBody.data[0].id,
   );
+
   return conduitId;
+}
+
+export async function cos() {
+  const conduitId = await getTwitchConduitId();
+  const twitchAppToken = await getTwitchAppAccessToken();
+  const chujwie = await fetch(
+    "https://api.twitch.tv/helix/eventsub/conduits/shards",
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${twitchAppToken}`,
+        "Client-Id": `${process.env.TWITCH_CLIENT_ID}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        conduit_id: conduitId,
+        shards: [
+          {
+            id: "0",
+            transport: {
+              method: "webhook",
+              callback: "https://2c34-95-160-184-208.ngrok-free.app/api/test",
+              secret: process.env.TWITCH_WEBHOOK_SECRET,
+            },
+          },
+        ],
+      }),
+    },
+  );
+  console.log(await chujwie.json());
 }

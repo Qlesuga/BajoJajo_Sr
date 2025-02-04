@@ -2,14 +2,14 @@ import ytdl from "@distube/ytdl-core";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { EventEmitter, on } from "stream";
 import { auth } from "~/server/auth";
-import { createTwitchChatSubscription } from "~/server/utils/twitchChatSubscription";
+import { cos } from "~/server/utils/twitchConduit";
 
-createTwitchChatSubscription()
+cos()
   .then((data) => {
-    console.log(data);
+    return;
   })
   .catch((error) => {
-    console.log(error);
+    return;
   });
 
 const watchedUsers: Record<string, EventEmitter> = {};

@@ -65,5 +65,5 @@ export class DiskCache {
 }
 
 DiskCache.initializeCache().catch((err) => {
-  console.log(err);
+  console.error(err);
 });
