@@ -6,6 +6,7 @@ import PlayerComponent from "../_components/playerComponent";
 
 function Player() {
   const { data, refetch } = api.song.nextSong.useQuery(undefined);
+  /*
   api.song.songSubscription.useSubscription(undefined, {
     onData: (data) => {
       console.log("cos", data);
@@ -17,6 +18,7 @@ function Player() {
       console.log("Stared");
     },
   });
+*/
   const b64toBlob = (b64Data: string, contentType = "", sliceSize = 512) => {
     const byteCharacters = atob(b64Data);
     const byteArrays = [];

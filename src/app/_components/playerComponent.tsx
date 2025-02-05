@@ -2,7 +2,7 @@
 
 import { Card, CardBody, Progress, Image, CardFooter } from "@heroui/react";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 interface PlayerComponentProps {
   name: string;
   artist: string;
@@ -19,20 +19,30 @@ function PlayerComponent({
   songBlobUrl,
 }: PlayerComponentProps) {
   const audio = useRef(new Audio(songBlobUrl));
+  const [time, setTime] = useState<number>(0.0);
+  const [isRunning, setIsRunning] = useState(false);
   audio.current.loop = false;
+
   const playAudio = () => {
     audio.current.play().catch((e) => console.log(e));
+    setIsRunning(true);
   };
   const stopAudio = () => {
     audio.current.pause();
+    setIsRunning(false);
   };
-  const [time, setTime] = useState(0);
-  const timer = setTimeout(() => {
-    setTime(time + 1);
-  }, 1000);
-  if (time >= length) {
-    clearTimeout(timer);
-  }
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isRunning) {
+      timer = setInterval(() => {
+        setTime((prevTime) => prevTime + 1);
+      }, 1000);
+    } else {
+      clearInterval(timer);
+    }
+    return () => clearInterval(timer);
+  }, [isRunning]);
   return (
     <Card
       className="h-144 w-screen"
@@ -50,6 +60,7 @@ function PlayerComponent({
               label={`${time}/${length}`}
               value={(time / length) * 100}
               size="md"
+              classNames={{ indicator: "!duration-1000 !ease-linear" }}
             />
           </div>
         </div>
