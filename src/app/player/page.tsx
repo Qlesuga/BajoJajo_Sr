@@ -5,8 +5,8 @@ import { api } from "~/trpc/react";
 import PlayerComponent from "../_components/playerComponent";
 
 function Player() {
-  //const { data } = api.song.nextSong.useQuery(undefined);
-  const test = api.song.songSubscription.useSubscription(undefined, {
+  const { data, refetch } = api.song.nextSong.useQuery(undefined);
+  api.song.songSubscription.useSubscription(undefined, {
     onData: (data) => {
       console.log("cos", data);
     },
