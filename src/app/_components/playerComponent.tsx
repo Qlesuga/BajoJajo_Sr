@@ -19,7 +19,7 @@ function PlayerComponent({
   songBlobUrl,
 }: PlayerComponentProps) {
   const audio = useRef(new Audio(songBlobUrl));
-  const [time, setTime] = useState<number>(0.0);
+  const [time, setTime] = useState<number>(0);
   const [isRunning, setIsRunning] = useState(false);
   audio.current.loop = false;
 
@@ -60,7 +60,7 @@ function PlayerComponent({
               label={`${time}/${length}`}
               value={(time / length) * 100}
               size="md"
-              classNames={{ indicator: "!duration-1000 !ease-linear" }}
+              classNames={{ indicator: "!duration-900 !ease-linear" }}
             />
           </div>
         </div>

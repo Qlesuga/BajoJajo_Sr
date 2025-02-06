@@ -1,7 +1,6 @@
 import Image from "next/image";
-import { LatestPost } from "~/app/_components/post";
 import { auth } from "~/server/auth";
-import { api, HydrateClient } from "~/trpc/server";
+import { HydrateClient } from "~/trpc/server";
 import LogInForm from "./_components/LogInForm";
 import LogOutForm from "./_components/LogOutForm";
 
