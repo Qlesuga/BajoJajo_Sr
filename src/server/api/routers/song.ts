@@ -26,33 +26,43 @@ interface ISubscriptedUser {
   songs: ISong[];
 }
 
-let i = 0;
-
 const subscripedUsers: Record<string, ISubscriptedUser> = {};
+
+const userID = "cm6i06a590000ihf1liidcap0";
+const url1 = "https://www.youtube.com/watch?v=UxKvf4e6Nso";
+const url2 = "https://www.youtube.com/watch?v=0u1a1lF02Ac";
+
+await addSongToUser(userID, url1);
+await addSongToUser(userID, url2);
 
 export const songRouter = createTRPCRouter({
   nextSong: publicProcedure.query(async () => {
-    const userID = "cm6i06a590000ihf1liidcap0";
-    const url1 = "https://www.youtube.com/watch?v=UxKvf4e6Nso";
-    const url2 = "https://www.youtube.com/watch?v=0u1a1lF02Ac";
-
-    await addSongToUser(userID, url1);
-    await addSongToUser(userID, url2);
-    console.log(subscripedUsers);
-    const song = subscripedUsers[userID].songs[i];
-    if (!song) {
-      return;
+    if (!(userID in subscripedUsers)) {
+      return null;
     }
-    i++;
-    const { videoDetails } = song?.videoInfo;
+
+    const songs = subscripedUsers[userID].songs;
+    if (songs.length == 0) {
+      return null;
+    }
+
+    if (songs[0]!.status == "playing") {
+      songs.shift();
+      if (songs.length == 0) {
+        return;
+      }
+    }
+    const song = songs[0];
+    const { videoDetails } = song!.videoInfo;
     const { title, lengthSeconds, ownerChannelName, thumbnails } = videoDetails;
+    song!.status = "playing";
 
     return {
       songTitle: title,
       songAuthor: ownerChannelName,
       songLength: parseInt(lengthSeconds),
       songThumbnail: thumbnails[1] ? thumbnails[1].url : "",
-      songBlob: song.blob,
+      songBlob: song!.blob,
     };
   }),
 
@@ -87,7 +97,6 @@ async function addSongToUser(userID: string, url: string) {
       songs: [],
     };
   }
-  console.log(subscripedUsers);
   const videoInfo = await getYouTubeInfo(url);
   const videoBlob = await getYouTubeVideo(url);
   subscripedUsers[userID]?.songs.push({

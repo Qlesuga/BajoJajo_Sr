@@ -52,7 +52,7 @@ function Player() {
 
   return (
     <div className="w-full dark">
-      {typeof data !== "undefined" ? (
+      {typeof data !== "undefined" && data != null ? (
         <PlayerComponent
           key={data.songTitle}
           name={data.songTitle}
