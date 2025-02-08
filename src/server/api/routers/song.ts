@@ -34,6 +34,12 @@ const url2 = "https://www.youtube.com/watch?v=0u1a1lF02Ac";
 
 await addSongToUser(userID, url1);
 await addSongToUser(userID, url2);
+await addSongToUser(userID, url1);
+await addSongToUser(userID, url2);
+await addSongToUser(userID, url1);
+await addSongToUser(userID, url2);
+await addSongToUser(userID, url1);
+await addSongToUser(userID, url2);
 
 export const songRouter = createTRPCRouter({
   nextSong: publicProcedure.query(async () => {

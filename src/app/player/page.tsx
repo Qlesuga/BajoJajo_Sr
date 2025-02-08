@@ -3,20 +3,10 @@
 import "~/styles/player.css";
 import { api } from "~/trpc/react";
 import PlayerComponent from "../_components/playerComponent";
-import { useEffect } from "react";
 
 function Player() {
   const { data, refetch } = api.song.nextSong.useQuery(undefined);
-  useEffect(() => {
-    const test = async () => {
-      console.log(await refetch());
-    };
-    setTimeout(() => {
-      test().catch(() => {
-        console.log("pepeW");
-      });
-    }, 10000);
-  }, []);
+
   /*
   api.song.songSubscription.useSubscription(undefined, {
     onData: (data) => {
@@ -62,6 +52,7 @@ function Player() {
           songBlobUrl={URL.createObjectURL(
             b64toBlob(data.songBlob, "audio/mp3"),
           )}
+          getNextSong={refetch}
         />
       ) : (
         "Loading"

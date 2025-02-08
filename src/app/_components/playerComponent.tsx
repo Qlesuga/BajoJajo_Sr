@@ -9,6 +9,7 @@ interface PlayerComponentProps {
   image: string;
   length: number;
   songBlobUrl: string;
+  getNextSong: () => Promise<any>;
 }
 
 function PlayerComponent({
@@ -17,6 +18,7 @@ function PlayerComponent({
   image,
   length,
   songBlobUrl,
+  getNextSong,
 }: PlayerComponentProps) {
   const audio = useRef(new Audio(songBlobUrl));
   const [time, setTime] = useState<number>(0);
@@ -68,6 +70,15 @@ function PlayerComponent({
       <CardFooter>
         <button onClick={playAudio}>play</button>
         <button onClick={stopAudio}>stop</button>
+        <button
+          onClick={() => {
+            getNextSong().catch((e) => {
+              console.error(e);
+            });
+          }}
+        >
+          next
+        </button>
       </CardFooter>
     </Card>
   );
