@@ -4,8 +4,8 @@ import "~/styles/player.css";
 import { api } from "~/trpc/react";
 import PlayerComponent from "../_components/playerComponent";
 import { b64toBlob } from "~/utils/stringB64ToBlob";
-import { useEffect, useState, useRef, MutableRefObject } from "react";
-
+import { useEffect, useState, useRef } from "react";
+import type { MutableRefObject } from "react";
 interface ISong {
   songTitle: string;
   songAuthor: string;
