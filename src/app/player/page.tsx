@@ -3,7 +3,7 @@
 import "~/styles/player.css";
 import { api } from "~/trpc/react";
 import PlayerComponent from "../_components/playerComponent";
-
+import { b64toBlob } from "~/utils/stringB64ToBlob";
 function Player() {
   const { data, refetch } = api.song.nextSong.useQuery(undefined);
 
@@ -20,25 +20,6 @@ function Player() {
     },
   });
 */
-  const b64toBlob = (b64Data: string, contentType = "", sliceSize = 512) => {
-    const byteCharacters = atob(b64Data);
-    const byteArrays = [];
-
-    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-      const slice = byteCharacters.slice(offset, offset + sliceSize);
-
-      const byteNumbers = new Array(slice.length);
-      for (let i = 0; i < slice.length; i++) {
-        byteNumbers[i] = slice.charCodeAt(i);
-      }
-
-      const byteArray = new Uint8Array(byteNumbers);
-      byteArrays.push(byteArray);
-    }
-
-    const blob = new Blob(byteArrays, { type: contentType });
-    return blob;
-  };
 
   return (
     <div className="w-full dark">
