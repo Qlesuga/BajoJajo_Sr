@@ -4,13 +4,24 @@ import "~/styles/player.css";
 import { api } from "~/trpc/react";
 import PlayerComponent from "../_components/playerComponent";
 import { b64toBlob } from "~/utils/stringB64ToBlob";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, MutableRefObject } from "react";
 
-function Player() {
-  const [songQueue, setSongQueue] = useState([]);
-  const { data, refetch } = api.song.nextSong.useQuery(undefined);
+interface ISong {
+  songTitle: string;
+  songAuthor: string;
+  songLength: number;
+  songThumbnail: string;
+  songBlob: string;
+}
 
-  const audio = useRef<HTMLAudioElement>();
+const Player: React.FC = () => {
+  const [songQueue, setSongQueue] = useState<ISong[]>([]);
+  const { data, refetch } = api.song.nextSong.useQuery(undefined, {
+    enabled: true,
+  });
+
+  // Use MutableRefObject since the audio reference will be mutated
+  const audioRef = useRef<HTMLAudioElement | undefined>();
 
   useEffect(() => {
     if (data && !songQueue.some((song) => song.songTitle === data.songTitle)) {
@@ -20,41 +31,54 @@ function Player() {
 
   useEffect(() => {
     if (songQueue.length < 2) {
-      refetch();
+      void refetch();
     }
     if (songQueue.length > 0) {
-      audio.current = new Audio(
-        URL.createObjectURL(b64toBlob(songQueue[0].songBlob, "audio/mp3")),
+      audioRef.current = new Audio(
+        URL.createObjectURL(b64toBlob(songQueue[0]!.songBlob, "audio/mp3")),
       );
-      audio.current.loop = false;
+      audioRef.current.loop = false;
     }
+
+    // Cleanup function to revoke object URL and stop audio
+    return () => {
+      if (audioRef.current) {
+        const src = audioRef.current.src;
+        audioRef.current.pause();
+        URL.revokeObjectURL(src);
+      }
+    };
   }, [songQueue, refetch]);
 
-  const playNextSong = () => {
-    if (songQueue.length > 0) {
-      audio.current?.pause();
+  const playNextSong = (): void => {
+    if (songQueue.length > 0 && audioRef.current) {
+      audioRef.current.pause();
     }
     setSongQueue((prevQueue) => prevQueue.slice(1));
-    refetch();
+    void refetch();
   };
+
+  if (
+    songQueue.length === 0 ||
+    !audioRef.current ||
+    songQueue[0] === undefined
+  ) {
+    return <div className="w-full dark">Loading</div>;
+  }
 
   return (
     <div className="w-full dark">
-      {songQueue.length > 0 ? (
-        <PlayerComponent
-          key={songQueue[0].songTitle}
-          name={songQueue[0].songTitle}
-          artist={songQueue[0].songAuthor}
-          length={songQueue[0].songLength}
-          image={songQueue[0].songThumbnail}
-          audio={audio}
-          getNextSong={playNextSong}
-        />
-      ) : (
-        "Loading"
-      )}
+      <PlayerComponent
+        key={songQueue[0].songTitle}
+        name={songQueue[0].songTitle}
+        artist={songQueue[0].songAuthor}
+        length={songQueue[0].songLength}
+        image={songQueue[0].songThumbnail}
+        audio={audioRef as MutableRefObject<HTMLAudioElement>}
+        getNextSong={playNextSong}
+      />
     </div>
   );
-}
+};
 
 export default Player;
