@@ -5,8 +5,6 @@ import { Providers } from "./providers";
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 
-import { TRPCReactProvider } from "~/trpc/react";
-
 export const metadata: Metadata = {
   title: "BajoJajo SR",
   description: "simple song request for twitch",

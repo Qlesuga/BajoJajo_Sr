@@ -2,14 +2,14 @@
 
 import { Card, CardBody, Progress, Image, CardFooter } from "@heroui/react";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, MutableRefObject } from "react";
 interface PlayerComponentProps {
   name: string;
   artist: string;
   image: string;
   length: number;
-  songBlobUrl: string;
-  getNextSong: () => Promise<any>;
+  getNextSong: () => void;
+  audio: MutableRefObject<HTMLAudioElement>;
 }
 
 function PlayerComponent({
@@ -17,14 +17,11 @@ function PlayerComponent({
   artist,
   image,
   length,
-  songBlobUrl,
+  audio,
   getNextSong,
 }: PlayerComponentProps) {
-  const audio = useRef(new Audio(songBlobUrl));
   const [time, setTime] = useState<number>(0);
   const [isRunning, setIsRunning] = useState(false);
-  audio.current.loop = false;
-
   const playAudio = () => {
     audio.current.play().catch((e) => console.log(e));
     setIsRunning(true);
@@ -33,6 +30,9 @@ function PlayerComponent({
     audio.current.pause();
     setIsRunning(false);
   };
+  useEffect(() => {
+    stopAudio();
+  }, []);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -70,15 +70,7 @@ function PlayerComponent({
       <CardFooter>
         <button onClick={playAudio}>play</button>
         <button onClick={stopAudio}>stop</button>
-        <button
-          onClick={() => {
-            getNextSong().catch((e) => {
-              console.error(e);
-            });
-          }}
-        >
-          next
-        </button>
+        <button onClick={getNextSong}>next</button>
       </CardFooter>
     </Card>
   );
