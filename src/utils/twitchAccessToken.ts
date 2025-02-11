@@ -10,7 +10,7 @@ interface RefreshTokenResponse {
 
 const CACHE_ACCESS_TOKEN = "twitch-access-token";
 
-export async function getAccessToken(): Promise<string> {
+export async function getTwitchAccessToken(): Promise<string> {
   const accessToken = await DiskCache.get<string>(CACHE_ACCESS_TOKEN);
   if (accessToken) {
     return accessToken;

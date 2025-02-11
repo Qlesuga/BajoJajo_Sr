@@ -95,7 +95,7 @@ export async function cos() {
             id: "0",
             transport: {
               method: "webhook",
-              callback: "",
+              callback: "https://c65f-95-160-184-208.ngrok-free.app/api/test",
               secret: process.env.TWITCH_WEBHOOK_SECRET,
             },
           },

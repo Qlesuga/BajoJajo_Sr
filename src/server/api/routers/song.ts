@@ -4,8 +4,7 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { EventEmitter, on } from "stream";
 import { auth } from "~/server/auth";
 
-/*
-import { cos } from "~/server/utils/twitchConduit";
+import { cos } from "~/utils/twitchConduit";
 cos()
   .then((data) => {
     return;
@@ -13,7 +12,6 @@ cos()
   .catch((error) => {
     return;
   });
-*/
 
 interface ISong {
   videoInfo: IVideoInfo;

@@ -28,5 +28,7 @@ export async function createTwitchChatSubscription() {
       }),
     },
   );
+  console.log(response);
+  console.log(await response.json());
   return "yikes";
 }
