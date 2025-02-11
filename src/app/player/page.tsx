@@ -23,6 +23,14 @@ const Player: React.FC = () => {
   // Use MutableRefObject since the audio reference will be mutated
   const audioRef = useRef<HTMLAudioElement | undefined>();
 
+  api.song.songSubscription.useSubscription(undefined, {
+    onData: (data) => {
+      if (data.type == "skip") {
+        playNextSong();
+      }
+    },
+  });
+
   useEffect(() => {
     if (data && !songQueue.some((song) => song.songTitle === data.songTitle)) {
       setSongQueue((prevQueue) => [...prevQueue, data].slice(-2));

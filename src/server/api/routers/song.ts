@@ -46,7 +46,6 @@ export const songRouter = createTRPCRouter({
     if (!(userID in subscripedUsers)) {
       return null;
     }
-
     const songs = subscripedUsers[userID].songs;
     if (songs.length == 0) {
       return null;
@@ -87,10 +86,10 @@ export const songRouter = createTRPCRouter({
         songs: [],
       };
     }
-    for await (const [data] of on(emitter, "add", {
+    for await (const [] of on(emitter, "skip", {
       signal: opts.signal,
     })) {
-      yield data;
+      yield { type: "skip" };
     }
   }),
 });
@@ -130,4 +129,8 @@ function getYouTubeVideo(url: string): Promise<Buffer> {
       resolve(data);
     });
   });
+}
+
+function skipSong(userID: string) {
+  subscripedUsers[userID]?.eventEmitter.emit("skip");
 }
