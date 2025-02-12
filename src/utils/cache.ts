@@ -63,7 +63,3 @@ export class DiskCache {
     }
   }
 }
-
-DiskCache.initializeCache().catch((err) => {
-  console.error(err);
-});
