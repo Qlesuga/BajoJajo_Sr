@@ -20,7 +20,6 @@ const Player: React.FC = () => {
     enabled: true,
   });
 
-  // Use MutableRefObject since the audio reference will be mutated
   const audioRef = useRef<HTMLAudioElement | undefined>();
 
   api.song.songSubscription.useSubscription(undefined, {
@@ -48,7 +47,6 @@ const Player: React.FC = () => {
       audioRef.current.loop = false;
     }
 
-    // Cleanup function to revoke object URL and stop audio
     return () => {
       if (audioRef.current) {
         const src = audioRef.current.src;

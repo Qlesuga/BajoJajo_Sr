@@ -35,7 +35,9 @@ function PlayerComponent({
   }, []);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: NodeJS.Timeout = setInterval(() => {
+      return;
+    });
     if (isRunning) {
       timer = setInterval(() => {
         setTime((prevTime) => prevTime + 1);

@@ -67,7 +67,7 @@ export const songRouter = createTRPCRouter({
     }
     let emitter: EventEmitter;
     if (user.user.id in subscripedUsers) {
-      emitter = subscripedUsers[user.user.id]?.eventEmitter;
+      emitter = subscripedUsers[user.user.id]!.eventEmitter;
     } else {
       emitter = new EventEmitter();
       subscripedUsers[user.user.id] = {

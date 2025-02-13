@@ -73,5 +73,5 @@ export async function getTwitchConduitId(): Promise<string> {
     createConduitResponseBody.data[0].id,
   );
 
-  return conduitId;
+  return conduitId!;
 }
