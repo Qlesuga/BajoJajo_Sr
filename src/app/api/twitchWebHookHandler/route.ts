@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "crypto";
 import { createTwitchChatSubscription } from "~/utils/twitchChatSubscription";
+import { resolve } from "path";
 
 // Type definitions for Twitch webhook payloads
 interface TwitchWebhookHeaders {
@@ -39,13 +40,10 @@ export async function POST(req: Request): Promise<NextResponse> {
     return new NextResponse(null, { status: 500 });
   }
 
-  // Get headers in a type-safe way
   const headers: TwitchWebhookHeaders = Object.fromEntries(req.headers);
 
-  // Get the request body as text
   const bodyText = await req.text();
 
-  // Construct the message string correctly
   const message =
     (headers["twitch-eventsub-message-id"] ?? "") +
     (headers["twitch-eventsub-message-timestamp"] ?? "") +
@@ -53,7 +51,6 @@ export async function POST(req: Request): Promise<NextResponse> {
 
   const hmac = "sha256=" + getHmac(secret, message);
 
-  // Verify the signature
   if (!verifyMessage(hmac, headers["twitch-eventsub-message-signature"])) {
     return new NextResponse(null, { status: 403 });
   }
@@ -81,6 +78,10 @@ export async function POST(req: Request): Promise<NextResponse> {
       console.error("Failed to parse webhook verification payload:", error);
       return new NextResponse(null, { status: 400 });
     }
+  } else {
+    console.log("NEW TWITCH");
+    console.log(req);
+    console.log(await req.json());
   }
 
   return new NextResponse(null, { status: 200 });
