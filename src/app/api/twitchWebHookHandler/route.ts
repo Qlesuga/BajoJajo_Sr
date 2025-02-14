@@ -2,7 +2,7 @@
 
 import { NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { addSongToUser } from "~/server/api/routers/song";
+import { addSongToUser, skipSong } from "~/server/api/routers/song";
 
 // Type definitions for Twitch webhook payloads
 interface TwitchWebhookHeaders {
@@ -137,7 +137,11 @@ export async function POST(req: Request): Promise<NextResponse> {
   if (notification.subscription.type == "channel.chat.message") {
     const splitMessage = notification.event.message.text.split(" ");
     if (splitMessage[0] == "!sr") {
+      console.log("song requested");
       await addSongToUser(userID, splitMessage[1]);
+    } else if (splitMessage[0] == "!skip") {
+      console.log("skip");
+      skipSong(userID);
     }
     console.log(splitMessage);
   } else {

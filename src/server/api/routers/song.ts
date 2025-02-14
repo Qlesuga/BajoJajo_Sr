@@ -34,15 +34,19 @@ await addSongToUser(userID, url2);
 
 export const songRouter = createTRPCRouter({
   nextSong: publicProcedure.query(async () => {
-    console.log(subscripedUsers);
+    console.log("SONG REQUESTED");
     if (!(userID in subscripedUsers)) {
-      return null;
+      const emitter = new EventEmitter();
+      subscripedUsers[userID] = {
+        eventEmitter: emitter,
+        songs: [],
+      };
     }
     const songs = subscripedUsers[userID].songs;
+    console.log(songs);
     if (songs.length == 0) {
       return null;
     }
-
     if (songs[0]!.status == "playing") {
       songs.shift();
       if (songs.length == 0) {
@@ -50,6 +54,7 @@ export const songRouter = createTRPCRouter({
       }
     }
     const song = songs[0];
+    console.log(song);
     const { videoDetails } = song!.videoInfo;
     const { title, lengthSeconds, ownerChannelName, thumbnails } = videoDetails;
     song!.status = "playing";
@@ -64,16 +69,12 @@ export const songRouter = createTRPCRouter({
   }),
 
   songSubscription: publicProcedure.subscription(async function* (opts) {
-    const user = await auth();
-    if (!user) {
-      return;
-    }
     let emitter: EventEmitter;
-    if (user.user.id in subscripedUsers) {
-      emitter = subscripedUsers[user.user.id]!.eventEmitter;
+    if (userID in subscripedUsers) {
+      emitter = subscripedUsers[userID].eventEmitter;
     } else {
       emitter = new EventEmitter();
-      subscripedUsers[user.user.id] = {
+      subscripedUsers[userID] = {
         eventEmitter: emitter,
         songs: [],
       };

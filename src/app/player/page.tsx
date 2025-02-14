@@ -24,6 +24,7 @@ const Player: React.FC = () => {
 
   api.song.songSubscription.useSubscription(undefined, {
     onData: (data) => {
+      console.log(data);
       if (data.type == "skip") {
         playNextSong();
       }

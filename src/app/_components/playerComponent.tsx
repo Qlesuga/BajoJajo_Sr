@@ -31,7 +31,7 @@ function PlayerComponent({
     setIsRunning(false);
   };
   useEffect(() => {
-    playAudio();
+    stopAudio();
   }, []);
 
   useEffect(() => {
