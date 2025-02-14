@@ -2,7 +2,7 @@
 
 import { Card, CardBody, Progress, Image, CardFooter } from "@heroui/react";
 
-import { useState, useRef, useEffect, MutableRefObject } from "react";
+import { useState, useEffect, MutableRefObject } from "react";
 interface PlayerComponentProps {
   name: string;
   artist: string;
@@ -31,7 +31,7 @@ function PlayerComponent({
     setIsRunning(false);
   };
   useEffect(() => {
-    stopAudio();
+    playAudio();
   }, []);
 
   useEffect(() => {

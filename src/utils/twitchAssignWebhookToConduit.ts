@@ -2,9 +2,7 @@ import { getTwitchAppAccessToken } from "./twitchAuth";
 import { getTwitchConduitId } from "./twitchConduit";
 
 const WEBHOOK_ENDPOINT = "twitchWebHookHandler";
-const URL =
-  process.env.VERCEL_PROJECT_PRODUCTION_URL ??
-  "https://6862-95-160-184-208.ngrok-free.app";
+const URL = "0fb2-95-160-184-208.ngrok-free.app";
 
 export async function twitchAssaignWebhookToConduit() {
   const conduitId = await getTwitchConduitId();
@@ -25,7 +23,7 @@ export async function twitchAssaignWebhookToConduit() {
             id: "0",
             transport: {
               method: "webhook",
-              callback: `${URL}/api/${WEBHOOK_ENDPOINT}`,
+              callback: `https://${URL}/api/${WEBHOOK_ENDPOINT}`,
               secret: process.env.TWITCH_WEBHOOK_SECRET,
             },
           },

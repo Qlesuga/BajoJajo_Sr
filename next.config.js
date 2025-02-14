@@ -6,6 +6,9 @@ import "./src/env.js";
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
+  serverRuntimeConfig: {
+    runtime: "nodejs",
+  },
 };
 
 export default config;

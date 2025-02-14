@@ -34,7 +34,6 @@
     "@trpc/client": "^11.0.0-rc.446",
     "@trpc/react-query": "^11.0.0-rc.446",
     "@trpc/server": "^11.0.0-rc.446",
-    "crypto": "^1.0.1",
     "fontawesome-free": "^1.0.4",
     "framer-motion": "^12.0.6",
     "geist": "^1.3.0",

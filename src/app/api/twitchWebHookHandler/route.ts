@@ -1,7 +1,8 @@
+"server-only";
+
 import { NextResponse } from "next/server";
-import { createHmac, timingSafeEqual } from "crypto";
-import { createTwitchChatSubscription } from "~/utils/twitchChatSubscription";
-import { resolve } from "path";
+import { createHmac, timingSafeEqual } from "node:crypto";
+import { addSongToUser } from "~/server/api/routers/song";
 
 // Type definitions for Twitch webhook payloads
 interface TwitchWebhookHeaders {
@@ -18,6 +19,64 @@ interface WebhookCallbackPayload {
     shard: string;
   };
 }
+
+type Subscription = {
+  id: string;
+  status: "enabled" | "disabled";
+  type: string;
+  version: string;
+  condition: {
+    broadcaster_user_id: string;
+    user_id: string;
+  };
+  transport: {
+    method: "webhook" | "websocket";
+    callback: string;
+  };
+  created_at: string;
+  cost: number;
+};
+
+type MessageFragment = {
+  type: string;
+  text: string;
+  cheermote: string | null;
+  emote: string | null;
+  mention: string | null;
+};
+
+type Badge = {
+  set_id: string;
+  id: string;
+  info: string;
+};
+
+type Event = {
+  broadcaster_user_id: string;
+  broadcaster_user_login: string;
+  broadcaster_user_name: string;
+  chatter_user_id: string;
+  chatter_user_login: string;
+  chatter_user_name: string;
+  message_id: string;
+  message: {
+    text: string;
+    fragments: MessageFragment[];
+  };
+  color: string;
+  badges: Badge[];
+  message_type: string;
+  cheer: string | null;
+  reply: string | null;
+  channel_points_custom_reward_id: string | null;
+};
+
+type TwitchWebhookPayload = {
+  subscription: Subscription;
+  event: Event;
+};
+
+const userID = "cm6i06a590000ihf1liidcap0";
 
 function getHmac(secret: string, message: string): string {
   return createHmac("sha256", secret).update(message).digest("hex");
@@ -43,6 +102,9 @@ export async function POST(req: Request): Promise<NextResponse> {
   const headers: TwitchWebhookHeaders = Object.fromEntries(req.headers);
 
   const bodyText = await req.text();
+  const bodyJson = JSON.parse(bodyText) as
+    | TwitchWebhookPayload
+    | WebhookCallbackPayload;
 
   const message =
     (headers["twitch-eventsub-message-id"] ?? "") +
@@ -60,16 +122,8 @@ export async function POST(req: Request): Promise<NextResponse> {
 
   if (requestType === "webhook_callback_verification") {
     try {
-      const notification = JSON.parse(bodyText) as WebhookCallbackPayload;
+      const notification = bodyJson as WebhookCallbackPayload;
       console.log(notification);
-      createTwitchChatSubscription().catch((err) => {
-        console.error(err);
-      });
-      setTimeout(() => {
-        createTwitchChatSubscription().catch((err) => {
-          console.error(err);
-        });
-      }, 5000);
       return new NextResponse(notification.challenge, {
         status: 200,
         headers: { "Content-Type": `${notification.challenge.length}` },
@@ -78,11 +132,21 @@ export async function POST(req: Request): Promise<NextResponse> {
       console.error("Failed to parse webhook verification payload:", error);
       return new NextResponse(null, { status: 400 });
     }
+  }
+  const notification = bodyJson as TwitchWebhookPayload;
+  if (notification.subscription.type == "channel.chat.message") {
+    const splitMessage = notification.event.message.text.split(" ");
+    if (splitMessage[0] == "!sr") {
+      await addSongToUser(userID, splitMessage[1]);
+    }
+    console.log(splitMessage);
   } else {
     console.log("NEW TWITCH");
-    console.log(req);
-    console.log(await req.json());
+    console.log(bodyJson);
   }
-
   return new NextResponse(null, { status: 200 });
 }
+
+export const config = {
+  runtime: "nodejs",
+};

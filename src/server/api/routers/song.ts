@@ -18,6 +18,7 @@ interface ISubscriptedUser {
 const subscripedUsers: Record<string, ISubscriptedUser> = {};
 
 const userID = "cm6i06a590000ihf1liidcap0";
+/*
 const url1 = "https://www.youtube.com/watch?v=UxKvf4e6Nso";
 const url2 = "https://www.youtube.com/watch?v=0u1a1lF02Ac";
 
@@ -29,9 +30,11 @@ await addSongToUser(userID, url1);
 await addSongToUser(userID, url2);
 await addSongToUser(userID, url1);
 await addSongToUser(userID, url2);
+*/
 
 export const songRouter = createTRPCRouter({
   nextSong: publicProcedure.query(async () => {
+    console.log(subscripedUsers);
     if (!(userID in subscripedUsers)) {
       return null;
     }
@@ -83,7 +86,7 @@ export const songRouter = createTRPCRouter({
   }),
 });
 
-async function addSongToUser(userID: string, url: string) {
+export async function addSongToUser(userID: string, url: string) {
   if (!(userID in subscripedUsers)) {
     const emitter = new EventEmitter();
     subscripedUsers[userID] = {
@@ -93,6 +96,7 @@ async function addSongToUser(userID: string, url: string) {
   }
   const videoInfo = await getYouTubeInfo(url);
   const videoBlob = await getYouTubeVideo(url);
+  console.log("song added");
   subscripedUsers[userID]?.songs.push({
     videoInfo: videoInfo,
     blob: videoBlob.toString("base64"),
@@ -105,6 +109,7 @@ function getYouTubeInfo(url: string): Promise<IVideoInfo> {
 }
 
 function getYouTubeVideo(url: string): Promise<Buffer> {
+  console.log("adding song");
   return new Promise((resolve, _) => {
     const stream = ytdl(url, {
       filter: "audio",
@@ -120,6 +125,6 @@ function getYouTubeVideo(url: string): Promise<Buffer> {
   });
 }
 
-function skipSong(userID: string) {
+export function skipSong(userID: string) {
   subscripedUsers[userID]?.eventEmitter.emit("skip");
 }
