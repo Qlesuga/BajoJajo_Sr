@@ -42,7 +42,6 @@ export const songRouter = createTRPCRouter({
       };
     }
     const songs = subscripedUsers[userID].songs;
-    console.log(songs);
     if (songs.length == 0) {
       return null;
     }
@@ -53,7 +52,6 @@ export const songRouter = createTRPCRouter({
       }
     }
     const song = songs[0];
-    console.log(song);
     const { videoDetails } = song!.videoInfo;
     const { title, lengthSeconds, ownerChannelName, thumbnails } = videoDetails;
     song!.status = "playing";

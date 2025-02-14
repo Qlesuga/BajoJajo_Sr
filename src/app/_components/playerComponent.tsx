@@ -2,7 +2,9 @@
 
 import { Card, CardBody, Progress, Image, CardFooter } from "@heroui/react";
 
-import { useState, useEffect, MutableRefObject } from "react";
+import { useState, useEffect } from "react";
+import type { MutableRefObject } from "react";
+
 interface PlayerComponentProps {
   name: string;
   artist: string;
@@ -46,6 +48,11 @@ function PlayerComponent({
     }
     return () => clearInterval(timer);
   }, [isRunning]);
+  useEffect(() => {
+    if (time >= length) {
+      getNextSong();
+    }
+  }, [time]);
   return (
     <Card
       className="h-144 w-screen"
