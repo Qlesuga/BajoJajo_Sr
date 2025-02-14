@@ -50,6 +50,10 @@ const Player: React.FC = () => {
         URL.createObjectURL(b64toBlob(songQueue[0]!.songBlob, "audio/mp3")),
       );
       audioRef.current.loop = false;
+      audioRef.current.volume = 0.2;
+      audioRef.current.play().catch((err) => {
+        console.error(err);
+      });
     }
 
     return () => {
@@ -65,10 +69,11 @@ const Player: React.FC = () => {
     if (songQueue.length > 0 && audioRef.current) {
       audioRef.current.pause();
     }
+    console.log(songQueue);
     setSongQueue((prevQueue) => prevQueue.slice(1));
     void refetch();
   };
-
+  console.log(songQueue);
   if (
     songQueue.length === 0 ||
     !audioRef.current ||

@@ -136,7 +136,7 @@ export async function POST(req: Request): Promise<NextResponse> {
     const splitMessage = notification.event.message.text.split(" ");
     if (splitMessage[0] == "!sr") {
       console.log("song requested");
-      await addSongToUser(userID, splitMessage[1]);
+      await addSongToUser(userID, splitMessage[1]!);
     } else if (splitMessage[0] == "!skip") {
       console.log("skip");
       skipSong(userID);

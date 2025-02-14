@@ -21,18 +21,17 @@ function PlayerComponent({
   getNextSong,
 }: PlayerComponentProps) {
   const [time, setTime] = useState<number>(0);
-  const [isRunning, setIsRunning] = useState(false);
+  const [isRunning, setIsRunning] = useState(true);
+
   const playAudio = () => {
     audio.current.play().catch((e) => console.log(e));
     setIsRunning(true);
   };
+
   const stopAudio = () => {
     audio.current.pause();
     setIsRunning(false);
   };
-  useEffect(() => {
-    stopAudio();
-  }, []);
 
   useEffect(() => {
     let timer: NodeJS.Timeout = setInterval(() => {

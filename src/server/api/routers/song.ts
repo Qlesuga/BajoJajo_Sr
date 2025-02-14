@@ -49,7 +49,7 @@ export const songRouter = createTRPCRouter({
     if (songs[0]!.status == "playing") {
       songs.shift();
       if (songs.length == 0) {
-        return;
+        return null;
       }
     }
     const song = songs[0];
@@ -78,12 +78,11 @@ export const songRouter = createTRPCRouter({
         songs: [],
       };
     }
-    console.log(emitter);
     for await (const type of on(emitter, "emit", {
       signal: opts.signal,
     })) {
       console.info("XD");
-      yield { type: type[0] };
+      yield { type: type[0] as string };
     }
   }),
 });
