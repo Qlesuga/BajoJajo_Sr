@@ -27,6 +27,10 @@ const Player: React.FC = () => {
       console.log(data);
       if (data.type == "skip") {
         playNextSong();
+      } else if (data.type == "new_song") {
+        if (songQueue.length < 2) {
+          void refetch();
+        }
       }
     },
   });

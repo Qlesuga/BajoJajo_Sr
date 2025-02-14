@@ -2,7 +2,6 @@ import ytdl from "@distube/ytdl-core";
 import type { videoInfo as IVideoInfo } from "@distube/ytdl-core";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { EventEmitter, on } from "stream";
-import { auth } from "~/server/auth";
 
 interface ISong {
   videoInfo: IVideoInfo;
@@ -17,7 +16,7 @@ interface ISubscriptedUser {
 
 const subscripedUsers: Record<string, ISubscriptedUser> = {};
 
-const userID = "cm6i06a590000ihf1liidcap0";
+export const userID = "cm6i06a590000ihf1liidcap0";
 /*
 const url1 = "https://www.youtube.com/watch?v=UxKvf4e6Nso";
 const url2 = "https://www.youtube.com/watch?v=0u1a1lF02Ac";
@@ -79,10 +78,12 @@ export const songRouter = createTRPCRouter({
         songs: [],
       };
     }
-    for await (const [] of on(emitter, "skip", {
+    console.log(emitter);
+    for await (const type of on(emitter, "emit", {
       signal: opts.signal,
     })) {
-      yield { type: "skip" };
+      console.info("XD");
+      yield { type: type[0] };
     }
   }),
 });
@@ -103,6 +104,7 @@ export async function addSongToUser(userID: string, url: string) {
     blob: videoBlob.toString("base64"),
     status: "pending",
   });
+  subscripedUsers[userID]?.eventEmitter.emit("emit", "new_song");
 }
 
 function getYouTubeInfo(url: string): Promise<IVideoInfo> {
@@ -127,5 +129,5 @@ function getYouTubeVideo(url: string): Promise<Buffer> {
 }
 
 export function skipSong(userID: string) {
-  subscripedUsers[userID]?.eventEmitter.emit("skip");
+  subscripedUsers[userID]?.eventEmitter.emit("emit", "skip");
 }

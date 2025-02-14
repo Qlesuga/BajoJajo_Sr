@@ -2,7 +2,7 @@
 
 import { NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { addSongToUser, skipSong } from "~/server/api/routers/song";
+import { addSongToUser, skipSong, userID } from "~/server/api/routers/song";
 
 // Type definitions for Twitch webhook payloads
 interface TwitchWebhookHeaders {
@@ -75,8 +75,6 @@ type TwitchWebhookPayload = {
   subscription: Subscription;
   event: Event;
 };
-
-const userID = "cm6i06a590000ihf1liidcap0";
 
 function getHmac(secret: string, message: string): string {
   return createHmac("sha256", secret).update(message).digest("hex");
