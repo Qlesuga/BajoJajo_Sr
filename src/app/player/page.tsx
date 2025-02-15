@@ -6,6 +6,7 @@ import PlayerComponent from "../_components/playerComponent";
 import { b64toBlob } from "~/utils/stringB64ToBlob";
 import { useEffect, useState, useRef } from "react";
 import type { MutableRefObject } from "react";
+
 interface ISong {
   songTitle: string;
   songAuthor: string;
@@ -15,12 +16,13 @@ interface ISong {
 }
 
 const Player: React.FC = () => {
-  const [songQueue, setSongQueue] = useState<ISong[]>([]);
+  const [currentSong, setCurrentSong] = useState<ISong | null>(null);
+  const [nextSong, setNextSong] = useState<ISong | null>(null);
+  const audioRef = useRef<HTMLAudioElement | undefined>();
+
   const { data, refetch } = api.song.nextSong.useQuery(undefined, {
     enabled: true,
   });
-
-  const audioRef = useRef<HTMLAudioElement | undefined>();
 
   api.song.songSubscription.useSubscription(undefined, {
     onData: (data) => {
@@ -28,7 +30,7 @@ const Player: React.FC = () => {
       if (data.type == "skip") {
         playNextSong();
       } else if (data.type == "new_song") {
-        if (songQueue.length < 2) {
+        if (!nextSong) {
           void refetch();
         }
       }
@@ -36,18 +38,25 @@ const Player: React.FC = () => {
   });
 
   useEffect(() => {
-    if (data && !songQueue.some((song) => song.songTitle === data.songTitle)) {
-      setSongQueue((prevQueue) => [...prevQueue, data].slice(-2));
+    if (data) {
+      if (!currentSong) {
+        setCurrentSong(data);
+      } else if (!nextSong && data.songTitle !== currentSong.songTitle) {
+        setNextSong(data);
+      }
     }
-  }, [data]);
+  }, [data, currentSong, nextSong]);
 
   useEffect(() => {
-    if (songQueue.length < 2) {
+    if (!nextSong) {
       void refetch();
     }
-    if (songQueue.length > 0) {
+  }, [nextSong, refetch]);
+
+  useEffect(() => {
+    if (currentSong) {
       audioRef.current = new Audio(
-        URL.createObjectURL(b64toBlob(songQueue[0]!.songBlob, "audio/mp3")),
+        URL.createObjectURL(b64toBlob(currentSong.songBlob, "audio/mp3")),
       );
       audioRef.current.loop = false;
       audioRef.current.volume = 0.2;
@@ -63,33 +72,33 @@ const Player: React.FC = () => {
         URL.revokeObjectURL(src);
       }
     };
-  }, [songQueue, refetch]);
+  }, [currentSong]);
 
   const playNextSong = (): void => {
-    if (songQueue.length > 0 && audioRef.current) {
+    if (audioRef.current) {
       audioRef.current.pause();
     }
-    console.log(songQueue);
-    setSongQueue((prevQueue) => prevQueue.slice(1));
+    if (nextSong) {
+      setCurrentSong(nextSong);
+      setNextSong(null);
+    } else {
+      setCurrentSong(null);
+    }
     void refetch();
   };
-  console.log(songQueue);
-  if (
-    songQueue.length === 0 ||
-    !audioRef.current ||
-    songQueue[0] === undefined
-  ) {
-    return <div className="w-full dark">Loading</div>;
+
+  if (!currentSong || !audioRef.current) {
+    return <div className="w-full dark">Loading or empty queue</div>;
   }
 
   return (
     <div className="w-full dark">
       <PlayerComponent
-        key={songQueue[0].songTitle}
-        name={songQueue[0].songTitle}
-        artist={songQueue[0].songAuthor}
-        length={songQueue[0].songLength}
-        image={songQueue[0].songThumbnail}
+        key={currentSong.songTitle}
+        name={currentSong.songTitle}
+        artist={currentSong.songAuthor}
+        length={currentSong.songLength}
+        image={currentSong.songThumbnail}
         audio={audioRef as MutableRefObject<HTMLAudioElement>}
         getNextSong={playNextSong}
       />

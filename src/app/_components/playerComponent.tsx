@@ -25,6 +25,10 @@ function PlayerComponent({
   const [time, setTime] = useState<number>(0);
   const [isRunning, setIsRunning] = useState(true);
 
+  useEffect(() => {
+    setTime(0);
+  }, []);
+
   const playAudio = () => {
     audio.current.play().catch((e) => console.log(e));
     setIsRunning(true);

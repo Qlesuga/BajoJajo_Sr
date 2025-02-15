@@ -2,6 +2,7 @@ import ytdl from "@distube/ytdl-core";
 import type { videoInfo as IVideoInfo } from "@distube/ytdl-core";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { EventEmitter, on } from "stream";
+import { randomBytes } from "crypto";
 
 interface ISong {
   videoInfo: IVideoInfo;
