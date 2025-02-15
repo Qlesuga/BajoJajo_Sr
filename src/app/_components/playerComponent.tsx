@@ -4,6 +4,7 @@ import { Card, CardBody, Progress, Image, CardFooter } from "@heroui/react";
 
 import { useState, useEffect } from "react";
 import type { MutableRefObject } from "react";
+import MarqueeText from "./MarqueeText";
 
 interface PlayerComponentProps {
   name: string;
@@ -68,8 +69,8 @@ function PlayerComponent({
         <div className="flex h-full w-full flex-row gap-8">
           <Image src={image} alt="thumbnail" width={168} />
           <div className="flex flex-grow flex-col">
-            <p>{name}</p>
-            <p>{artist}</p>
+            <MarqueeText>{name}</MarqueeText>
+            <MarqueeText>{artist}</MarqueeText>
             <Progress
               label={`${time}/${length}`}
               value={(time / length) * 100}
