@@ -1,7 +1,7 @@
 import { getTwitchAppAccessToken } from "./twitchAuth";
 import { getTwitchConduitId } from "./twitchConduit";
 
-export async function createTwitchChatSubscription() {
+export async function createTwitchChatSubscription(broadcasterUserId: string) {
   const twitchAppToken = await getTwitchAppAccessToken();
   const conduitID = await getTwitchConduitId();
   const response = await fetch(
@@ -18,7 +18,7 @@ export async function createTwitchChatSubscription() {
         version: "1",
         condition: {
           "content-type": "application/json",
-          broadcaster_user_id: "1245134202",
+          broadcaster_user_id: broadcasterUserId,
           user_id: "1245134202",
         },
         transport: {

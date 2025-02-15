@@ -1,9 +1,8 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { type DefaultSession, type NextAuthConfig } from "next-auth";
+import type { Account, User, DefaultSession, NextAuthConfig } from "next-auth";
 import TwitchProvider from "next-auth/providers/twitch";
-
 import { db } from "~/server/db";
-
+import { createTwitchChatSubscription } from "~/utils/twitchChatSubscription";
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.
@@ -35,6 +34,11 @@ export const authConfig = {
     TwitchProvider({
       clientId: process.env.TWITCH_CLIENT_ID,
       clientSecret: process.env.TWITCH_CLIENT_SECRET,
+      authorization: {
+        params: {
+          scope: "chat:read channel:bot openid user:read:email",
+        },
+      },
     }),
   ],
   adapter: PrismaAdapter(db),
@@ -46,5 +50,14 @@ export const authConfig = {
         id: user.id,
       },
     }),
+  },
+  events: {
+    linkAccount: async (message: {
+      user: User;
+      account: Account;
+      profile: User;
+    }) => {
+      await createTwitchChatSubscription(message.account.providerAccountId);
+    },
   },
 } satisfies NextAuthConfig;
