@@ -91,7 +91,7 @@ const Player: React.FC = () => {
     void refetch();
   };
 
-  if (!currentSong || !audioRef.current) {
+  if (!currentSong) {
     return <div className="w-full dark">Loading or empty queue</div>;
   }
 
