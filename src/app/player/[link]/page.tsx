@@ -2,10 +2,11 @@
 
 import "~/styles/player.css";
 import { api } from "~/trpc/react";
-import PlayerComponent from "../_components/playerComponent";
+import PlayerComponent from "../../_components/playerComponent";
 import { b64toBlob } from "~/utils/stringB64ToBlob";
 import { useEffect, useState, useRef } from "react";
 import type { MutableRefObject } from "react";
+import { useParams } from "next/navigation";
 
 interface ISong {
   songTitle: string;
@@ -16,15 +17,18 @@ interface ISong {
 }
 
 const Player: React.FC = () => {
+  const params = useParams<{ link: string }>();
+  const userLink = useRef(params.link);
+  console.log(userLink.current);
   const [currentSong, setCurrentSong] = useState<ISong | null>(null);
   const [nextSong, setNextSong] = useState<ISong | null>(null);
   const audioRef = useRef<HTMLAudioElement | undefined>();
 
-  const { data, refetch } = api.song.nextSong.useQuery(undefined, {
+  const { data, refetch } = api.song.nextSong.useQuery(userLink.current, {
     enabled: true,
   });
 
-  api.song.songSubscription.useSubscription(undefined, {
+  api.song.songSubscription.useSubscription(userLink.current, {
     onData: (data) => {
       console.log(data);
       if (data.type == "skip") {

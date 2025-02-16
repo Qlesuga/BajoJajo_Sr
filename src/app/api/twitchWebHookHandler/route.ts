@@ -2,7 +2,7 @@
 
 import { NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { addSongToUser, skipSong, userID } from "~/server/api/routers/song";
+import { addSongToUser, skipSong } from "~/server/api/routers/song";
 
 interface TwitchWebhookHeaders {
   "twitch-eventsub-message-id"?: string;
@@ -87,7 +87,6 @@ function verifyMessage(hmac: string, verifySignature?: string): boolean {
     return false;
   }
 }
-
 export async function POST(req: Request): Promise<NextResponse> {
   const secret = process.env.TWITCH_WEBHOOK_SECRET;
 
@@ -130,7 +129,10 @@ export async function POST(req: Request): Promise<NextResponse> {
       return new NextResponse(null, { status: 400 });
     }
   }
+
   const notification = bodyJson as TwitchWebhookPayload;
+  const userID = notification.event.broadcaster_user_id;
+  console.log(userID);
   if (notification.subscription.type == "channel.chat.message") {
     const splitMessage = notification.event.message.text.split(" ");
     if (splitMessage[0] == "!sr") {

@@ -2,7 +2,8 @@ import ytdl from "@distube/ytdl-core";
 import type { videoInfo as IVideoInfo } from "@distube/ytdl-core";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { EventEmitter, on } from "stream";
-import { randomBytes } from "crypto";
+import { z } from "zod";
+import { db } from "~/server/db";
 
 interface ISong {
   videoInfo: IVideoInfo;
@@ -17,10 +18,34 @@ interface ISubscriptedUser {
 
 const subscripedUsers: Record<string, ISubscriptedUser> = {};
 
-export const userID = "cm6i06a590000ihf1liidcap0";
-
 export const songRouter = createTRPCRouter({
-  nextSong: publicProcedure.query(async () => {
+  nextSong: publicProcedure.input(z.string()).query(async (opts) => {
+    const userLink = opts.input;
+
+    const findUserFromLink = await db.userPlayerLink.findFirst({
+      select: {
+        user: {
+          select: {
+            accounts: {
+              select: {
+                providerAccountId: true,
+              },
+            },
+          },
+        },
+      },
+      where: {
+        link: userLink,
+      },
+    });
+    if (!findUserFromLink) {
+      return null;
+    }
+    if (findUserFromLink.user.accounts.length == 0) {
+      return null;
+    }
+    const userID = findUserFromLink.user.accounts[0]!.providerAccountId;
+    console.log(userID);
     console.log("SONG REQUESTED");
     if (!(userID in subscripedUsers)) {
       const emitter = new EventEmitter();
@@ -29,7 +54,7 @@ export const songRouter = createTRPCRouter({
         songs: [],
       };
     }
-    const songs = subscripedUsers[userID].songs;
+    const songs = subscripedUsers[userID]!.songs;
     if (songs.length == 0) {
       return null;
     }
@@ -53,23 +78,51 @@ export const songRouter = createTRPCRouter({
     };
   }),
 
-  songSubscription: publicProcedure.subscription(async function* (opts) {
-    let emitter: EventEmitter;
-    if (userID in subscripedUsers) {
-      emitter = subscripedUsers[userID].eventEmitter;
-    } else {
-      emitter = new EventEmitter();
-      subscripedUsers[userID] = {
-        eventEmitter: emitter,
-        songs: [],
-      };
-    }
-    for await (const type of on(emitter, "emit", {
-      signal: opts.signal,
-    })) {
-      yield { type: type[0] as string };
-    }
-  }),
+  songSubscription: publicProcedure
+    .input(z.string())
+    .subscription(async function* (opts) {
+      const userLink = opts.input;
+
+      const findUserFromLink = await db.userPlayerLink.findFirst({
+        select: {
+          user: {
+            select: {
+              accounts: {
+                select: {
+                  providerAccountId: true,
+                },
+              },
+            },
+          },
+        },
+        where: {
+          link: userLink,
+        },
+      });
+      if (!findUserFromLink) {
+        return;
+      }
+      if (findUserFromLink.user.accounts.length == 0) {
+        return;
+      }
+      const userID = findUserFromLink.user.accounts[0]!.providerAccountId;
+
+      let emitter: EventEmitter;
+      if (userID in subscripedUsers) {
+        emitter = subscripedUsers[userID]!.eventEmitter;
+      } else {
+        emitter = new EventEmitter();
+        subscripedUsers[userID] = {
+          eventEmitter: emitter,
+          songs: [],
+        };
+      }
+      for await (const type of on(emitter, "emit", {
+        signal: opts.signal,
+      })) {
+        yield { type: type[0] as string };
+      }
+    }),
 });
 
 export async function addSongToUser(userID: string, url: string) {
