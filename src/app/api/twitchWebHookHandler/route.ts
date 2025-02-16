@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { addSongToUser, skipSong, userID } from "~/server/api/routers/song";
 
-// Type definitions for Twitch webhook payloads
 interface TwitchWebhookHeaders {
   "twitch-eventsub-message-id"?: string;
   "twitch-eventsub-message-timestamp"?: string;

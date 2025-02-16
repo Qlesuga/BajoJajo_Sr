@@ -18,19 +18,6 @@ interface ISubscriptedUser {
 const subscripedUsers: Record<string, ISubscriptedUser> = {};
 
 export const userID = "cm6i06a590000ihf1liidcap0";
-/*
-const url1 = "https://www.youtube.com/watch?v=UxKvf4e6Nso";
-const url2 = "https://www.youtube.com/watch?v=0u1a1lF02Ac";
-
-await addSongToUser(userID, url1);
-await addSongToUser(userID, url2);
-await addSongToUser(userID, url1);
-await addSongToUser(userID, url2);
-await addSongToUser(userID, url1);
-await addSongToUser(userID, url2);
-await addSongToUser(userID, url1);
-await addSongToUser(userID, url2);
-*/
 
 export const songRouter = createTRPCRouter({
   nextSong: publicProcedure.query(async () => {
@@ -80,7 +67,6 @@ export const songRouter = createTRPCRouter({
     for await (const type of on(emitter, "emit", {
       signal: opts.signal,
     })) {
-      console.info("XD");
       yield { type: type[0] as string };
     }
   }),

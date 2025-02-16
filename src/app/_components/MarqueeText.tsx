@@ -14,7 +14,7 @@ const MarqueeText = ({ children }: MarqueeTextProps) => {
         textRef.current.scrollWidth > containerRef.current.clientWidth;
       setShouldAnimate(isOverflowing);
     }
-  }, [children]); // Re-run when content changes
+  }, [children]);
 
   return (
     <div

@@ -52,12 +52,17 @@ export const authConfig = {
     }),
   },
   events: {
-    linkAccount: async (message: {
-      user: User;
-      account: Account;
-      profile: User;
-    }) => {
-      await createTwitchChatSubscription(message.account.providerAccountId);
+    createUser: async ({ user }) => {
+      if (user.id) {
+        await db.userPlayerLink.create({
+          data: {
+            userId: user.id,
+          },
+        });
+      }
+    },
+    linkAccount: async ({ user, account, profile }) => {
+      await createTwitchChatSubscription(account.providerAccountId);
     },
   },
 } satisfies NextAuthConfig;
