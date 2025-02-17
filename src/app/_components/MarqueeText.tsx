@@ -1,11 +1,11 @@
 interface MarqueeTextProps {
-  children: React.ReactText;
+  children: string;
 }
 import { useEffect, useRef, useState } from "react";
 
 const MarqueeText = ({ children }: MarqueeTextProps) => {
-  const textRef = useRef(null);
-  const containerRef = useRef(null);
+  const textRef = useRef<HTMLSpanElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const [shouldAnimate, setShouldAnimate] = useState(false);
 
   useEffect(() => {
