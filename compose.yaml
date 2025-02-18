@@ -11,9 +11,13 @@ services:
       - 5432
     ports:
       - 5432:5432
+    networks:
+      - app-network
 
   next:
     build: .
+    expose:
+      - 3000
     ports:
       - 3000:3000
       - 5555:5555
@@ -25,12 +29,19 @@ services:
       - NODE_ENV=production
     env_file:
       - .env.prod
+    networks:
+      - app-network
 
   cloudflared:
     image: cloudflare/cloudflared:latest
     command: tunnel run
     environment:
       - TUNNEL_TOKEN=${CLOUDFLARE_TOKEN}
+      - TUNNEL_URL=http://next:3000
+    links:
+      - next
+    depends_on:
+      - next
     restart: unless-stopped
     networks:
       - app-network
