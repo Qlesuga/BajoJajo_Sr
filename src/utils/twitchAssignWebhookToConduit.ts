@@ -2,7 +2,7 @@ import { getTwitchAppAccessToken } from "./twitchAuth";
 import { getTwitchConduitId } from "./twitchConduit";
 
 const WEBHOOK_ENDPOINT = "twitchWebHookHandler";
-const URL = "0940-95-160-184-208.ngrok-free.app";
+const URL = process.env.TWITCH_WEBHOOK_ENDPOINT;
 
 export async function twitchAssaignWebhookToConduit() {
   const conduitId = await getTwitchConduitId();
