@@ -5,7 +5,7 @@ WORKDIR /app
 RUN corepack enable
 
 # Copy package.json and package-lock.json (or yarn.lock)
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml .npmrc ./
 COPY prisma ./prisma
 COPY .env.prod .env
 
