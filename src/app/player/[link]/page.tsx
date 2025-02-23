@@ -23,7 +23,7 @@ const Player: React.FC = () => {
   const [currentSong, setCurrentSong] = useState<ISong | null>(null);
   const [nextSong, setNextSong] = useState<ISong | null>(null);
   const audioRef = useRef<HTMLAudioElement | undefined>();
-
+  const volume = useRef(0.5);
   const { data, refetch } = api.song.nextSong.useQuery(userLink.current, {
     enabled: true,
   });
@@ -36,6 +36,11 @@ const Player: React.FC = () => {
       } else if (data.type == "new_song") {
         if (!nextSong) {
           void refetch();
+        }
+      } else if (data.type == "volume") {
+        if (data.value != null && audioRef.current) {
+          volume.current = data.value;
+          audioRef.current.volume = data.value;
         }
       }
     },
@@ -63,7 +68,7 @@ const Player: React.FC = () => {
         URL.createObjectURL(b64toBlob(currentSong.songBlob, "audio/mp3")),
       );
       audioRef.current.loop = false;
-      audioRef.current.volume = 0.2;
+      audioRef.current.volume = volume.current;
       audioRef.current.play().catch((err) => {
         console.error(err);
       });

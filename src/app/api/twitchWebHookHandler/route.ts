@@ -2,7 +2,7 @@
 
 import { NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { addSongToUser, skipSong } from "~/server/api/routers/song";
+import { addSongToUser, setVolume, skipSong } from "~/server/api/routers/song";
 
 interface TwitchWebhookHeaders {
   "twitch-eventsub-message-id"?: string;
@@ -135,14 +135,19 @@ export async function POST(req: Request): Promise<NextResponse> {
   console.log(userID);
   if (notification.subscription.type == "channel.chat.message") {
     const splitMessage = notification.event.message.text.split(" ");
+    console.info(splitMessage);
     if (splitMessage[0] == "!sr") {
       console.log("song requested");
       await addSongToUser(userID, splitMessage[1]!);
     } else if (splitMessage[0] == "!skip") {
       console.log("skip");
       skipSong(userID);
+    } else if (splitMessage[0] == "!volume") {
+      const volume = splitMessage[1];
+      if (volume) {
+        setVolume(userID, parseInt(volume));
+      }
     }
-    console.log(splitMessage);
   } else {
     console.log("NEW TWITCH");
     console.log(bodyJson);

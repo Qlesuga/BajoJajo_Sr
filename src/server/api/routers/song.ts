@@ -4,6 +4,7 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { EventEmitter, on } from "stream";
 import { z } from "zod";
 import { db } from "~/server/db";
+import { user } from "@heroui/react";
 
 interface ISong {
   url: string;
@@ -21,6 +22,9 @@ const subscripedUsers: Record<string, ISubscriptedUser> = {};
 
 export const songRouter = createTRPCRouter({
   nextSong: publicProcedure.input(z.string()).query(async (opts) => {
+    if (process.env.NODE_ENV == "development") {
+      console.log(subscripedUsers);
+    }
     const userLink = opts.input;
 
     const findUserFromLink = await db.userPlayerLink.findFirst({
@@ -100,10 +104,7 @@ export const songRouter = createTRPCRouter({
           link: userLink,
         },
       });
-      if (!findUserFromLink) {
-        return;
-      }
-      if (findUserFromLink.user.accounts.length == 0) {
+      if (!findUserFromLink || findUserFromLink.user.accounts.length == 0) {
         return;
       }
       const userID = findUserFromLink.user.accounts[0]!.providerAccountId;
@@ -118,15 +119,17 @@ export const songRouter = createTRPCRouter({
           songs: [],
         };
       }
-      for await (const type of on(emitter, "emit", {
+      for await (const data of on(emitter, "emit", {
         signal: opts.signal,
       })) {
-        yield { type: type[0] as string };
+        console.log(data);
+        yield data[0] as { type: string; value: number | null };
       }
     }),
 });
 
 export async function addSongToUser(userID: string, url: string) {
+  console.log(userID);
   if (!(userID in subscripedUsers)) {
     const emitter = new EventEmitter();
     subscripedUsers[userID] = {
@@ -147,13 +150,16 @@ export async function addSongToUser(userID: string, url: string) {
   const videoBlob = await getYouTubeVideo(url);
 
   console.log("song added");
+  console.log(subscripedUsers[userID]?.songs.length);
   subscripedUsers[userID]?.songs.push({
     url: url,
     videoInfo: videoInfo,
     blob: videoBlob.toString("base64"),
     status: "pending",
   });
-  subscripedUsers[userID]?.eventEmitter.emit("emit", "new_song");
+  console.log(subscripedUsers);
+  console.log(subscripedUsers[userID]?.songs.length);
+  subscripedUsers[userID]?.eventEmitter.emit("emit", { type: "new_song" });
 }
 
 function getYouTubeInfo(url: string): Promise<IVideoInfo> {
@@ -178,5 +184,15 @@ function getYouTubeVideo(url: string): Promise<Buffer> {
 }
 
 export function skipSong(userID: string) {
-  subscripedUsers[userID]?.eventEmitter.emit("emit", "skip");
+  subscripedUsers[userID]?.eventEmitter.emit("emit", { type: "skip" });
+}
+
+export function setVolume(userID: string, value: number) {
+  if (value > 100 || value < 0) {
+    return;
+  }
+  subscripedUsers[userID]?.eventEmitter.emit("emit", {
+    type: "volume",
+    value: Math.floor(value) / 100,
+  });
 }
