@@ -1,6 +1,6 @@
 "server-only";
 
-import { DiskCache } from "./cache";
+import { RedisCache } from "./cache";
 
 interface TwitchOAuthToken {
   access_token: string;
@@ -11,7 +11,7 @@ interface TwitchOAuthToken {
 const TWITCH_OAUTH_TOKEN_CACHE = "twitch-oauth-token";
 
 export const getTwitchAppAccessToken = async (): Promise<string> => {
-  const authToken = await DiskCache.get<string>(TWITCH_OAUTH_TOKEN_CACHE);
+  const authToken = await RedisCache.get<string>(TWITCH_OAUTH_TOKEN_CACHE);
   if (authToken) {
     return authToken;
   }
@@ -35,7 +35,7 @@ export const getTwitchAppAccessToken = async (): Promise<string> => {
   }
 
   const newTwitchToken = (await response.json()) as TwitchOAuthToken;
-  await DiskCache.set<string>(
+  await RedisCache.set<string>(
     TWITCH_OAUTH_TOKEN_CACHE,
     newTwitchToken.access_token,
     newTwitchToken.expires_in,

@@ -1,64 +1,53 @@
-import fs from "fs/promises";
-import path from "path";
+import { redis } from "lib/redis";
 
 interface CacheEntry<T> {
   data: T;
   timestamp: number;
-  expiersIn: number | null;
+  expiresIn: number | null;
 }
 
-export class DiskCache {
-  private static cacheDir: string = path.join(process.cwd(), ".cache");
-
-  public static async initializeCache(): Promise<void> {
-    try {
-      await fs.mkdir(DiskCache.cacheDir, { recursive: true });
-    } catch (error) {
-      console.error("Failed to initialize cache directory: ", error);
-    }
-  }
-
-  private static getCacheFilePath(key: string): string {
-    return path.join(DiskCache.cacheDir, `${key}.json`);
-  }
-
+export class RedisCache {
   public static async set<T>(
     key: string,
     data: T,
-    expiersIn: number | null = null,
+    expiresIn: number | null = null,
   ): Promise<void> {
-    await DiskCache.initializeCache();
-    const filePath = DiskCache.getCacheFilePath(key);
     const entry: CacheEntry<T> = {
       data,
       timestamp: Date.now(),
-      expiersIn: expiersIn,
+      expiresIn,
     };
 
     try {
-      await fs.writeFile(filePath, JSON.stringify(entry));
+      await redis.set(key, JSON.stringify(entry));
+
+      // If expiration is set, use Redis TTL
+      if (expiresIn) {
+        await redis.expire(key, expiresIn);
+      }
     } catch (error) {
-      console.error("Failed to write to cache: ", error);
+      console.error("Failed to write to Redis cache: ", error);
     }
   }
 
   public static async get<T>(key: string): Promise<T | null> {
-    const filePath = DiskCache.getCacheFilePath(key);
-
     try {
-      const content = await fs.readFile(filePath, "utf-8");
-      // eslint-disable-next-line
+      const content = await redis.get(key);
+      if (!content) return null;
+
       const entry: CacheEntry<T> = JSON.parse(content);
 
       if (
-        entry.expiersIn != null &&
-        Date.now() - entry.timestamp > entry.expiersIn * 1000
+        entry.expiresIn != null &&
+        Date.now() - entry.timestamp > entry.expiresIn * 1000 - 1000
       ) {
+        await redis.del(key);
         return null;
       }
 
       return entry.data;
     } catch (error) {
+      console.error(error);
       return null;
     }
   }

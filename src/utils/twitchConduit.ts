@@ -1,4 +1,4 @@
-import { DiskCache } from "./cache";
+import { RedisCache } from "./cache";
 import { getTwitchAppAccessToken } from "./twitchAuth";
 
 const CACHE_TWITCH_CONDUIT_ID = "twitch-conduit-id";
@@ -11,7 +11,7 @@ interface TwitchCreateConduitResponse {
 
 let isConduitValidated = false;
 export async function getTwitchConduitId(): Promise<string> {
-  const conduitId = await DiskCache.get<string>(CACHE_TWITCH_CONDUIT_ID);
+  const conduitId = await RedisCache.get<string>(CACHE_TWITCH_CONDUIT_ID);
   if (conduitId && isConduitValidated) {
     return conduitId;
   }
@@ -32,7 +32,7 @@ export async function getTwitchConduitId(): Promise<string> {
   ).data;
   if (conduits.length == 1) {
     isConduitValidated = true;
-    await DiskCache.set<string>(CACHE_TWITCH_CONDUIT_ID, conduits[0].id);
+    await RedisCache.set<string>(CACHE_TWITCH_CONDUIT_ID, conduits[0].id);
     return conduits[0].id;
   } else if (conduits.length > 1) {
     console.error("MORE THAN 1 CONDUIT FOUND, CLEANING UP");
@@ -68,7 +68,7 @@ export async function getTwitchConduitId(): Promise<string> {
   });
   const createConduitResponseBody: TwitchCreateConduitResponse =
     (await createConduitResponse.json()) as TwitchCreateConduitResponse;
-  await DiskCache.set<string>(
+  await RedisCache.set<string>(
     CACHE_TWITCH_CONDUIT_ID,
     createConduitResponseBody.data[0].id,
   );

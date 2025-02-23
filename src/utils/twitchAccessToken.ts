@@ -1,4 +1,4 @@
-import { DiskCache } from "./cache";
+import { RedisCache } from "./cache";
 
 interface RefreshTokenResponse {
   access_token: string;
@@ -11,7 +11,7 @@ interface RefreshTokenResponse {
 const CACHE_ACCESS_TOKEN = "twitch-access-token";
 
 export async function getTwitchAccessToken(): Promise<string> {
-  const accessToken = await DiskCache.get<string>(CACHE_ACCESS_TOKEN);
+  const accessToken = await RedisCache.get<string>(CACHE_ACCESS_TOKEN);
   if (accessToken) {
     return accessToken;
   }
@@ -30,7 +30,7 @@ export async function getTwitchAccessToken(): Promise<string> {
   });
   const body = (await res.json()) as RefreshTokenResponse;
   console.log(body);
-  await DiskCache.set<string>(
+  await RedisCache.set<string>(
     CACHE_ACCESS_TOKEN,
     body.access_token,
     body.expires_in,
