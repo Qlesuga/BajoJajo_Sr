@@ -6,6 +6,7 @@ import { z } from "zod";
 import { db } from "~/server/db";
 
 interface ISong {
+  url: string;
   videoInfo: IVideoInfo;
   blob: string;
   status: "playing" | "pending";
@@ -133,10 +134,21 @@ export async function addSongToUser(userID: string, url: string) {
       songs: [],
     };
   }
+  if (process.env.NODE_ENV != "development") {
+    const isAlreadyInQueue = subscripedUsers[userID]!.songs.some((song) => {
+      return song.url == url;
+    });
+
+    if (isAlreadyInQueue) {
+      return;
+    }
+  }
   const videoInfo = await getYouTubeInfo(url);
   const videoBlob = await getYouTubeVideo(url);
+
   console.log("song added");
   subscripedUsers[userID]?.songs.push({
+    url: url,
     videoInfo: videoInfo,
     blob: videoBlob.toString("base64"),
     status: "pending",
