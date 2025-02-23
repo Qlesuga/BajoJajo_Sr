@@ -9,7 +9,7 @@ export default async function Home() {
 
   return (
     <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gray-900 text-white">
+      <main className="flex min-h-screen flex-col items-center bg-gray-900 pt-4 text-white">
         <Image src="/smoleg.webp" alt="smoleg" width={250} height={250} />
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-4">
           <div className="flex flex-col items-center gap-2">

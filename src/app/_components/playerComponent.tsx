@@ -75,7 +75,9 @@ function PlayerComponent({
               label={`${time}/${length}`}
               value={(time / length) * 100}
               size="md"
-              classNames={{ indicator: "!duration-900 !ease-linear" }}
+              classNames={{
+                indicator: "!duration-900 !ease-linear",
+              }}
             />
           </div>
         </div>
