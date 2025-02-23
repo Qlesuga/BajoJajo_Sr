@@ -43,13 +43,30 @@ export const authConfig = {
   ],
   adapter: PrismaAdapter(db),
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
+    session: async ({ session, user }) => {
+      let userPlayerLink = await db.userPlayerLink.findFirst({
+        where: {
+          userId: user.id,
+        },
+      });
+
+      if (!userPlayerLink) {
+        userPlayerLink = await db.userPlayerLink.create({
+          data: {
+            userId: user.id,
+          },
+        });
+      }
+
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: user.id,
+          userLink: userPlayerLink?.link,
+        },
+      };
+    },
   },
   events: {
     createUser: async ({ user }) => {
