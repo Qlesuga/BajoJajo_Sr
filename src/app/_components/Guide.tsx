@@ -32,7 +32,10 @@ function Guide() {
             <p>6. Check control audio via obs</p>
             <Image src="/Guide3.jpg" alt="guide 3" width={1280} height={720} />
             <p>7. Open advanced audio properties </p>
-            <p>8. set audio monitoring for player to "monitor and output"</p>
+            <p>
+              8. set audio monitoring for player to &quot;monitor and
+              output&quot;
+            </p>
             <Image src="/Guide4.jpg" alt="guide 4" width={1280} height={720} />
           </ModalBody>
         </ModalContent>

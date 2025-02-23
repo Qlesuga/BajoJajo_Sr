@@ -15,7 +15,7 @@ export default async function Home() {
           <div className="flex flex-col items-center gap-2">
             {session ? (
               <LogedInDashboard
-                userName={session.user.name}
+                userName={session.user.name ?? ""}
                 userLink={session.user.userLink}
               />
             ) : (
