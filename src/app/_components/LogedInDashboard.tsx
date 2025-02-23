@@ -2,6 +2,7 @@
 
 import { Button } from "@heroui/react";
 import Link from "next/link";
+import Guide from "./Guide";
 
 interface LogedInDashboardProps {
   userName: string;
@@ -36,6 +37,7 @@ const LogedInDashboard = ({ userName, userLink }: LogedInDashboardProps) => {
       </Button>
       <div className="flex flex-col items-center">
         <Button onPress={CopyPlayerLink}>COPY PLAYER LINK</Button>
+        <Guide />
       </div>
     </div>
   );
