@@ -5,6 +5,7 @@ import { EventEmitter, on } from "stream";
 import { z } from "zod";
 import { db } from "~/server/db";
 import { user } from "@heroui/react";
+import { containsBannedString } from "~/utils/twitchBannedRegex";
 
 interface ISong {
   url: string;
@@ -131,6 +132,7 @@ export const songRouter = createTRPCRouter({
 const ADD_SONG_SUCCESS_MESSAGE = (title: string) =>
   `successfully added "${title}" to queue`;
 const ADD_SONG_ALREADY_IN_QUEUE = "already in queue";
+const ADD_SONG_BANNED_WORD_IN_TITLE = "song contains banned word in title";
 export async function addSongToUser(
   userID: string,
   url: string,
@@ -153,6 +155,10 @@ export async function addSongToUser(
     }
   }
   const videoInfo = await getYouTubeInfo(url);
+  const title = videoInfo.videoDetails.title;
+  if (containsBannedString(title)) {
+    return ADD_SONG_BANNED_WORD_IN_TITLE;
+  }
   const videoBlob = await getYouTubeVideo(url);
 
   console.log("song added");
@@ -166,7 +172,7 @@ export async function addSongToUser(
   console.log(subscripedUsers);
   console.log(subscripedUsers[userID]?.songs.length);
   subscripedUsers[userID]?.eventEmitter.emit("emit", { type: "new_song" });
-  return ADD_SONG_SUCCESS_MESSAGE(videoInfo.videoDetails.title);
+  return ADD_SONG_SUCCESS_MESSAGE(title);
 }
 
 function getYouTubeInfo(url: string): Promise<IVideoInfo> {

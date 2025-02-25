@@ -152,7 +152,11 @@ export async function POST(req: Request): Promise<NextResponse> {
       responseMessage = "pong :3";
     }
     if (responseMessage) {
-      await twitchSendChatMessage(broadcasterID, responseMessage);
+      await twitchSendChatMessage(
+        broadcasterID,
+        responseMessage,
+        notification.event.message_id,
+      );
     }
   }
   return new NextResponse(null, { status: 200 });
