@@ -128,7 +128,13 @@ export const songRouter = createTRPCRouter({
     }),
 });
 
-export async function addSongToUser(userID: string, url: string) {
+const ADD_SONG_SUCCESS_MESSAGE = (title: string) =>
+  `successfully added "${title}" to queue`;
+const ADD_SONG_ALREADY_IN_QUEUE = "already in queue";
+export async function addSongToUser(
+  userID: string,
+  url: string,
+): Promise<string> {
   console.log(userID);
   if (!(userID in subscripedUsers)) {
     const emitter = new EventEmitter();
@@ -143,7 +149,7 @@ export async function addSongToUser(userID: string, url: string) {
     });
 
     if (isAlreadyInQueue) {
-      return;
+      return ADD_SONG_ALREADY_IN_QUEUE;
     }
   }
   const videoInfo = await getYouTubeInfo(url);
@@ -160,6 +166,7 @@ export async function addSongToUser(userID: string, url: string) {
   console.log(subscripedUsers);
   console.log(subscripedUsers[userID]?.songs.length);
   subscripedUsers[userID]?.eventEmitter.emit("emit", { type: "new_song" });
+  return ADD_SONG_SUCCESS_MESSAGE(videoInfo.videoDetails.title);
 }
 
 function getYouTubeInfo(url: string): Promise<IVideoInfo> {
@@ -183,16 +190,23 @@ function getYouTubeVideo(url: string): Promise<Buffer> {
   });
 }
 
-export function skipSong(userID: string) {
+const SKIP_SONG_SUCCESS_MESSAGE = "successfully skiped a song";
+export function skipSong(userID: string): string {
   subscripedUsers[userID]?.eventEmitter.emit("emit", { type: "skip" });
+  return SKIP_SONG_SUCCESS_MESSAGE;
 }
 
-export function setVolume(userID: string, value: number) {
-  if (value > 100 || value < 0) {
-    return;
+const SET_VOLUME_ERROR_MESSAGE = "volume must be a number between 0 and 100";
+const SET_VOLUME_SUCCESS_MESSAGE = "volume got set to:";
+export function setVolume(userID: string, value: string): string {
+  const volume = parseInt(value);
+
+  if (isNaN(volume) || volume > 100 || volume < 0) {
+    return SET_VOLUME_ERROR_MESSAGE;
   }
   subscripedUsers[userID]?.eventEmitter.emit("emit", {
     type: "volume",
-    value: Math.floor(value) / 100,
+    value: Math.floor(volume) / 100,
   });
+  return `${SET_VOLUME_SUCCESS_MESSAGE} ${volume}%`;
 }

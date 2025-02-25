@@ -14,7 +14,7 @@ async function twitchSendChatMessage(
     reply_parent_message_id: parentMessageId,
   };
 
-  await fetch("https://api.twitch.tv/helix/chat/messages", {
+  const response = await fetch("https://api.twitch.tv/helix/chat/messages", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${twitchAppToken}`,

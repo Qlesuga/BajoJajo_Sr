@@ -137,29 +137,23 @@ export async function POST(req: Request): Promise<NextResponse> {
   const broadcasterID = notification.event.broadcaster_user_id;
   if (notification.subscription.type == "channel.chat.message") {
     const splitMessage = notification.event.message.text.split(" ");
+    let responseMessage: string | null = null;
     console.info(splitMessage);
     if (splitMessage[0] == "!sr") {
-      console.log("song requested");
-      await addSongToUser(userID, splitMessage[1]!);
-      await twitchSendChatMessage(
-        broadcasterID,
-        "jupi",
-        notification.event.message_id,
-      );
+      responseMessage = await addSongToUser(userID, splitMessage[1]!);
     } else if (splitMessage[0] == "!skip") {
-      console.log("skip");
-      skipSong(userID);
+      responseMessage = skipSong(userID);
     } else if (splitMessage[0] == "!volume") {
       const volume = splitMessage[1];
       if (volume) {
-        setVolume(userID, parseInt(volume));
+        responseMessage = setVolume(userID, volume);
       }
     } else if (splitMessage[0] == "!srping") {
-      await twitchSendChatMessage(broadcasterID, "pong");
+      responseMessage = "pong :3";
     }
-  } else {
-    console.log("NEW TWITCH");
-    console.log(bodyJson);
+    if (responseMessage) {
+      await twitchSendChatMessage(broadcasterID, responseMessage);
+    }
   }
   return new NextResponse(null, { status: 200 });
 }
