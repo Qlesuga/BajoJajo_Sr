@@ -19,11 +19,10 @@ interface ISong {
 const Player: React.FC = () => {
   const params = useParams<{ link: string }>();
   const userLink = useRef(params.link);
-  console.log(userLink.current);
   const [currentSong, setCurrentSong] = useState<ISong | null>(null);
   const [nextSong, setNextSong] = useState<ISong | null>(null);
   const audioRef = useRef<HTMLAudioElement | undefined>();
-  const volume = useRef(0.5);
+  const volume = useRef(0.2);
   const { data, refetch } = api.song.nextSong.useQuery(userLink.current, {
     enabled: true,
   });

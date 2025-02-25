@@ -3,6 +3,7 @@
 import { NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { addSongToUser, setVolume, skipSong } from "~/server/api/routers/song";
+import { twitchSendChatMessage } from "~/utils/twitchSendChatMessage";
 
 interface TwitchWebhookHeaders {
   "twitch-eventsub-message-id"?: string;
@@ -131,14 +132,20 @@ export async function POST(req: Request): Promise<NextResponse> {
   }
 
   const notification = bodyJson as TwitchWebhookPayload;
+  console.log(notification);
   const userID = notification.event.broadcaster_user_id;
-  console.log(userID);
+  const broadcasterID = notification.event.broadcaster_user_id;
   if (notification.subscription.type == "channel.chat.message") {
     const splitMessage = notification.event.message.text.split(" ");
     console.info(splitMessage);
     if (splitMessage[0] == "!sr") {
       console.log("song requested");
       await addSongToUser(userID, splitMessage[1]!);
+      await twitchSendChatMessage(
+        broadcasterID,
+        "jupi",
+        notification.event.message_id,
+      );
     } else if (splitMessage[0] == "!skip") {
       console.log("skip");
       skipSong(userID);
@@ -147,6 +154,8 @@ export async function POST(req: Request): Promise<NextResponse> {
       if (volume) {
         setVolume(userID, parseInt(volume));
       }
+    } else if (splitMessage[0] == "!srping") {
+      await twitchSendChatMessage(broadcasterID, "pong");
     }
   } else {
     console.log("NEW TWITCH");
