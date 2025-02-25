@@ -35,7 +35,7 @@ export class RedisCache {
       const content = await redis.get(key);
       if (!content) return null;
 
-      const entry: CacheEntry<T> = JSON.parse(content);
+      const entry: CacheEntry<T> = JSON.parse(content) as CacheEntry<T>;
 
       if (
         entry.expiresIn != null &&

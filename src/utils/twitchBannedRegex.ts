@@ -1,6 +1,5 @@
 const BANNED = [
-  "nigga",
-  "nigger",
+  "nigg",
   "czarnuch",
   "murzyn",
   "cwel",
@@ -17,9 +16,10 @@ const BANNED = [
   "fag",
   "nood",
   "gay",
+  "rape",
 ];
 
-const charSubstitutions = {
+const charSubstitutions: Record<string, string> = {
   a: "aаạąäàáᴀₐᵃAΑΑ̇АᎪᗅꓮꓯＡ𐊠𝐀𝐴𝑨𝒜𝓐𝔄𝔸𝕬𝖠𝗔𝘈𝘼𝙰𝚨𝛢𝜜𝝖𝞐ᴬªɑǟꬱ@",
   b: "bƅᵇᵦBƁΒВᏴᏼᗷᛒℬꓐꞴＢᴮ",
   c: "cсƈċᴄᵓᶜCϹСᏟ𐐕ᑕℂℭ⸦ꓚＣ𐊢𐌂ↄɔꜾ",
@@ -63,8 +63,9 @@ function createBannedStringRegex(bannedList: string[]) {
     let pattern = "";
 
     for (const char of word.toLowerCase()) {
-      if (charSubstitutions[char]) {
-        pattern += charSubstitutions[char];
+      const charSubstitution = charSubstitutions[char] as string | undefined;
+      if (charSubstitution) {
+        pattern += charSubstitution;
       } else {
         pattern += `[${char}${char.toUpperCase()}]`;
       }
