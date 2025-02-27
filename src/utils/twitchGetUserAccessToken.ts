@@ -10,7 +10,7 @@ interface RefreshTokenResponse {
 
 const CACHE_ACCESS_TOKEN = "twitch-access-token";
 
-export async function getTwitchAccessToken(): Promise<string> {
+export async function twitchGetUserAccessToken(): Promise<string> {
   const accessToken = await RedisCache.get<string>(CACHE_ACCESS_TOKEN);
   if (accessToken) {
     return accessToken;
