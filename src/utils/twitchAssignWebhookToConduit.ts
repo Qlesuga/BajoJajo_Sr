@@ -1,4 +1,4 @@
-import { getTwitchAppAccessToken } from "./twitchAuth";
+import { getTwitchAppAccessToken } from "./twitchGetAppAccessToken";
 import { getTwitchConduitId } from "./twitchConduit";
 
 const WEBHOOK_ENDPOINT = "twitchWebHookHandler";

@@ -1,4 +1,4 @@
-import { getTwitchAppAccessToken } from "./twitchAuth";
+import { getTwitchAppAccessToken } from "./twitchGetAppAccessToken";
 
 async function twitchSendChatMessage(
   broadcasterID: string,
