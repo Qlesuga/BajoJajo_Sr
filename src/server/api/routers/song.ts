@@ -1,5 +1,5 @@
 import ytdl from "@distube/ytdl-core";
-import type { videoInfo as IVideoInfo } from "@distube/ytdl-core";
+import type { videoInfo as IVideoInfo, videoInfo } from "@distube/ytdl-core";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { EventEmitter, on } from "stream";
 import { z } from "zod";
@@ -133,6 +133,12 @@ const ADD_SONG_SUCCESS_MESSAGE = (title: string) =>
   `successfully added "${title}" to queue`;
 const ADD_SONG_ALREADY_IN_QUEUE = "already in queue";
 const ADD_SONG_BANNED_WORD_IN_TITLE = "song contains banned word in title";
+const MINIMUM_VIDEO_LENGTH = 30;
+const MAXIMUM_VIDEO_LENGTH = 60 * 5;
+const ADD_SONG_WRONG_LENGTH = `song length must be between ${MINIMUM_VIDEO_LENGTH}s and ${MAXIMUM_VIDEO_LENGTH / 60}min`;
+const MINIMUM_VIDEO_VIEWS = 10000;
+const ADD_SONG_MINIMUM_VIEWS = `song must have over ${MINIMUM_VIDEO_VIEWS} views`;
+const ADD_SONG_VIDEO_AGE_RESTRICTED = "song is age restricted";
 export async function addSongToUser(
   userID: string,
   url: string,
@@ -154,10 +160,26 @@ export async function addSongToUser(
       return ADD_SONG_ALREADY_IN_QUEUE;
     }
   }
-  const videoInfo = await getYouTubeInfo(url);
-  const title = videoInfo.videoDetails.title;
+  const videoInfo: videoInfo = await getYouTubeInfo(url);
+  const title: string = videoInfo.videoDetails.title;
+  const videoLength: number = parseInt(videoInfo.videoDetails.lengthSeconds);
+  const videoViews: number = parseInt(videoInfo.videoDetails.viewCount);
+  const isAgeRestricted: boolean = videoInfo.videoDetails.age_restricted;
+  console.log(isAgeRestricted);
   if (containsBannedString(title)) {
     return ADD_SONG_BANNED_WORD_IN_TITLE;
+  }
+
+  if (
+    !(videoLength > MINIMUM_VIDEO_LENGTH && videoLength < MAXIMUM_VIDEO_LENGTH)
+  ) {
+    return ADD_SONG_WRONG_LENGTH;
+  }
+  if (videoViews < MINIMUM_VIDEO_VIEWS) {
+    return ADD_SONG_MINIMUM_VIEWS;
+  }
+  if (isAgeRestricted) {
+    return ADD_SONG_VIDEO_AGE_RESTRICTED;
   }
   const videoBlob = await getYouTubeVideo(url);
 
