@@ -4,14 +4,15 @@ import { RedisCache } from "./cache";
 
 interface TwitchOAuthToken {
   access_token: string;
+  refresh_token: string;
   expires_in: number;
   token_type: string;
 }
 
-const TWITCH_OAUTH_TOKEN_CACHE = "twitch-oauth-token";
+const CACHE_TWITCH_APP_ACCESS_TOKEN = "twitch-app-access-token";
 
 export const getTwitchAppAccessToken = async (): Promise<string> => {
-  const authToken = await RedisCache.get<string>(TWITCH_OAUTH_TOKEN_CACHE);
+  const authToken = await RedisCache.get<string>(CACHE_TWITCH_APP_ACCESS_TOKEN);
   if (authToken) {
     return authToken;
   }
@@ -35,8 +36,9 @@ export const getTwitchAppAccessToken = async (): Promise<string> => {
   }
 
   const newTwitchToken = (await response.json()) as TwitchOAuthToken;
+  console.log(newTwitchToken);
   await RedisCache.set<string>(
-    TWITCH_OAUTH_TOKEN_CACHE,
+    CACHE_TWITCH_APP_ACCESS_TOKEN,
     newTwitchToken.access_token,
     newTwitchToken.expires_in,
   );
