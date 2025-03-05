@@ -8,12 +8,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
-      - name: Use Node.js 20.11.1
-        uses: actions/setup-node@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
-          node-version: 20.11.1
+          version: 10
       - name: Check types and linting
         run: |
-          npm ci
-          npm run typecheck 
-          npm run lint
+          pnpm typecheck 
+          pnpm lint
