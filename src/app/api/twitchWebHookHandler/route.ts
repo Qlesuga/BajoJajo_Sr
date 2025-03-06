@@ -1,5 +1,6 @@
 "server-only";
 
+import { redis } from "lib/redis";
 import { NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { addSongToUser, setVolume, skipSong } from "~/server/api/routers/song";
@@ -88,6 +89,9 @@ function verifyMessage(hmac: string, verifySignature?: string): boolean {
     return false;
   }
 }
+
+const CHATTER_TTL_IN_SECOUNDS = 3 * 60;
+const VOTESKIP_PERCENTAGE = 0.5;
 export async function POST(req: Request): Promise<NextResponse> {
   const secret = process.env.TWITCH_WEBHOOK_SECRET;
 
@@ -133,23 +137,52 @@ export async function POST(req: Request): Promise<NextResponse> {
 
   const notification = bodyJson as TwitchWebhookPayload;
   console.log(notification);
-  const userID = notification.event.broadcaster_user_id;
+  const senderID = notification.event.chatter_user_id;
+  if (senderID == process.env.TWITCH_BOT_USER_ID) {
+    return new NextResponse(null, { status: 200 });
+  }
   const broadcasterID = notification.event.broadcaster_user_id;
   if (notification.subscription.type == "channel.chat.message") {
     const splitMessage = notification.event.message.text.split(" ");
     let responseMessage: string | null = null;
+
+    const key = `chatter:${broadcasterID}`;
+    if (!(await redis.hGet(key, senderID))) {
+      await redis.hSet(key, senderID, 0);
+    }
+    await redis.hExpire(key, senderID, CHATTER_TTL_IN_SECOUNDS);
+
     console.info(splitMessage);
     if (splitMessage[0] == "!sr") {
-      responseMessage = await addSongToUser(userID, splitMessage[1]!);
+      responseMessage = await addSongToUser(broadcasterID, splitMessage[1]!);
     } else if (splitMessage[0] == "!skip") {
-      responseMessage = skipSong(userID);
+      responseMessage = skipSong(broadcasterID);
     } else if (splitMessage[0] == "!volume") {
       const volume = splitMessage[1];
       if (volume) {
-        responseMessage = setVolume(userID, volume);
+        responseMessage = setVolume(broadcasterID, volume);
       }
     } else if (splitMessage[0] == "!srping") {
       responseMessage = "pong :3";
+    } else if (splitMessage[0] == "!voteskip") {
+      await redis.hSet(key, senderID, 1);
+      await redis.hExpire(key, senderID, CHATTER_TTL_IN_SECOUNDS);
+
+      const chatters = Object.entries(await redis.hGetAll(key));
+      const chattersWhoSkipped = chatters
+        .filter(([_field, value]) => value === "1")
+        .map(([field]) => field);
+      const amontOfChatterWhoSkipped = chattersWhoSkipped.length;
+      const progress = Math.ceil(chatters.length * VOTESKIP_PERCENTAGE);
+      if (amontOfChatterWhoSkipped >= progress) {
+        for (const field of chattersWhoSkipped) {
+          await redis.hSet(key, field, "0");
+          await redis.hExpire(key, field, 60);
+        }
+        responseMessage = skipSong(broadcasterID);
+      } else {
+        responseMessage = `voteskip: ${amontOfChatterWhoSkipped}/${progress}`;
+      }
     }
     if (responseMessage) {
       await twitchSendChatMessage(
