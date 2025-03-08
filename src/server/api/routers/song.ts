@@ -136,14 +136,17 @@ const ADD_SONG_BANNED_WORD_IN_TITLE = "song contains banned word in title";
 const MINIMUM_VIDEO_LENGTH = 30;
 const MAXIMUM_VIDEO_LENGTH = 60 * 5;
 const ADD_SONG_WRONG_LENGTH = `song length must be between ${MINIMUM_VIDEO_LENGTH}s and ${MAXIMUM_VIDEO_LENGTH / 60}min`;
-const MINIMUM_VIDEO_VIEWS = 10000;
+const MINIMUM_VIDEO_VIEWS = 7000;
 const ADD_SONG_MINIMUM_VIEWS = `song must have over ${MINIMUM_VIDEO_VIEWS} views`;
 const ADD_SONG_VIDEO_AGE_RESTRICTED = "song is age restricted";
+const ADD_SONG_INVALID_SONG = "invalid song";
 export async function addSongToUser(
   userID: string,
   url: string,
 ): Promise<string> {
-  console.log(userID);
+  if (url == "") {
+    return ADD_SONG_INVALID_SONG;
+  }
   if (!(userID in subscripedUsers)) {
     const emitter = new EventEmitter();
     subscripedUsers[userID] = {
@@ -160,12 +163,18 @@ export async function addSongToUser(
       return ADD_SONG_ALREADY_IN_QUEUE;
     }
   }
-  const videoInfo: videoInfo = await getYouTubeInfo(url);
+
+  let videoInfo: videoInfo;
+  try {
+    videoInfo = await getYouTubeInfo(url);
+  } catch (err) {
+    console.log(err);
+    return ADD_SONG_INVALID_SONG;
+  }
   const title: string = videoInfo.videoDetails.title;
   const videoLength: number = parseInt(videoInfo.videoDetails.lengthSeconds);
   const videoViews: number = parseInt(videoInfo.videoDetails.viewCount);
   const isAgeRestricted: boolean = videoInfo.videoDetails.age_restricted;
-  console.log(isAgeRestricted);
   if (containsBannedString(title)) {
     return ADD_SONG_BANNED_WORD_IN_TITLE;
   }
@@ -181,9 +190,15 @@ export async function addSongToUser(
   if (isAgeRestricted) {
     return ADD_SONG_VIDEO_AGE_RESTRICTED;
   }
-  const videoBlob = await getYouTubeVideo(url);
 
-  console.log("song added");
+  let videoBlob: Buffer<ArrayBufferLike>;
+  try {
+    videoBlob = await getYouTubeVideo(url);
+  } catch (err) {
+    console.error(err);
+    return ADD_SONG_INVALID_SONG;
+  }
+
   console.log(subscripedUsers[userID]?.songs.length);
   subscripedUsers[userID]?.songs.push({
     url: url,
@@ -191,8 +206,6 @@ export async function addSongToUser(
     blob: videoBlob.toString("base64"),
     status: "pending",
   });
-  console.log(subscripedUsers);
-  console.log(subscripedUsers[userID]?.songs.length);
   subscripedUsers[userID]?.eventEmitter.emit("emit", { type: "new_song" });
   return ADD_SONG_SUCCESS_MESSAGE(title);
 }
