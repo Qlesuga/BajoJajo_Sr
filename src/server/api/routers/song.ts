@@ -4,14 +4,20 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { EventEmitter, on } from "stream";
 import { z } from "zod";
 import { db } from "~/server/db";
-import { user } from "@heroui/react";
 import { containsBannedString } from "~/utils/twitchBannedRegex";
+import { redis } from "lib/redis";
+import { randomUUID } from "crypto";
+
+type SongStatus = "playing" | "pending";
 
 interface ISong {
   url: string;
-  videoInfo: IVideoInfo;
+  title: string;
+  lengthSeconds: string;
+  ownerChannelName: string;
+  thumbnail: string;
   blob: string;
-  status: "playing" | "pending";
+  status: SongStatus;
 }
 
 interface ISubscriptedUser {
@@ -71,15 +77,14 @@ export const songRouter = createTRPCRouter({
       }
     }
     const song = songs[0];
-    const { videoDetails } = song!.videoInfo;
-    const { title, lengthSeconds, ownerChannelName, thumbnails } = videoDetails;
+    const { title, lengthSeconds, ownerChannelName, thumbnail } = song!;
     song!.status = "playing";
 
     return {
       songTitle: title,
       songAuthor: ownerChannelName,
       songLength: parseInt(lengthSeconds),
-      songThumbnail: thumbnails[1] ? thumbnails[1].url : "",
+      songThumbnail: thumbnail,
       songBlob: song!.blob,
     };
   }),
@@ -140,24 +145,27 @@ const MINIMUM_VIDEO_VIEWS = 7000;
 const ADD_SONG_MINIMUM_VIEWS = `song must have over ${MINIMUM_VIDEO_VIEWS} views`;
 const ADD_SONG_VIDEO_AGE_RESTRICTED = "song is age restricted";
 const ADD_SONG_INVALID_SONG = "invalid song";
+const ADD_SONG_SONG_TTL_IN_SECOUNDS = 24 * 60 * 7;
 export async function addSongToUser(
-  userID: string,
+  broadcasterID: string,
   url: string,
 ): Promise<string> {
   if (url == "") {
     return ADD_SONG_INVALID_SONG;
   }
-  if (!(userID in subscripedUsers)) {
+  if (!(broadcasterID in subscripedUsers)) {
     const emitter = new EventEmitter();
-    subscripedUsers[userID] = {
+    subscripedUsers[broadcasterID] = {
       eventEmitter: emitter,
       songs: [],
     };
   }
   if (process.env.NODE_ENV != "development") {
-    const isAlreadyInQueue = subscripedUsers[userID]!.songs.some((song) => {
-      return song.url == url;
-    });
+    const isAlreadyInQueue = subscripedUsers[broadcasterID]!.songs.some(
+      (song) => {
+        return song.url == url;
+      },
+    );
 
     if (isAlreadyInQueue) {
       return ADD_SONG_ALREADY_IN_QUEUE;
@@ -191,22 +199,41 @@ export async function addSongToUser(
     return ADD_SONG_VIDEO_AGE_RESTRICTED;
   }
 
-  let videoBlob: Buffer<ArrayBufferLike>;
-  try {
-    videoBlob = await getYouTubeVideo(url);
-  } catch (err) {
-    console.error(err);
-    return ADD_SONG_INVALID_SONG;
+  let videoBlob: string;
+  const key = videoInfo.videoDetails.videoId;
+  if (await redis.exists(key)) {
+    redis.expire(key, ADD_SONG_SONG_TTL_IN_SECOUNDS).catch(() => null);
+    videoBlob = (await redis.hGet(key, "videoBlob"))!;
+  } else {
+    try {
+      videoBlob = (await getYouTubeVideo(url)).toString("base64");
+    } catch (err) {
+      console.error(err);
+      return ADD_SONG_INVALID_SONG;
+    }
   }
-
-  console.log(subscripedUsers[userID]?.songs.length);
-  subscripedUsers[userID]?.songs.push({
+  const songData: ISong = {
     url: url,
-    videoInfo: videoInfo,
-    blob: videoBlob.toString("base64"),
-    status: "pending",
+    title: title,
+    lengthSeconds: videoInfo.videoDetails.lengthSeconds,
+    ownerChannelName: videoInfo.videoDetails.ownerChannelName,
+    thumbnail: videoInfo.videoDetails.thumbnails[0]?.url ?? "",
+    blob: videoBlob,
+    status: "pending" as SongStatus,
+  };
+  subscripedUsers[broadcasterID]?.songs.push(songData);
+  subscripedUsers[broadcasterID]?.eventEmitter.emit("emit", {
+    type: "new_song",
   });
-  subscripedUsers[userID]?.eventEmitter.emit("emit", { type: "new_song" });
+  await redis.rPush(`songs:${broadcasterID}`, key);
+  await redis.hSet(`song:${key}`, {
+    title: title,
+    lengthSeconds: videoInfo.videoDetails.lengthSeconds,
+    ownerChannelName: videoInfo.videoDetails.ownerChannelName,
+    thumbnail: videoInfo.videoDetails.thumbnails[0]?.url ?? "",
+    blob: videoBlob,
+  });
+  await redis.expire(`song:${key}`, ADD_SONG_SONG_TTL_IN_SECOUNDS);
   return ADD_SONG_SUCCESS_MESSAGE(title);
 }
 
