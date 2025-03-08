@@ -136,13 +136,16 @@ export async function POST(req: Request): Promise<NextResponse> {
   }
 
   const notification = bodyJson as TwitchWebhookPayload;
-  console.log(notification);
+  const badges = notification.event.badges;
   const senderID = notification.event.chatter_user_id;
   if (senderID == process.env.TWITCH_BOT_USER_ID) {
     return new NextResponse(null, { status: 200 });
   }
   const broadcasterID = notification.event.broadcaster_user_id;
-  if (notification.subscription.type == "channel.chat.message") {
+  if (
+    notification.subscription.type == "channel.chat.message" &&
+    notification.event.reply == null
+  ) {
     const splitMessage = notification.event.message.text.split(" ");
     let responseMessage: string | null = null;
 
@@ -156,7 +159,18 @@ export async function POST(req: Request): Promise<NextResponse> {
     if (splitMessage[0] == "!sr") {
       responseMessage = await addSongToUser(broadcasterID, splitMessage[1]!);
     } else if (splitMessage[0] == "!skip") {
-      responseMessage = skipSong(broadcasterID);
+      let isMod = false;
+      badges.forEach((badge) => {
+        if (badge.set_id == "moderator" || badge.set_id == "broadcaster") {
+          isMod = true;
+        }
+      });
+      console.log(isMod);
+      if (isMod) {
+        responseMessage = skipSong(broadcasterID);
+      } else {
+        responseMessage = "you are unauthorized to skip, use !voteskip";
+      }
     } else if (splitMessage[0] == "!volume") {
       const volume = splitMessage[1];
       if (volume) {
@@ -184,7 +198,7 @@ export async function POST(req: Request): Promise<NextResponse> {
         responseMessage = `voteskip: ${amontOfChatterWhoSkipped}/${progress}`;
       }
     }
-    if (responseMessage) {
+    if (responseMessage && responseMessage != "") {
       await twitchSendChatMessage(
         broadcasterID,
         responseMessage,
