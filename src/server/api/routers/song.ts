@@ -131,12 +131,6 @@ export async function addSongToUser(
   if (url == "") {
     return ADD_SONG_INVALID_SONG;
   }
-  if (!(broadcasterID in subscripedUsers)) {
-    const emitter = new EventEmitter();
-    subscripedUsers[broadcasterID] = {
-      eventEmitter: emitter,
-    };
-  }
   if (process.env.NODE_ENV != "development") {
     //TODO przepisac
     /*
