@@ -6,7 +6,6 @@ import { z } from "zod";
 import { db } from "~/server/db";
 import { containsBannedString } from "~/utils/twitchBannedRegex";
 import { redis } from "lib/redis";
-import { randomUUID } from "crypto";
 
 type SongStatus = "playing" | "pending";
 
@@ -29,9 +28,6 @@ const subscripedUsers: Record<string, ISubscriptedUser> = {};
 
 export const songRouter = createTRPCRouter({
   nextSong: publicProcedure.input(z.string()).query(async (opts) => {
-    if (process.env.NODE_ENV == "development") {
-      console.log(subscripedUsers);
-    }
     const userLink = opts.input;
 
     const findUserFromLink = await db.userPlayerLink.findFirst({
@@ -56,36 +52,20 @@ export const songRouter = createTRPCRouter({
     if (findUserFromLink.user.accounts.length == 0) {
       return null;
     }
-    const userID = findUserFromLink.user.accounts[0]!.providerAccountId;
-    console.log(userID);
-    console.log("SONG REQUESTED");
-    if (!(userID in subscripedUsers)) {
-      const emitter = new EventEmitter();
-      subscripedUsers[userID] = {
-        eventEmitter: emitter,
-        songs: [],
-      };
-    }
-    const songs = subscripedUsers[userID]!.songs;
-    if (songs.length == 0) {
+    const broadcasterID = findUserFromLink.user.accounts[0]!.providerAccountId;
+
+    const songID = await redis.lPop(`songs:${broadcasterID}`);
+    if (songID == null) {
       return null;
     }
-    if (songs[0]!.status == "playing") {
-      songs.shift();
-      if (songs.length == 0) {
-        return null;
-      }
-    }
-    const song = songs[0];
-    const { title, lengthSeconds, ownerChannelName, thumbnail } = song!;
-    song!.status = "playing";
-
+    const song = await redis.hGetAll(`song:${songID}`);
+    const { title, lengthSeconds, ownerChannelName, thumbnail, blob } = song;
     return {
       songTitle: title,
       songAuthor: ownerChannelName,
-      songLength: parseInt(lengthSeconds),
+      songLength: parseInt(lengthSeconds!),
       songThumbnail: thumbnail,
-      songBlob: song!.blob,
+      songBlob: blob,
     };
   }),
 
@@ -145,7 +125,7 @@ const MINIMUM_VIDEO_VIEWS = 7000;
 const ADD_SONG_MINIMUM_VIEWS = `song must have over ${MINIMUM_VIDEO_VIEWS} views`;
 const ADD_SONG_VIDEO_AGE_RESTRICTED = "song is age restricted";
 const ADD_SONG_INVALID_SONG = "invalid song";
-const ADD_SONG_SONG_TTL_IN_SECOUNDS = 24 * 60 * 7;
+const ADD_SONG_SONG_TTL_IN_SECOUNDS = 24 * 60 * 60 * 7;
 export async function addSongToUser(
   broadcasterID: string,
   url: string,
