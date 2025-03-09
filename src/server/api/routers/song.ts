@@ -21,7 +21,6 @@ interface ISong {
 
 interface ISubscriptedUser {
   eventEmitter: EventEmitter;
-  songs: ISong[];
 }
 
 const subscripedUsers: Record<string, ISubscriptedUser> = {};
@@ -102,7 +101,6 @@ export const songRouter = createTRPCRouter({
         emitter = new EventEmitter();
         subscripedUsers[userID] = {
           eventEmitter: emitter,
-          songs: [],
         };
       }
       for await (const data of on(emitter, "emit", {
@@ -137,19 +135,21 @@ export async function addSongToUser(
     const emitter = new EventEmitter();
     subscripedUsers[broadcasterID] = {
       eventEmitter: emitter,
-      songs: [],
     };
   }
   if (process.env.NODE_ENV != "development") {
+    //TODO przepisac
+    /*
     const isAlreadyInQueue = subscripedUsers[broadcasterID]!.songs.some(
       (song) => {
         return song.url == url;
       },
     );
-
+    
     if (isAlreadyInQueue) {
       return ADD_SONG_ALREADY_IN_QUEUE;
     }
+    */
   }
 
   let videoInfo: videoInfo;
@@ -192,16 +192,6 @@ export async function addSongToUser(
       return ADD_SONG_INVALID_SONG;
     }
   }
-  const songData: ISong = {
-    url: url,
-    title: title,
-    lengthSeconds: videoInfo.videoDetails.lengthSeconds,
-    ownerChannelName: videoInfo.videoDetails.ownerChannelName,
-    thumbnail: videoInfo.videoDetails.thumbnails[0]?.url ?? "",
-    blob: videoBlob,
-    status: "pending" as SongStatus,
-  };
-  subscripedUsers[broadcasterID]?.songs.push(songData);
   subscripedUsers[broadcasterID]?.eventEmitter.emit("emit", {
     type: "new_song",
   });
@@ -225,7 +215,7 @@ function getYouTubeVideo(url: string): Promise<Buffer> {
   console.log("adding song");
   return new Promise((resolve, _) => {
     const stream = ytdl(url, {
-      filter: "audio",
+      filter: "audioonly",
     });
     const buffers: Buffer[] = [];
     stream.on("data", function (buf: Buffer) {
