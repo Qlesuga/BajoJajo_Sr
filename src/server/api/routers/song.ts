@@ -3,7 +3,6 @@ import type { videoInfo as IVideoInfo, videoInfo } from "@distube/ytdl-core";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { EventEmitter, on } from "stream";
 import { z } from "zod";
-import { db } from "~/server/db";
 import { containsBannedString } from "~/utils/twitch/twitchBannedRegex";
 import { redis } from "lib/redis";
 import {
@@ -12,6 +11,7 @@ import {
 } from "~/utils/song/addSongToRedis";
 import type { SongType } from "types/song";
 import { getNextSong } from "~/utils/song/getNextSong";
+import { getUserFromUserLink } from "~/utils/getUserFromUserLink";
 
 interface ISubscriptedUser {
   eventEmitter: EventEmitter;
@@ -23,29 +23,10 @@ export const songRouter = createTRPCRouter({
   nextSong: publicProcedure.input(z.string()).query(async (opts) => {
     const userLink = opts.input;
 
-    const findUserFromLink = await db.userPlayerLink.findFirst({
-      select: {
-        user: {
-          select: {
-            accounts: {
-              select: {
-                providerAccountId: true,
-              },
-            },
-          },
-        },
-      },
-      where: {
-        link: userLink,
-      },
-    });
-    if (!findUserFromLink) {
+    const broadcasterID = await getUserFromUserLink(userLink);
+    if (!broadcasterID) {
       return null;
     }
-    if (findUserFromLink.user.accounts.length == 0) {
-      return null;
-    }
-    const broadcasterID = findUserFromLink.user.accounts[0]!.providerAccountId;
 
     return await getNextSong(broadcasterID);
   }),
@@ -55,33 +36,17 @@ export const songRouter = createTRPCRouter({
     .subscription(async function* (opts) {
       const userLink = opts.input;
 
-      const findUserFromLink = await db.userPlayerLink.findFirst({
-        select: {
-          user: {
-            select: {
-              accounts: {
-                select: {
-                  providerAccountId: true,
-                },
-              },
-            },
-          },
-        },
-        where: {
-          link: userLink,
-        },
-      });
-      if (!findUserFromLink || findUserFromLink.user.accounts.length == 0) {
+      const broadcasterID = await getUserFromUserLink(userLink);
+      if (!broadcasterID) {
         return;
       }
-      const userID = findUserFromLink.user.accounts[0]!.providerAccountId;
 
       let emitter: EventEmitter;
-      if (userID in subscripedUsers) {
-        emitter = subscripedUsers[userID]!.eventEmitter;
+      if (broadcasterID in subscripedUsers) {
+        emitter = subscripedUsers[broadcasterID]!.eventEmitter;
       } else {
         emitter = new EventEmitter();
-        subscripedUsers[userID] = {
+        subscripedUsers[broadcasterID] = {
           eventEmitter: emitter,
         };
       }
