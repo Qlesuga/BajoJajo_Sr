@@ -7,18 +7,6 @@ import { db } from "~/server/db";
 import { containsBannedString } from "~/utils/twitch/twitchBannedRegex";
 import { redis } from "lib/redis";
 
-type SongStatus = "playing" | "pending";
-
-interface ISong {
-  url: string;
-  title: string;
-  lengthSeconds: string;
-  ownerChannelName: string;
-  thumbnail: string;
-  blob: string;
-  status: SongStatus;
-}
-
 interface ISubscriptedUser {
   eventEmitter: EventEmitter;
 }
