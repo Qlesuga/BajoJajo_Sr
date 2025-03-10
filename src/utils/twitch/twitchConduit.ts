@@ -1,4 +1,4 @@
-import { RedisCache } from "./cache";
+import { RedisCache } from "../cache";
 import { getTwitchAppAccessToken } from "./twitchGetAppAccessToken";
 
 const CACHE_TWITCH_CONDUIT_ID = "twitch-conduit-id";

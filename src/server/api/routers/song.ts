@@ -4,7 +4,7 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { EventEmitter, on } from "stream";
 import { z } from "zod";
 import { db } from "~/server/db";
-import { containsBannedString } from "~/utils/twitchBannedRegex";
+import { containsBannedString } from "~/utils/twitch/twitchBannedRegex";
 import { redis } from "lib/redis";
 
 type SongStatus = "playing" | "pending";
@@ -123,7 +123,7 @@ const MINIMUM_VIDEO_VIEWS = 7000;
 const ADD_SONG_MINIMUM_VIEWS = `song must have over ${MINIMUM_VIDEO_VIEWS} views`;
 const ADD_SONG_VIDEO_AGE_RESTRICTED = "song is age restricted";
 const ADD_SONG_INVALID_SONG = "invalid song";
-const ADD_SONG_SONG_TTL_IN_SECOUNDS = 24 * 60 * 60 * 7;
+const ADD_SONG_SONG_TTL_IN_SECOUNDS = 60 * 60;
 export async function addSongToUser(
   broadcasterID: string,
   url: string,

@@ -4,7 +4,7 @@ import { redis } from "lib/redis";
 import { NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { addSongToUser, setVolume, skipSong } from "~/server/api/routers/song";
-import { twitchSendChatMessage } from "~/utils/twitchSendChatMessage";
+import { twitchSendChatMessage } from "~/utils/twitch/twitchSendChatMessage";
 
 interface TwitchWebhookHeaders {
   "twitch-eventsub-message-id"?: string;

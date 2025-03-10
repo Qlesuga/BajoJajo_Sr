@@ -2,7 +2,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import type { Account, User, DefaultSession, NextAuthConfig } from "next-auth";
 import TwitchProvider from "next-auth/providers/twitch";
 import { db } from "~/server/db";
-import { createTwitchChatSubscription } from "~/utils/twitchChatSubscription";
+import { createTwitchChatSubscription } from "~/utils/twitch/twitchChatSubscription";
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.

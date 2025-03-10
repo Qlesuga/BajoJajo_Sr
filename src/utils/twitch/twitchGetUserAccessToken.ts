@@ -1,4 +1,4 @@
-import { RedisCache } from "./cache";
+import { RedisCache } from "../cache";
 
 interface RefreshTokenResponse {
   access_token: string;

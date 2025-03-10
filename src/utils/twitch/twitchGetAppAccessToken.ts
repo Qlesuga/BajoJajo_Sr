@@ -1,6 +1,6 @@
 "server-only";
 
-import { RedisCache } from "./cache";
+import { RedisCache } from "../cache";
 
 interface TwitchOAuthToken {
   access_token: string;
