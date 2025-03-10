@@ -5,7 +5,6 @@ import {
   loggerLink,
   splitLink,
   unstable_httpBatchStreamLink,
-  httpBatchLink,
   unstable_httpSubscriptionLink,
 } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";

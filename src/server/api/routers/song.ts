@@ -6,6 +6,12 @@ import { z } from "zod";
 import { db } from "~/server/db";
 import { containsBannedString } from "~/utils/twitch/twitchBannedRegex";
 import { redis } from "lib/redis";
+import {
+  ADD_SONG_SONG_TTL_IN_SECOUNDS,
+  addSongToRedis,
+} from "~/utils/song/addSongToRedis";
+import type { SongType } from "types/song";
+import { getNextSong } from "~/utils/song/getNextSong";
 
 interface ISubscriptedUser {
   eventEmitter: EventEmitter;
@@ -41,19 +47,7 @@ export const songRouter = createTRPCRouter({
     }
     const broadcasterID = findUserFromLink.user.accounts[0]!.providerAccountId;
 
-    const songID = await redis.lPop(`songs:${broadcasterID}`);
-    if (songID == null) {
-      return null;
-    }
-    const song = await redis.hGetAll(`song:${songID}`);
-    const { title, lengthSeconds, ownerChannelName, thumbnail, blob } = song;
-    return {
-      songTitle: title,
-      songAuthor: ownerChannelName,
-      songLength: parseInt(lengthSeconds!),
-      songThumbnail: thumbnail,
-      songBlob: blob,
-    };
+    return await getNextSong(broadcasterID);
   }),
 
   songSubscription: publicProcedure
@@ -111,7 +105,6 @@ const MINIMUM_VIDEO_VIEWS = 7000;
 const ADD_SONG_MINIMUM_VIEWS = `song must have over ${MINIMUM_VIDEO_VIEWS} views`;
 const ADD_SONG_VIDEO_AGE_RESTRICTED = "song is age restricted";
 const ADD_SONG_INVALID_SONG = "invalid song";
-const ADD_SONG_SONG_TTL_IN_SECOUNDS = 60 * 60;
 export async function addSongToUser(
   broadcasterID: string,
   url: string,
@@ -162,10 +155,10 @@ export async function addSongToUser(
   }
 
   let videoBlob: string;
-  const key = videoInfo.videoDetails.videoId;
-  if (await redis.exists(key)) {
-    redis.expire(key, ADD_SONG_SONG_TTL_IN_SECOUNDS).catch(() => null);
-    videoBlob = (await redis.hGet(key, "videoBlob"))!;
+  const songID = videoInfo.videoDetails.videoId;
+  if (await redis.exists(songID)) {
+    redis.expire(songID, ADD_SONG_SONG_TTL_IN_SECOUNDS).catch(() => null);
+    videoBlob = (await redis.hGet(songID, "videoBlob"))!;
   } else {
     try {
       videoBlob = (await getYouTubeVideo(url)).toString("base64");
@@ -174,18 +167,18 @@ export async function addSongToUser(
       return ADD_SONG_INVALID_SONG;
     }
   }
+  const song: SongType = {
+    title: title,
+    songLengthSeconds: parseInt(videoInfo.videoDetails.lengthSeconds),
+    songAuthor: videoInfo.videoDetails.ownerChannelName,
+    songThumbnail: videoInfo.videoDetails.thumbnails[0]?.url ?? "",
+    songBlob: videoBlob,
+  };
+  await addSongToRedis(broadcasterID, songID, song);
+
   subscripedUsers[broadcasterID]?.eventEmitter.emit("emit", {
     type: "new_song",
   });
-  await redis.rPush(`songs:${broadcasterID}`, key);
-  await redis.hSet(`song:${key}`, {
-    title: title,
-    lengthSeconds: videoInfo.videoDetails.lengthSeconds,
-    ownerChannelName: videoInfo.videoDetails.ownerChannelName,
-    thumbnail: videoInfo.videoDetails.thumbnails[0]?.url ?? "",
-    blob: videoBlob,
-  });
-  await redis.expire(`song:${key}`, ADD_SONG_SONG_TTL_IN_SECOUNDS);
   return ADD_SONG_SUCCESS_MESSAGE(title);
 }
 

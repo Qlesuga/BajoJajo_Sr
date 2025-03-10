@@ -1,5 +1,5 @@
 import { redis } from "lib/redis";
-import { type SongType } from "types/song";
+import type { SongType } from "types/song";
 
 async function getNextSong(broadcasterID: string): Promise<SongType | null> {
   const songID = await redis.lPop(`songs:${broadcasterID}`);
@@ -10,16 +10,23 @@ async function getNextSong(broadcasterID: string): Promise<SongType | null> {
   if (!song) {
     return null;
   }
-  const { title, lengthSeconds, ownerChannelName, thumbnail, blob } = song;
-  if (!title || !lengthSeconds || !ownerChannelName || !thumbnail || !blob) {
+  const { title, songLengthSeconds, songAuthor, songThumbnail, songBlob } =
+    song;
+  if (
+    !title ||
+    !songLengthSeconds ||
+    !songAuthor ||
+    !songThumbnail ||
+    !songBlob
+  ) {
     return null;
   }
   return {
     title: title,
-    songAuthor: ownerChannelName,
-    songLengthSeconds: parseInt(lengthSeconds),
-    songThumbnail: thumbnail,
-    songBlob: blob,
+    songAuthor: songAuthor,
+    songLengthSeconds: parseInt(songLengthSeconds),
+    songThumbnail: songThumbnail,
+    songBlob: songBlob,
   };
 }
 

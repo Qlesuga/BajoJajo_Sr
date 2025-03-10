@@ -7,20 +7,13 @@ import { b64toBlob } from "~/utils/twitch/stringB64ToBlob";
 import { useEffect, useState, useRef } from "react";
 import type { MutableRefObject } from "react";
 import { useParams } from "next/navigation";
-
-interface ISong {
-  songTitle: string;
-  songAuthor: string;
-  songLength: number;
-  songThumbnail: string;
-  songBlob: string;
-}
+import type { SongType } from "types/song";
 
 const Player: React.FC = () => {
   const params = useParams<{ link: string }>();
   const userLink = useRef(params.link);
-  const [currentSong, setCurrentSong] = useState<ISong | null>(null);
-  const [nextSong, setNextSong] = useState<ISong | null>(null);
+  const [currentSong, setCurrentSong] = useState<SongType | null>(null);
+  const [nextSong, setNextSong] = useState<SongType | null>(null);
   const audioRef = useRef<HTMLAudioElement | undefined>();
   const volume = useRef(0.2);
   const { data, refetch } = api.song.nextSong.useQuery(userLink.current, {
@@ -49,7 +42,7 @@ const Player: React.FC = () => {
     if (data) {
       if (!currentSong) {
         setCurrentSong(data);
-      } else if (!nextSong && data.songTitle !== currentSong.songTitle) {
+      } else if (!nextSong && data.title !== currentSong.title) {
         setNextSong(data);
       }
     }
@@ -102,10 +95,10 @@ const Player: React.FC = () => {
   return (
     <div className="w-full dark">
       <PlayerComponent
-        key={currentSong.songTitle}
-        name={currentSong.songTitle}
+        key={currentSong.title}
+        name={currentSong.title}
         artist={currentSong.songAuthor}
-        length={currentSong.songLength}
+        length={currentSong.songLengthSeconds}
         image={currentSong.songThumbnail}
         audio={audioRef as MutableRefObject<HTMLAudioElement>}
         getNextSong={playNextSong}
