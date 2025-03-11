@@ -29,6 +29,7 @@ services:
 
   next:
     build: .
+    restart: always
     expose:
       - 3000
     ports:
@@ -40,12 +41,23 @@ services:
     links:
       - db
       - redis
-    environment:
-      - NODE_ENV=production
     env_file:
-      - .env.prod
+      - .env
+    environment:
+      - NODE_ENV=${NODE_ENV}
     networks:
       - app-network
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /app
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: package.json
+        - action: rebuild
+          path: .env
 
   cloudflared:
     image: cloudflare/cloudflared:latest
