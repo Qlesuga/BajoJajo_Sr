@@ -1,33 +1,17 @@
 import { redis } from "lib/redis";
 import type { SongType } from "types/song";
+import { getSong } from "./getSong";
 
 async function getNextSong(broadcasterID: string): Promise<SongType | null> {
   const songID = await redis.lPop(`songs:${broadcasterID}`);
   if (songID == null) {
     return null;
   }
-  const song = await redis.hGetAll(`song:${songID}`);
+  const song = await getSong(songID);
   if (!song) {
     return null;
   }
-  const { title, songLengthSeconds, songAuthor, songThumbnail, songBlob } =
-    song;
-  if (
-    !title ||
-    !songLengthSeconds ||
-    !songAuthor ||
-    !songThumbnail ||
-    !songBlob
-  ) {
-    return null;
-  }
-  return {
-    title: title,
-    songAuthor: songAuthor,
-    songLengthSeconds: parseInt(songLengthSeconds),
-    songThumbnail: songThumbnail,
-    songBlob: songBlob,
-  };
+  return song;
 }
 
 export { getNextSong };
