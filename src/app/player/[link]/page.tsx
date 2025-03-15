@@ -7,13 +7,13 @@ import { b64toBlob } from "~/utils/twitch/stringB64ToBlob";
 import { useEffect, useState, useRef } from "react";
 import type { MutableRefObject } from "react";
 import { useParams } from "next/navigation";
-import type { SongType } from "types/song";
+import type { ISong } from "types/song";
 
 const Player: React.FC = () => {
   const params = useParams<{ link: string }>();
   const userLink = useRef(params.link);
-  const [currentSong, setCurrentSong] = useState<SongType | null>(null);
-  const [nextSong, setNextSong] = useState<SongType | null>(null);
+  const [currentSong, setCurrentSong] = useState<ISong | null>(null);
+  const [nextSong, setNextSong] = useState<ISong | null>(null);
   const audioRef = useRef<HTMLAudioElement | undefined>();
   const volume = useRef(0.2);
   const { data, refetch } = api.song.nextSong.useQuery(userLink.current, {

@@ -1,7 +1,7 @@
 import { redis } from "lib/redis";
-import type { SongType } from "types/song";
+import type { ISong } from "types/song";
 
-async function getSong(songID: string): Promise<SongType | null> {
+async function getSong(songID: string): Promise<ISong | null> {
   const song = await redis.hGetAll(`song:${songID}`);
   if (!song) {
     return null;
