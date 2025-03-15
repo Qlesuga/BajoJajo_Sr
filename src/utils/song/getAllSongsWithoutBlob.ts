@@ -1,13 +1,13 @@
 import { redis } from "lib/redis";
-import type { ISongWithoutBlob } from "types/song";
+import type { SongTypeWithoutBlob } from "types/song";
 import { getSong } from "./getSong";
 
 async function getAllSongsWithoutBlob(
   broadcasterID: string,
-): Promise<ISongWithoutBlob[]> {
+): Promise<SongTypeWithoutBlob[]> {
   const songsID = await redis.lRange(`songs:${broadcasterID}`, 0, -1);
 
-  const songs: (ISongWithoutBlob | null)[] = await Promise.all(
+  const songs: (SongTypeWithoutBlob | null)[] = await Promise.all(
     songsID.map(async (songID) => {
       const song = await getSong(songID);
       if (!song) {

@@ -1,14 +1,14 @@
 import { redis } from "lib/redis";
-import type { ISong } from "types/song";
+import type { SongType } from "types/song";
 
 const ADD_SONG_SONG_TTL_IN_SECOUNDS = 60 * 60;
 async function addSongToRedis(
   broadcasterID: string,
   songID: string,
-  song: ISong,
+  song: SongType,
 ) {
   await redis.rPush(`songs:${broadcasterID}`, songID);
-  const songObject: ISong = {
+  const songObject: SongType = {
     title: song.title,
     songLengthSeconds: song.songLengthSeconds,
     songAuthor: song.songAuthor,

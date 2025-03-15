@@ -9,7 +9,7 @@ import {
   ADD_SONG_SONG_TTL_IN_SECOUNDS,
   addSongToRedis,
 } from "~/utils/song/addSongToRedis";
-import type { ISong } from "types/song";
+import type { SongType } from "types/song";
 import { getNextSong } from "~/utils/song/getNextSong";
 import { getUserFromUserLink } from "~/utils/getUserFromUserLink";
 
@@ -132,7 +132,7 @@ export async function addSongToUser(
       return ADD_SONG_INVALID_SONG;
     }
   }
-  const song: ISong = {
+  const song: SongType = {
     title: title,
     songLengthSeconds: parseInt(videoInfo.videoDetails.lengthSeconds),
     songAuthor: videoInfo.videoDetails.ownerChannelName,

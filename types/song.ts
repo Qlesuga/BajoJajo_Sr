@@ -1,10 +1,10 @@
-export interface ISongWithoutBlob {
+export type SongTypeWithoutBlob = {
   title: string;
   songLengthSeconds: number;
   songAuthor: string;
   songThumbnail: string;
-}
+};
 
-export interface ISong extends ISongWithoutBlob {
+export type SongType = SongTypeWithoutBlob & {
   songBlob: string;
-}
+};
