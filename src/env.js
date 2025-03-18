@@ -10,9 +10,26 @@ export const env = createEnv({
       process.env.NODE_ENV === "production"
         ? z.string()
         : z.string().optional(),
+    NEXTAUTH_URL:
+      process.env.NODE_ENV === "production"
+        ? z.string()
+        : z.string().optional(),
+    TWITCH_BOT_USER_ID: z.string(),
     TWITCH_CLIENT_ID: z.string(),
     TWITCH_CLIENT_SECRET: z.string(),
-    DATABASE_URL: z.string().url(),
+    TWITCH_REFRESH_TOKEN: z.string(),
+    TWITCH_WEBHOOK_SECRET: z.string(),
+    TWITCH_WEBHOOK_ENDPOINT: z.string(),
+    DATABASE_USER: z.string(),
+    DATABASE_PASSWORD: z.string(),
+    DATABASE_URL: z.string(),
+    REDIS_PASSWORD: z.string(),
+    REDIS_HOST: z.string(),
+    REDIS_URL: z.string(),
+    CLOUDFLARE_TOKEN:
+      process.env.NODE_ENV === "production"
+        ? z.string()
+        : z.string().optional(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -32,10 +49,21 @@ export const env = createEnv({
    * middlewares) or client-side so we need to destruct manually.
    */
   runtimeEnv: {
-    AUTH_SECRET: process.env.AUTH_SECRET,
+    AUTH_SECRET: process.env.NODE_ENV,
+    NEXTAUTH_URL: process.env.NODE_ENV,
+    TWITCH_BOT_USER_ID: process.env.TWITCH_BOT_USER_ID,
     TWITCH_CLIENT_ID: process.env.TWITCH_CLIENT_ID,
     TWITCH_CLIENT_SECRET: process.env.TWITCH_CLIENT_SECRET,
+    TWITCH_REFRESH_TOKEN: process.env.TWITCH_REFRESH_TOKEN,
+    TWITCH_WEBHOOK_SECRET: process.env.TWITCH_WEBHOOK_SECRET,
+    TWITCH_WEBHOOK_ENDPOINT: process.env.TWITCH_WEBHOOK_ENDPOINT,
+    DATABASE_USER: process.env.DATABASE_USER,
+    DATABASE_PASSWORD: process.env.DATABASE_PASSWORD,
     DATABASE_URL: process.env.DATABASE_URL,
+    REDIS_PASSWORD: process.env.REDIS_PASSWORD,
+    REDIS_HOST: process.env.REDIS_HOST,
+    REDIS_URL: process.env.REDIS_URL,
+    CLOUDFLARE_TOKEN: process.env.CLOUDFLARE_TOKEN,
     NODE_ENV: process.env.NODE_ENV,
   },
   /**
