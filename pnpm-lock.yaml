@@ -12,8 +12,8 @@ importers:
         specifier: ^2.7.2
         version: 2.7.4(@prisma/client@5.22.0(prisma@5.22.0))
       '@distube/ytdl-core':
-        specifier: ^4.16.0
-        version: 4.16.0
+        specifier: ^4.16.5
+        version: 4.16.5
       '@fortawesome/free-brands-svg-icons':
         specifier: ^6.7.2
         version: 6.7.2
@@ -173,8 +173,8 @@ packages:
     resolution: {integrity: sha512-AOPI3D+a8dXnja+iwsUqGRjr1BbZIe771sXdapOtYI531gSqpi92vXivKcq2asu/DFpdl1ceFAKZyRzK2PCVcQ==}
     engines: {node: '>=6.9.0'}
 
-  '@distube/ytdl-core@4.16.0':
-    resolution: {integrity: sha512-MuDpIs2OnvYX30mjjkNFoOhxf0nYe7D7RvEZiXGcvmnD95XGnNLBJeuXn0PS0Vad7y159c0Sclw+pYHnbjvZIw==}
+  '@distube/ytdl-core@4.16.5':
+    resolution: {integrity: sha512-sl84k2iNVJSiONR+ZpXJOYKBqx4wnH/VrNClsQbMR7fIveBxLZnd6eBRP8IE6mwyaJTbbc7JEHarGB2i8eNH6A==}
     engines: {node: '>=20.18.1'}
 
   '@emnapi/runtime@1.3.1':
@@ -3428,7 +3428,7 @@ snapshots:
     dependencies:
       regenerator-runtime: 0.14.1
 
-  '@distube/ytdl-core@4.16.0':
+  '@distube/ytdl-core@4.16.5':
     dependencies:
       http-cookie-agent: 6.0.8(tough-cookie@5.1.0)(undici@7.3.0)
       https-proxy-agent: 7.0.6

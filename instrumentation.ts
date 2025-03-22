@@ -3,6 +3,5 @@ import { twitchAssaignWebhookToConduit } from "~/utils/twitch/twitchAssignWebhoo
 
 export async function register() {
   console.log(await redis.ping());
-  console.error("uwu");
   await twitchAssaignWebhookToConduit();
 }

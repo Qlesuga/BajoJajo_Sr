@@ -1,5 +1,4 @@
-import ytdl from "@distube/ytdl-core";
-import type { videoInfo as IVideoInfo, videoInfo } from "@distube/ytdl-core";
+import type { videoInfo } from "@distube/ytdl-core";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { EventEmitter, on } from "stream";
 import { z } from "zod";
@@ -12,6 +11,7 @@ import {
 import type { SongType } from "types/song";
 import { getNextSong } from "~/utils/song/getNextSong";
 import { getUserFromUserLink } from "~/utils/getUserFromUserLink";
+import { getYouTubeInfo, getYouTubeVideo } from "~/utils/utilsYTDL";
 
 interface ISubscriptedUser {
   eventEmitter: EventEmitter;
@@ -145,27 +145,6 @@ export async function addSongToUser(
     type: "new_song",
   });
   return ADD_SONG_SUCCESS_MESSAGE(title);
-}
-
-function getYouTubeInfo(url: string): Promise<IVideoInfo> {
-  return ytdl.getBasicInfo(url);
-}
-
-function getYouTubeVideo(url: string): Promise<Buffer> {
-  console.log("adding song");
-  return new Promise((resolve, _) => {
-    const stream = ytdl(url, {
-      filter: "audioonly",
-    });
-    const buffers: Buffer[] = [];
-    stream.on("data", function (buf: Buffer) {
-      buffers.push(buf);
-    });
-    stream.on("end", function () {
-      const data = Buffer.concat(buffers);
-      resolve(data);
-    });
-  });
 }
 
 const SKIP_SONG_SUCCESS_MESSAGE = "successfully skiped a song";

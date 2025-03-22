@@ -58,6 +58,8 @@ services:
           path: package.json
         - action: rebuild
           path: .env
+        - action: rebuild
+          path: instrimentation.ts
 
   cloudflared:
     image: cloudflare/cloudflared:latest
