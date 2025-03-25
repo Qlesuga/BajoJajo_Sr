@@ -1,7 +1,7 @@
 import { redis } from "lib/redis";
 import type { SongType } from "types/song";
 
-const ADD_SONG_SONG_TTL_IN_SECOUNDS = 60 * 60;
+const ADD_SONG_SONG_TTL_IN_SECOUNDS = 24 * 60 * 60;
 async function addSongToRedis(
   broadcasterID: string,
   songID: string,

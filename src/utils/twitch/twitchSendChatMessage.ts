@@ -9,7 +9,7 @@ async function twitchSendChatMessage(
 
   const body = {
     broadcaster_id: broadcasterID,
-    sender_id: 1245134202,
+    sender_id: process.env.TWITCH_BOT_USER_ID,
     message: message,
     reply_parent_message_id: parentMessageId,
   };

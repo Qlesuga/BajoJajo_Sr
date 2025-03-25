@@ -4,6 +4,7 @@ import { getTwitchConduitId } from "./twitchConduit";
 export async function createTwitchChatSubscription(broadcasterUserId: string) {
   const twitchAppToken = await getTwitchAppAccessToken();
   const conduitID = await getTwitchConduitId();
+  console.info(`Subscribing to ${broadcasterUserId}`);
   const response = await fetch(
     "https://api.twitch.tv/helix/eventsub/subscriptions",
     {
@@ -19,7 +20,7 @@ export async function createTwitchChatSubscription(broadcasterUserId: string) {
         condition: {
           "content-type": "application/json",
           broadcaster_user_id: broadcasterUserId,
-          user_id: "1245134202",
+          user_id: process.env.TWITCH_BOT_USER_ID,
         },
         transport: {
           method: "conduit",

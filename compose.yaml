@@ -38,6 +38,7 @@ services:
     depends_on:
       - db
       - redis
+      - cloudflared
     links:
       - db
       - redis
@@ -67,10 +68,6 @@ services:
     environment:
       - TUNNEL_TOKEN=${CLOUDFLARE_TOKEN}
       - TUNNEL_URL=http://next:3000
-    links:
-      - next
-    depends_on:
-      - next
     restart: unless-stopped
     networks:
       - app-network

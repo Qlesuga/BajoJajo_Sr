@@ -1,7 +1,7 @@
 "server-only";
 
 import { redis } from "lib/redis";
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { addSongToUser, setVolume, skipSong } from "~/server/api/routers/song";
 import { twitchSendChatMessage } from "~/utils/twitch/twitchSendChatMessage";
@@ -93,15 +93,14 @@ function verifyMessage(hmac: string, verifySignature?: string): boolean {
 const CHATTER_TTL_IN_SECOUNDS = 3 * 60;
 const VOTESKIP_PERCENTAGE = 0.5;
 export async function POST(req: Request): Promise<NextResponse> {
+  console.log("japierdole");
   const secret = process.env.TWITCH_WEBHOOK_SECRET;
-
   if (!secret) {
     console.error("Missing TWITCH_WEBHOOK_SECRET environment variable");
     return new NextResponse(null, { status: 500 });
   }
 
   const headers: TwitchWebhookHeaders = Object.fromEntries(req.headers);
-
   const bodyText = await req.text();
   const bodyJson = JSON.parse(bodyText) as
     | TwitchWebhookPayload
@@ -119,11 +118,24 @@ export async function POST(req: Request): Promise<NextResponse> {
   }
   console.log("TWITCH SIGNATURE VERIFIED");
 
+  after(() => {
+    handleTwitchMessage(headers, bodyJson).catch((err) => {
+      console.error(err);
+    });
+  });
+  return new NextResponse(null, { status: 200 });
+}
+
+async function handleTwitchMessage(
+  headers: TwitchWebhookHeaders,
+  bodyJson: TwitchWebhookPayload | WebhookCallbackPayload,
+) {
   const requestType = headers["twitch-eventsub-message-type"];
 
   if (requestType === "webhook_callback_verification") {
     try {
       const notification = bodyJson as WebhookCallbackPayload;
+      console.log("sucesfull twitch verification");
       console.log(notification);
       return new NextResponse(notification.challenge, {
         status: 200,
@@ -206,7 +218,6 @@ export async function POST(req: Request): Promise<NextResponse> {
       );
     }
   }
-  return new NextResponse(null, { status: 200 });
 }
 
 export const config = {
