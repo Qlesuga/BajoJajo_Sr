@@ -80,5 +80,11 @@ export const authConfig = {
     linkAccount: async ({ user, account, profile }) => {
       await createTwitchChatSubscription(account.providerAccountId);
     },
+    signIn: async ({ user, account, profile, isNewUser }) => {
+      if (account?.providerAccountId) {
+        await createTwitchChatSubscription(account.providerAccountId);
+      }
+      return;
+    },
   },
 } satisfies NextAuthConfig;
