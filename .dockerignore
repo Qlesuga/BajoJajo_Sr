@@ -23,5 +23,6 @@
 **/values.dev.yaml
 **/build
 **/dist
+**/yt-dlp
 LICENSE
 README.md

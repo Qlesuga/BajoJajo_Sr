@@ -1,4 +1,20 @@
 services:
+  yt-dlp:
+    image: python
+    restart: always
+    build: ./yt-dlp/
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT}
+    expose:
+      - 8000
+    ports:
+      - 8000:8000
+    develop:
+      watch:
+        - action: rebuild
+          path: .
+          target: /app
+
   db:
     image: postgres
     restart: always
@@ -39,13 +55,15 @@ services:
       - db
       - redis
       - cloudflared
+      - yt-dlp
     links:
       - db
       - redis
+      - yt-dlp
     env_file:
       - .env
     environment:
-      - NODE_ENV=${NODE_ENV}
+      - NODE_ENV=${ENVIRONMENT}
     networks:
       - app-network
     develop:
