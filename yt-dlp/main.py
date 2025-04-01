@@ -16,6 +16,7 @@ ydl_opts = {
             "preferredquality": "192",
         }
     ],
+    "outtmpl": "/music/%(id)s.%(ext)s",
 }
 
 
@@ -34,6 +35,7 @@ def root():
         info = get_video(url, ydl)
 
     return {
+        "id": info["id"],
         "title": info["title"],
         "videoLength": info["duration"],
         "videosViews": info["view_count"],
