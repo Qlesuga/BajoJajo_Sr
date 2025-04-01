@@ -20,19 +20,32 @@ ydl_opts = {
 }
 
 
-def get_video(url: str, ydl: yt_dlp.YoutubeDL):
-    info = ydl.extract_info(url, download=True)
-    with open("info.txt", "w") as f:
-        f.write(str(info))
+def download_video(url: str, ydl: yt_dlp.YoutubeDL) -> bool:
+    try:
+        ydl.download([url])
+    except:
+        return False
+    return True
+
+
+def get_video_info(url: str, ydl: yt_dlp.YoutubeDL):
+    info = ydl.extract_info(url, download=False)
     return info
 
 
 @app.get("/")
-def root():
-    url = "FJZIl0JPmgs"
+def endpoint_home():
+    return {"Hello": ":3"}
+
+
+URL = "FJZIl0JPmgs"
+
+
+@app.get("/info")
+def endpoint_video_info():
     info = {}
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = get_video(url, ydl)
+        info = get_video_info(URL, ydl)
 
     return {
         "id": info["id"],
@@ -41,3 +54,12 @@ def root():
         "videosViews": info["view_count"],
         "isAgeRestricted": bool(info["age_limit"]),
     }
+
+
+@app.get("/download")
+def endpoint_download_video():
+    status: bool = False
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        status = download_video(URL, ydl)
+
+    return {status: status}
