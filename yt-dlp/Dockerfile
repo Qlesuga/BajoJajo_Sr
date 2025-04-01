@@ -2,6 +2,11 @@ FROM python:3
 
 WORKDIR /app
 
+RUN wget https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz -O ffmpeg.tar.xz
+RUN tar -xf ffmpeg.tar.xz
+RUN mv ffmpeg-* ffmpeg
+RUN mv ./ffmpeg/bin/* /usr/bin/
+RUN rm -r ffmpeg
 
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
