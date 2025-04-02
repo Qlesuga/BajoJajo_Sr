@@ -92,17 +92,14 @@ export async function addSongToUser(
     */
   }
 
-  let videoInfo: videoInfo;
-  try {
-    videoInfo = await getYouTubeInfo(url);
-  } catch (err) {
-    console.log(err);
+  const videoInfo = await getYouTubeInfo(url);
+  if (videoInfo == null) {
     return ADD_SONG_INVALID_SONG;
   }
-  const title: string = videoInfo.videoDetails.title;
-  const videoLength: number = parseInt(videoInfo.videoDetails.lengthSeconds);
-  const videoViews: number = parseInt(videoInfo.videoDetails.viewCount);
-  const isAgeRestricted: boolean = videoInfo.videoDetails.age_restricted;
+  const title: string = videoInfo.title;
+  const videoLength: number = videoInfo.videoLength;
+  const videoViews: number = videoInfo.videosViews;
+  const isAgeRestricted: boolean = videoInfo.isAgeRestricted;
   if (containsBannedString(title)) {
     return ADD_SONG_BANNED_WORD_IN_TITLE;
   }
@@ -120,7 +117,8 @@ export async function addSongToUser(
   }
 
   let videoBlob: string;
-  const songID = videoInfo.videoDetails.videoId;
+  const songID = videoInfo.id;
+
   if (await redis.exists(songID)) {
     redis.expire(songID, ADD_SONG_SONG_TTL_IN_SECOUNDS).catch(() => null);
     videoBlob = (await redis.hGet(songID, "videoBlob"))!;
@@ -132,11 +130,12 @@ export async function addSongToUser(
       return ADD_SONG_INVALID_SONG;
     }
   }
+
   const song: SongType = {
     title: title,
-    songLengthSeconds: parseInt(videoInfo.videoDetails.lengthSeconds),
-    songAuthor: videoInfo.videoDetails.ownerChannelName,
-    songThumbnail: videoInfo.videoDetails.thumbnails[0]?.url ?? "",
+    songLengthSeconds: videoLength,
+    songAuthor: videoInfo.channel,
+    songThumbnail: videoInfo.thumbnail,
     songBlob: videoBlob,
   };
   await addSongToRedis(broadcasterID, songID, song);

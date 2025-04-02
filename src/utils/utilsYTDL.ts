@@ -1,4 +1,3 @@
-import type { videoInfo } from "@distube/ytdl-core";
 import ytdl, { createAgent } from "@distube/ytdl-core";
 import { readFileSync } from "fs";
 import type { Cookie } from "tough-cookie";
@@ -11,8 +10,26 @@ const ytCookies: ytdlCookies = JSON.parse(
 ) as ytdlCookies;
 const agent = createAgent(ytCookies);
 
-export function getYouTubeInfo(url: string): Promise<videoInfo> {
-  return ytdl.getBasicInfo(url, { agent });
+type InfoApiResponse = {
+  id: string;
+  title: string;
+  videoLength: number;
+  videosViews: number;
+  isAgeRestricted: boolean;
+  channel: string;
+  thumbnail: string;
+};
+
+export async function getYouTubeInfo(
+  url: string,
+): Promise<InfoApiResponse | null> {
+  const info = await fetch(
+    `http://yt-dlp:8000/info/${encodeURIComponent(url)}`,
+  );
+  if (info.status != 200) {
+    return null;
+  }
+  return (await info.json()) as InfoApiResponse;
 }
 
 export function getYouTubeVideo(url: string): Promise<Buffer> {

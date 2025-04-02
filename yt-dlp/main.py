@@ -1,4 +1,5 @@
 import os
+from sys import exception
 
 import yt_dlp
 from fastapi import FastAPI, Response
@@ -51,13 +52,19 @@ def endpoint_video_info(video_id: str, response: Response):
         response.status_code = 400
         return {}
 
-    return {
-        "id": info["id"],
-        "title": info["title"],
-        "videoLength": info["duration"],
-        "videosViews": info["view_count"],
-        "isAgeRestricted": bool(info["age_limit"]),
-    }
+    try:
+        return {
+            "id": info["id"],
+            "title": info["title"],
+            "videoLength": info["duration"],
+            "videosViews": info["view_count"],
+            "isAgeRestricted": bool(info["age_limit"]),
+            "channel": info["channel"],
+            "thumbnail": info["thumbnail"],
+        }
+    except:
+        response.status_code = 500
+        return {}
 
 
 @app.get("/download/{video_id}")
