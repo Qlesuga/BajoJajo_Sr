@@ -41,11 +41,11 @@ def endpoint_home():
 URL = "FJZIl0JPmgs"
 
 
-@app.get("/info")
-def endpoint_video_info():
+@app.get("/info/{video_id}")
+def endpoint_video_info(video_id: str):
     info = {}
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = get_video_info(URL, ydl)
+        info = get_video_info(video_id, ydl)
 
     return {
         "id": info["id"],
@@ -56,10 +56,10 @@ def endpoint_video_info():
     }
 
 
-@app.get("/download")
+@app.get("/download/{video_id}")
 def endpoint_download_video():
     status: bool = False
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        status = download_video(URL, ydl)
+        status = download_video(video_id, ydl)
 
     return {status: status}
