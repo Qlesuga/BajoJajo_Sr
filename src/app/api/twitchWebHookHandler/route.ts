@@ -93,7 +93,6 @@ function verifyMessage(hmac: string, verifySignature?: string): boolean {
 const CHATTER_TTL_IN_SECOUNDS = 3 * 60;
 const VOTESKIP_PERCENTAGE = 0.5;
 export async function POST(req: Request): Promise<NextResponse> {
-  console.log("japierdole");
   const secret = process.env.TWITCH_WEBHOOK_SECRET;
   if (!secret) {
     console.error("Missing TWITCH_WEBHOOK_SECRET environment variable");
@@ -118,28 +117,16 @@ export async function POST(req: Request): Promise<NextResponse> {
   }
   console.log("TWITCH SIGNATURE VERIFIED");
 
-  after(() => {
-    handleTwitchMessage(headers, bodyJson).catch((err) => {
-      console.error(err);
-    });
-  });
-  return new NextResponse(null, { status: 200 });
-}
-
-async function handleTwitchMessage(
-  headers: TwitchWebhookHeaders,
-  bodyJson: TwitchWebhookPayload | WebhookCallbackPayload,
-) {
   const requestType = headers["twitch-eventsub-message-type"];
 
   if (requestType === "webhook_callback_verification") {
     try {
       const notification = bodyJson as WebhookCallbackPayload;
       console.log("sucesfull twitch verification");
-      console.log(notification);
-      return new NextResponse(notification.challenge, {
+      const challenge = notification.challenge;
+      return new NextResponse(challenge, {
         status: 200,
-        headers: { "Content-Type": `${notification.challenge.length}` },
+        headers: { "Content-Type": `${challenge.length}` },
       });
     } catch (error) {
       console.error("Failed to parse webhook verification payload:", error);
@@ -147,6 +134,13 @@ async function handleTwitchMessage(
     }
   }
 
+  after(() => handleTwitchMessage(bodyJson));
+  return new NextResponse(null, { status: 200 });
+}
+
+async function handleTwitchMessage(
+  bodyJson: TwitchWebhookPayload | WebhookCallbackPayload,
+) {
   const notification = bodyJson as TwitchWebhookPayload;
   const badges = notification.event.badges;
   const senderID = notification.event.chatter_user_id;

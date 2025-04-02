@@ -30,7 +30,6 @@ export async function getTwitchConduitId(): Promise<string> {
   const body: TwitchCreateConduitResponse =
     (await checkConduitResponse.json()) as TwitchCreateConduitResponse;
   const conduits = body.data;
-  console.log(body);
   if (conduits.length == 1) {
     isConduitValidated = true;
     await RedisCache.set<string>(CACHE_TWITCH_CONDUIT_ID, conduits[0].id);

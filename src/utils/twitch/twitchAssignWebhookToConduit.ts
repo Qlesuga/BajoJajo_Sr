@@ -4,10 +4,21 @@ import { getTwitchConduitId } from "./twitchConduit";
 const WEBHOOK_ENDPOINT = "twitchWebHookHandler";
 const URL = process.env.TWITCH_WEBHOOK_ENDPOINT;
 
+type twitchAssaignWebhookToConduitResponse = {
+  data: {
+    id: string;
+    status: string;
+    transport: {
+      method: "webhook";
+      callback: string;
+    };
+  }[];
+};
+
 export async function twitchAssaignWebhookToConduit() {
   const conduitId = await getTwitchConduitId();
   const twitchAppToken = await getTwitchAppAccessToken();
-  const chujwie = await fetch(
+  const assaingWebhookResponse = await fetch(
     "https://api.twitch.tv/helix/eventsub/conduits/shards",
     {
       method: "PATCH",
@@ -31,5 +42,7 @@ export async function twitchAssaignWebhookToConduit() {
       }),
     },
   );
-  console.log(await chujwie.json());
+  const body: twitchAssaignWebhookToConduitResponse =
+    (await assaingWebhookResponse.json()) as twitchAssaignWebhookToConduitResponse;
+  console.log(body?.data);
 }
