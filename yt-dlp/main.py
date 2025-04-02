@@ -1,7 +1,7 @@
 import os
 
 import yt_dlp
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 
 app = FastAPI()
 
@@ -29,7 +29,10 @@ def download_video(url: str, ydl: yt_dlp.YoutubeDL) -> bool:
 
 
 def get_video_info(url: str, ydl: yt_dlp.YoutubeDL):
-    info = ydl.extract_info(url, download=False)
+    try:
+        info = ydl.extract_info(url, download=False)
+    except:
+        return False
     return info
 
 
@@ -38,14 +41,15 @@ def endpoint_home():
     return {"Hello": ":3"}
 
 
-URL = "FJZIl0JPmgs"
-
-
-@app.get("/info/{video_id}")
-def endpoint_video_info(video_id: str):
+@app.get("/info/{video_id}", status_code=200)
+def endpoint_video_info(video_id: str, response: Response):
     info = {}
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = get_video_info(video_id, ydl)
+
+    if info is False:
+        response.status_code = 400
+        return {}
 
     return {
         "id": info["id"],
@@ -57,7 +61,7 @@ def endpoint_video_info(video_id: str):
 
 
 @app.get("/download/{video_id}")
-def endpoint_download_video():
+def endpoint_download_video(video_id: str):
     status: bool = False
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         status = download_video(video_id, ydl)
