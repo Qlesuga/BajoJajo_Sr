@@ -96,6 +96,7 @@ export async function addSongToUser(
   if (videoInfo == null) {
     return ADD_SONG_INVALID_SONG;
   }
+  const songID = videoInfo.id;
   const title: string = videoInfo.title;
   const videoLength: number = videoInfo.videoLength;
   const videoViews: number = videoInfo.videosViews;
@@ -116,27 +117,16 @@ export async function addSongToUser(
     return ADD_SONG_VIDEO_AGE_RESTRICTED;
   }
 
-  let videoBlob: string;
-  const songID = videoInfo.id;
-
-  if (await redis.exists(songID)) {
-    redis.expire(songID, ADD_SONG_SONG_TTL_IN_SECOUNDS).catch(() => null);
-    videoBlob = (await redis.hGet(songID, "videoBlob"))!;
-  } else {
-    try {
-      videoBlob = (await getYouTubeVideo(url)).toString("base64");
-    } catch (err) {
-      console.error(err);
-      return ADD_SONG_INVALID_SONG;
-    }
+  const VideoFile: string | null = await getYouTubeVideo(songID);
+  if (!VideoFile) {
+    return ADD_SONG_INVALID_SONG;
   }
-
   const song: SongType = {
     title: title,
     songLengthSeconds: videoLength,
     songAuthor: videoInfo.channel,
     songThumbnail: videoInfo.thumbnail,
-    songBlob: videoBlob,
+    songBlob: VideoFile,
   };
   await addSongToRedis(broadcasterID, songID, song);
 

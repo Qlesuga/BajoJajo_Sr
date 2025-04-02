@@ -1,14 +1,4 @@
-import ytdl, { createAgent } from "@distube/ytdl-core";
 import { readFileSync } from "fs";
-import type { Cookie } from "tough-cookie";
-
-type ytdlCookies = (ytdl.Cookie | Cookie)[];
-
-const cookiesUrl: string = process.cwd() + "/cookies.json";
-const ytCookies: ytdlCookies = JSON.parse(
-  readFileSync(cookiesUrl).toString(),
-) as ytdlCookies;
-const agent = createAgent(ytCookies);
 
 type InfoApiResponse = {
   id: string;
@@ -20,32 +10,34 @@ type InfoApiResponse = {
   thumbnail: string;
 };
 
+const YT_DLP_API_URL = "http://yt-dlp:8000";
+
 export async function getYouTubeInfo(
   url: string,
 ): Promise<InfoApiResponse | null> {
-  const info = await fetch(
-    `http://yt-dlp:8000/info/${encodeURIComponent(url)}`,
-  );
+  const info = await fetch(`${YT_DLP_API_URL}/info/${encodeURIComponent(url)}`);
   if (info.status != 200) {
     return null;
   }
   return (await info.json()) as InfoApiResponse;
 }
 
-export function getYouTubeVideo(url: string): Promise<Buffer> {
-  console.log("adding song");
-  return new Promise((resolve, _) => {
-    const stream = ytdl(url, {
-      filter: "audioonly",
-      agent,
-    });
-    const buffers: Buffer[] = [];
-    stream.on("data", function (buf: Buffer) {
-      buffers.push(buf);
-    });
-    stream.on("end", function () {
-      const data = Buffer.concat(buffers);
-      resolve(data);
-    });
-  });
+type DownloadApiResponse = {
+  status: boolean;
+};
+
+export async function getYouTubeVideo(videoID: string): Promise<string | null> {
+  const response = await fetch(`${YT_DLP_API_URL}/download/${videoID}`);
+  const body: DownloadApiResponse =
+    (await response.json()) as DownloadApiResponse;
+  if (body.status == false) {
+    return null;
+  }
+  let file: string | undefined;
+  try {
+    file = readFileSync(`/music/${videoID}.mp3`).toString("base64");
+  } catch (e) {
+    return null;
+  }
+  return file;
 }
