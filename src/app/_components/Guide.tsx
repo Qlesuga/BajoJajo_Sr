@@ -1,47 +1,109 @@
-import {
-  Modal,
-  ModalContent,
-  ModalBody,
-  useDisclosure,
-  Link,
-} from "@heroui/react";
-import Image from "next/image";
+"use client";
 
-function Guide() {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+import { useState } from "react";
+import Image from "next/image";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/shadcn/components/ui/dialog";
+
+export default function GuideModal() {
+  const [open, setOpen] = useState(false);
+
   return (
-    <>
-      <Link className="cursor-pointer" onPress={onOpen}>
-        guide
-      </Link>
-      <Modal
-        size="xl"
-        isOpen={isOpen}
-        scrollBehavior="outside"
-        onOpenChange={onOpenChange}
-      >
-        <ModalContent>
-          <ModalBody>
-            <p>1. Copy your player link (dont leak it)</p>
-            <Image src="/Guide1.jpg" alt="guide 1" width={1280} height={720} />
-            <p>2. Add new browser source</p>
-            <Image src="/Guide2.jpg" alt="guide 2" width={1280} height={720} />
-            <p>3. Paste player link into url field </p>
-            <p>4. Set width to anything you feel like it </p>
-            <p>5. Set height to 128</p>
-            <p>6. Check control audio via obs</p>
-            <Image src="/Guide3.jpg" alt="guide 3" width={1280} height={720} />
-            <p>7. Open advanced audio properties </p>
-            <p>
-              8. set audio monitoring for player to &quot;monitor and
-              output&quot;
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <p className="cursor-pointer">guide</p>
+      </DialogTrigger>
+      <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold">
+            OBS Player Setup Guide
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-6 py-4">
+          <div className="space-y-2">
+            <h3 className="text-lg font-medium">
+              Step 1: Copy your player link
+            </h3>
+            <p className="text-muted-foreground">
+              Copy your player link but be careful not to share it publicly
             </p>
-            <Image src="/Guide4.jpg" alt="guide 4" width={1280} height={720} />
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-    </>
+            <div className="overflow-hidden rounded-md border">
+              <Image
+                src="/Guide1.jpg"
+                alt="Copy player link"
+                width={1280}
+                height={720}
+                className="w-full"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-lg font-medium">
+              Step 2: Add new browser source in OBS
+            </h3>
+            <p className="text-muted-foreground">
+              In OBS, add a new browser source to your scene
+            </p>
+            <div className="overflow-hidden rounded-md border">
+              <Image
+                src="/Guide2.jpg"
+                alt="Add browser source"
+                width={1280}
+                height={720}
+                className="w-full"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-lg font-medium">
+              Step 3: Configure the browser source
+            </h3>
+            <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+              <li>Paste your player link into the URL field</li>
+              <li>Set the width to your preferred size</li>
+              <li>Set the height to 128</li>
+              <li>Make sure to check "Control audio via OBS"</li>
+            </ul>
+            <div className="overflow-hidden rounded-md border">
+              <Image
+                src="/Guide3.jpg"
+                alt="Configure browser source"
+                width={1280}
+                height={720}
+                className="w-full"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-lg font-medium">
+              Step 4: Set up audio monitoring
+            </h3>
+            <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+              <li>Open advanced audio properties</li>
+              <li>
+                Set audio monitoring for the player to "Monitor and Output"
+              </li>
+            </ul>
+            <div className="overflow-hidden rounded-md border">
+              <Image
+                src="/Guide4.jpg"
+                alt="Set up audio monitoring"
+                width={1280}
+                height={720}
+                className="w-full"
+              />
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
-
-export default Guide;

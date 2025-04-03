@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Guide from "./Guide";
+import GuideModal from "./Guide";
 import { Button } from "~/shadcn/components/ui/button";
 
 interface LogedInDashboardProps {
@@ -32,7 +32,7 @@ const LogedInDashboard = ({ userName, userLink }: LogedInDashboardProps) => {
       </Button>
       <div className="flex flex-col items-center">
         <Button onClick={CopyPlayerLink}>COPY PLAYER LINK</Button>
-        <Guide />
+        <GuideModal />
       </div>
     </div>
   );
