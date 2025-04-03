@@ -8,3 +8,5 @@ export type SongTypeWithoutBlob = {
 export type SongType = SongTypeWithoutBlob & {
   songBlob: string;
 };
+
+export type SongTypeInRedis = SongTypeWithoutBlob;

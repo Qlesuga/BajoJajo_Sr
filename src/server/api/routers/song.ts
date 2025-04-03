@@ -8,7 +8,7 @@ import {
   ADD_SONG_SONG_TTL_IN_SECOUNDS,
   addSongToRedis,
 } from "~/utils/song/addSongToRedis";
-import type { SongType } from "types/song";
+import type { SongType, SongTypeWithoutBlob } from "types/song";
 import { getNextSong } from "~/utils/song/getNextSong";
 import { getUserFromUserLink } from "~/utils/getUserFromUserLink";
 import { getYouTubeInfo, getYouTubeVideo } from "~/utils/utilsYTDL";
@@ -121,12 +121,11 @@ export async function addSongToUser(
   if (!VideoFile) {
     return ADD_SONG_INVALID_SONG;
   }
-  const song: SongType = {
+  const song: SongTypeWithoutBlob = {
     title: title,
     songLengthSeconds: videoLength,
     songAuthor: videoInfo.channel,
     songThumbnail: videoInfo.thumbnail,
-    songBlob: VideoFile,
   };
   await addSongToRedis(broadcasterID, songID, song);
 
