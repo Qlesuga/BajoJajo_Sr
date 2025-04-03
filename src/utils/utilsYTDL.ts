@@ -1,4 +1,4 @@
-import { readFileSync } from "fs";
+import { readFileSync, existsSync } from "fs";
 
 type InfoApiResponse = {
   id: string;
@@ -27,15 +27,19 @@ type DownloadApiResponse = {
 };
 
 export async function getYouTubeVideo(videoID: string): Promise<string | null> {
-  const response = await fetch(`${YT_DLP_API_URL}/download/${videoID}`);
-  const body: DownloadApiResponse =
-    (await response.json()) as DownloadApiResponse;
-  if (body.status == false) {
-    return null;
+  const filePath = `/music/${videoID}.mp3`;
+  const doesExist = existsSync(filePath);
+  if (!doesExist) {
+    const response = await fetch(`${YT_DLP_API_URL}/download/${videoID}`);
+    const body: DownloadApiResponse =
+      (await response.json()) as DownloadApiResponse;
+    if (body.status == false) {
+      return null;
+    }
   }
   let file: string | undefined;
   try {
-    file = readFileSync(`/music/${videoID}.mp3`).toString("base64");
+    file = readFileSync(filePath).toString("base64");
   } catch (e) {
     return null;
   }
