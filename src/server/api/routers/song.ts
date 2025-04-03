@@ -1,14 +1,9 @@
-import type { videoInfo } from "@distube/ytdl-core";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { EventEmitter, on } from "stream";
 import { z } from "zod";
 import { containsBannedString } from "~/utils/twitch/twitchBannedRegex";
-import { redis } from "lib/redis";
-import {
-  ADD_SONG_SONG_TTL_IN_SECOUNDS,
-  addSongToRedis,
-} from "~/utils/song/addSongToRedis";
-import type { SongType, SongTypeWithoutBlob } from "types/song";
+import { addSongToRedis } from "~/utils/song/addSongToRedis";
+import type { SongTypeWithoutBlob } from "types/song";
 import { getNextSong } from "~/utils/song/getNextSong";
 import { getUserFromUserLink } from "~/utils/getUserFromUserLink";
 import { getYouTubeInfo, getYouTubeVideo } from "~/utils/utilsYTDL";
