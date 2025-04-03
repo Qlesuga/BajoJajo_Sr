@@ -1,8 +1,8 @@
 "use client";
 
-import { Button } from "@heroui/react";
 import Link from "next/link";
 import Guide from "./Guide";
+import { Button } from "~/shadcn/components/ui/button";
 
 interface LogedInDashboardProps {
   userName: string;
@@ -27,16 +27,11 @@ const LogedInDashboard = ({ userName, userLink }: LogedInDashboardProps) => {
       <p className="text-center text-2xl text-white">
         <span>Logged in as {userName}</span>
       </p>
-      <Button color="danger">
-        <Link
-          href={"/api/auth/signout"}
-          className="rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
-        >
-          Log Out
-        </Link>
+      <Button variant="destructive">
+        <Link href={"/api/auth/signout"}>Log Out</Link>
       </Button>
       <div className="flex flex-col items-center">
-        <Button onPress={CopyPlayerLink}>COPY PLAYER LINK</Button>
+        <Button onClick={CopyPlayerLink}>COPY PLAYER LINK</Button>
         <Guide />
       </div>
     </div>
