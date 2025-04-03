@@ -203,6 +203,8 @@ async function handleTwitchMessage(
       } else {
         responseMessage = `voteskip: ${amontOfChatterWhoSkipped}/${progress}`;
       }
+    } else if (splitMessage[0] == "!queue") {
+      responseMessage = `${process.env.NEXTAUTH_URL}/queue/${notification.event.broadcaster_user_name}`;
     }
     if (responseMessage && responseMessage != "") {
       await twitchSendChatMessage(
