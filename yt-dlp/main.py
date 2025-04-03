@@ -7,8 +7,7 @@ from fastapi import FastAPI, Response
 app = FastAPI()
 
 ydl_opts = {
-    "username": os.getenv("YT_USERNAME"),
-    "password": os.getenv("YT_PASSWORD"),
+    "cookiefile": "cookies.txt",
     "format": "bestaudio/best",
     "postprocessors": [
         {
