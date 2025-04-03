@@ -9,6 +9,14 @@ const config = {
   serverRuntimeConfig: {
     runtime: "nodejs",
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "i.ytimg.com",
+      },
+    ],
+  },
 };
 
 export default config;
