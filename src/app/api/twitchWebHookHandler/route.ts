@@ -11,6 +11,7 @@ import type {
   WebhookCallbackPayload,
   TwitchWebhookHeaders,
 } from "types/twitch";
+import { getCurrentSongInfo } from "~/utils/song/getCurrentSongInfo";
 
 function getHmac(secret: string, message: string): string {
   return createHmac("sha256", secret).update(message).digest("hex");
@@ -147,9 +148,13 @@ async function handleTwitchMessage(
     }
   } else if (command == "!queue") {
     responseMessage = `${process.env.NEXTAUTH_URL}/queue/${event.broadcaster_user_name}`;
+  } else if (command == "!current") {
+    const song = await getCurrentSongInfo(broadcasterID);
+    console.log(song);
+    responseMessage = `currently is playing: ${song ? song.title : "nothing"}`;
   }
 
-  if (!responseMessage || responseMessage != "") {
+  if (!responseMessage || responseMessage == "") {
     return null;
   }
 

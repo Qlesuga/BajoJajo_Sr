@@ -1,16 +1,12 @@
-import { redis } from "lib/redis";
-import type { SongTypeInRedis, SongType } from "types/song";
+import type { SongTypeInRedis } from "types/song";
 import { getYouTubeVideo } from "../utilsYTDL";
+import { getSongInfo } from "./getSongInfo";
 
 async function getSong(
   songID: string,
 ): Promise<(SongTypeInRedis & { songBlob: string }) | null> {
-  const song = await redis.hGetAll(`song:${songID}`);
-  if (!song) {
-    return null;
-  }
-  const { title, songLengthSeconds, songAuthor, songThumbnail } = song;
-  if (!title || !songLengthSeconds || !songAuthor || !songThumbnail) {
+  const songInfo = await getSongInfo(songID);
+  if (!songInfo) {
     return null;
   }
   const songFile = await getYouTubeVideo(songID);
@@ -18,10 +14,10 @@ async function getSong(
     return null;
   }
   return {
-    title: title,
-    songAuthor: songAuthor,
-    songLengthSeconds: parseInt(songLengthSeconds),
-    songThumbnail: songThumbnail,
+    title: songInfo.title,
+    songAuthor: songInfo.songAuthor,
+    songLengthSeconds: songInfo.songLengthSeconds,
+    songThumbnail: songInfo.songThumbnail,
     songBlob: songFile,
   };
 }

@@ -1,6 +1,6 @@
 import { readFileSync, existsSync } from "fs";
 
-type InfoApiResponse = {
+export type InfoApiResponse = {
   id: string;
   title: string;
   videoLength: number;
