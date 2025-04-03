@@ -12,6 +12,7 @@ const config = {
     "prettier",
   ],
   rules: {
+    "@typescript-eslint/prefer-nullish-coalescing": "off",
     "@typescript-eslint/array-type": "off",
     "@typescript-eslint/consistent-type-definitions": "off",
     "@typescript-eslint/consistent-type-imports": [
