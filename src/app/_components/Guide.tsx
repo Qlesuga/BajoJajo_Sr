@@ -69,7 +69,7 @@ export default function GuideModal() {
               <li>Paste your player link into the URL field</li>
               <li>Set the width to your preferred size</li>
               <li>Set the height to 128</li>
-              <li>Make sure to check "Control audio via OBS"</li>
+              <li>Make sure to check &quot;Control audio via OBS&quot;</li>
             </ul>
             <div className="overflow-hidden rounded-md border">
               <Image
@@ -89,7 +89,8 @@ export default function GuideModal() {
             <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
               <li>Open advanced audio properties</li>
               <li>
-                Set audio monitoring for the player to "Monitor and Output"
+                Set audio monitoring for the player to &quot;Monitor and
+                Output&quot;
               </li>
             </ul>
             <div className="overflow-hidden rounded-md border">
