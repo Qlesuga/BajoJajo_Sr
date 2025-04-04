@@ -8,6 +8,7 @@ import { getNextSong } from "~/utils/song/getNextSong";
 import { getUserFromUserLink } from "~/utils/getUserFromUserLink";
 import { getYouTubeInfo, getYouTubeVideo } from "~/utils/utilsYTDL";
 import { getAllSongsWithoutBlob } from "~/utils/song/getAllSongsWithoutBlob";
+import { isSongAlreadyInQueue } from "~/utils/song/isSongAlreadyInQueue";
 
 interface ISubscriptedUser {
   eventEmitter: EventEmitter;
@@ -75,33 +76,27 @@ export async function addSongToUser(
   if (url == "") {
     return ADD_SONG_INVALID_SONG;
   }
-  if (process.env.NODE_ENV != "development") {
-    //TODO przepisac
-    /*
-    const isAlreadyInQueue = subscripedUsers[broadcasterID]!.songs.some(
-      (song) => {
-        return song.url == url;
-      },
-    );
-    
-    if (isAlreadyInQueue) {
-      return ADD_SONG_ALREADY_IN_QUEUE;
-    }
-    */
-  }
   const allCurrentSongs = await getAllSongsWithoutBlob(broadcasterID);
   if (allCurrentSongs.length > QUEUE_LENGTH_LIMIT) {
     return MAX_LENGTH_REACHED;
   }
+
   const videoInfo = await getYouTubeInfo(url);
   if (videoInfo == null) {
     return ADD_SONG_INVALID_SONG;
   }
+
   const songID = videoInfo.id;
   const title: string = videoInfo.title;
   const videoLength: number = videoInfo.videoLength;
   const videoViews: number = videoInfo.videosViews;
   const isAgeRestricted: boolean = videoInfo.isAgeRestricted;
+
+  const isAlreadyInQueue = await isSongAlreadyInQueue(broadcasterID, songID);
+  if (isAlreadyInQueue) {
+    return ADD_SONG_ALREADY_IN_QUEUE;
+  }
+
   if (containsBannedString(title)) {
     return ADD_SONG_BANNED_WORD_IN_TITLE;
   }
