@@ -135,13 +135,11 @@ export function skipSong(userID: string): string {
 }
 
 export function stopSong(userID: string): null {
-  console.log(getSubscriptedUsers());
   getSubscriptedUsers()[userID]?.eventEmitter.emit("emit", { type: "stop" });
   return null;
 }
 
 export function playSong(userID: string): null {
-  console.log(getSubscriptedUsers());
   getSubscriptedUsers()[userID]?.eventEmitter.emit("emit", { type: "play" });
   return null;
 }
