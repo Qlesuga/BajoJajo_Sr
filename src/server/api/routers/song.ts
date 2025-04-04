@@ -7,6 +7,7 @@ import type { SongTypeWithoutBlob } from "types/song";
 import { getNextSong } from "~/utils/song/getNextSong";
 import { getUserFromUserLink } from "~/utils/getUserFromUserLink";
 import { getYouTubeInfo, getYouTubeVideo } from "~/utils/utilsYTDL";
+import { getAllSongsWithoutBlob } from "~/utils/song/getAllSongsWithoutBlob";
 
 interface ISubscriptedUser {
   eventEmitter: EventEmitter;
@@ -65,6 +66,8 @@ const MINIMUM_VIDEO_VIEWS = 7000;
 const ADD_SONG_MINIMUM_VIEWS = `song must have over ${MINIMUM_VIDEO_VIEWS} views`;
 const ADD_SONG_VIDEO_AGE_RESTRICTED = "song is age restricted";
 const ADD_SONG_INVALID_SONG = "invalid song";
+const QUEUE_LENGTH_LIMIT = 20;
+const MAX_LENGTH_REACHED = `song queue length can't exceed ${QUEUE_LENGTH_LIMIT}`;
 export async function addSongToUser(
   broadcasterID: string,
   url: string,
@@ -86,7 +89,10 @@ export async function addSongToUser(
     }
     */
   }
-
+  const allCurrentSongs = await getAllSongsWithoutBlob(broadcasterID);
+  if (allCurrentSongs.length > QUEUE_LENGTH_LIMIT) {
+    return MAX_LENGTH_REACHED;
+  }
   const videoInfo = await getYouTubeInfo(url);
   if (videoInfo == null) {
     return ADD_SONG_INVALID_SONG;
