@@ -5,7 +5,6 @@ import { api } from "~/trpc/react";
 import PlayerComponent from "../../_components/playerComponent";
 import { b64toBlob } from "~/utils/stringB64ToBlob";
 import { useEffect, useState, useRef } from "react";
-import type { MutableRefObject } from "react";
 import { useParams } from "next/navigation";
 import type { SongType } from "types/song";
 
@@ -14,6 +13,7 @@ const Player: React.FC = () => {
   const userLink = useRef(params.link);
   const [currentSong, setCurrentSong] = useState<SongType | null>(null);
   const [nextSong, setNextSong] = useState<SongType | null>(null);
+  const [isRunning, setIsRunning] = useState<boolean>(true);
   const audioRef = useRef<HTMLAudioElement | undefined>();
   const volume = useRef(0.2);
   const { data, refetch } = api.song.nextSong.useQuery(userLink.current, {
@@ -23,20 +23,35 @@ const Player: React.FC = () => {
   api.song.songSubscription.useSubscription(userLink.current, {
     onData: (data) => {
       console.log(data);
-      if (data.type == "skip") {
+      const command = data.type;
+      if (command == "skip") {
         playNextSong();
-      } else if (data.type == "new_song") {
+      } else if (command == "new_song") {
         if (!nextSong) {
           void refetch();
         }
-      } else if (data.type == "volume") {
+      } else if (command == "volume") {
         if (data.value != null && audioRef.current) {
           volume.current = data.value;
           audioRef.current.volume = data.value;
         }
+      } else if (command == "stop") {
+        stopAudio();
+      } else if (command == "play") {
+        playAudio();
       }
     },
   });
+
+  const stopAudio = () => {
+    audioRef.current?.pause();
+    setIsRunning(false);
+  };
+
+  const playAudio = () => {
+    audioRef.current?.play().catch((e) => console.log(e));
+    setIsRunning(true);
+  };
 
   useEffect(() => {
     if (data) {
@@ -89,19 +104,21 @@ const Player: React.FC = () => {
   };
 
   if (!currentSong) {
-    return <div className="w-full dark">Loading or empty queue</div>;
+    return <div className="dark w-full">Loading or empty queue</div>;
   }
 
   return (
-    <div className="w-full dark">
+    <div className="dark w-full">
       <PlayerComponent
         key={currentSong.title}
         name={currentSong.title}
         artist={currentSong.songAuthor}
         length={currentSong.songLengthSeconds}
         image={currentSong.songThumbnail}
-        audio={audioRef as MutableRefObject<HTMLAudioElement>}
         getNextSong={playNextSong}
+        isRunning={isRunning}
+        stopAudio={stopAudio}
+        playAudio={playAudio}
       />
     </div>
   );

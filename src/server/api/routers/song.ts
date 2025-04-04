@@ -9,12 +9,7 @@ import { getUserFromUserLink } from "~/utils/getUserFromUserLink";
 import { getYouTubeInfo, getYouTubeVideo } from "~/utils/utilsYTDL";
 import { getAllSongsWithoutBlob } from "~/utils/song/getAllSongsWithoutBlob";
 import { isSongAlreadyInQueue } from "~/utils/song/isSongAlreadyInQueue";
-
-interface ISubscriptedUser {
-  eventEmitter: EventEmitter;
-}
-
-const subscripedUsers: Record<string, ISubscriptedUser> = {};
+import { getSubscriptedUsers } from "./subscripedUsers";
 
 export const songRouter = createTRPCRouter({
   nextSong: publicProcedure.input(z.string()).query(async (opts) => {
@@ -39,14 +34,16 @@ export const songRouter = createTRPCRouter({
       }
 
       let emitter: EventEmitter;
-      if (broadcasterID in subscripedUsers) {
-        emitter = subscripedUsers[broadcasterID]!.eventEmitter;
+      const users = getSubscriptedUsers();
+      if (broadcasterID in users) {
+        emitter = users[broadcasterID]!.eventEmitter;
       } else {
         emitter = new EventEmitter();
-        subscripedUsers[broadcasterID] = {
+        users[broadcasterID] = {
           eventEmitter: emitter,
         };
       }
+      console.log(getSubscriptedUsers());
       for await (const data of on(emitter, "emit", {
         signal: opts.signal,
       })) {
@@ -125,7 +122,7 @@ export async function addSongToUser(
   };
   await addSongToRedis(broadcasterID, songID, song);
 
-  subscripedUsers[broadcasterID]?.eventEmitter.emit("emit", {
+  getSubscriptedUsers()[broadcasterID]?.eventEmitter.emit("emit", {
     type: "new_song",
   });
   return ADD_SONG_SUCCESS_MESSAGE(title);
@@ -133,8 +130,20 @@ export async function addSongToUser(
 
 const SKIP_SONG_SUCCESS_MESSAGE = "successfully skiped a song";
 export function skipSong(userID: string): string {
-  subscripedUsers[userID]?.eventEmitter.emit("emit", { type: "skip" });
+  getSubscriptedUsers()[userID]?.eventEmitter.emit("emit", { type: "skip" });
   return SKIP_SONG_SUCCESS_MESSAGE;
+}
+
+export function stopSong(userID: string): null {
+  console.log(getSubscriptedUsers());
+  getSubscriptedUsers()[userID]?.eventEmitter.emit("emit", { type: "stop" });
+  return null;
+}
+
+export function playSong(userID: string): null {
+  console.log(getSubscriptedUsers());
+  getSubscriptedUsers()[userID]?.eventEmitter.emit("emit", { type: "play" });
+  return null;
 }
 
 const SET_VOLUME_ERROR_MESSAGE = "volume must be a number between 0 and 100";
@@ -145,7 +154,7 @@ export function setVolume(userID: string, value: string): string {
   if (isNaN(volume) || volume > 100 || volume < 0) {
     return SET_VOLUME_ERROR_MESSAGE;
   }
-  subscripedUsers[userID]?.eventEmitter.emit("emit", {
+  getSubscriptedUsers()[userID]?.eventEmitter.emit("emit", {
     type: "volume",
     value: Math.floor(volume) / 100,
   });

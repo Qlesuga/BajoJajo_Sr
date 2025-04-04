@@ -3,7 +3,13 @@
 import { redis } from "lib/redis";
 import { after, NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { addSongToUser, setVolume, skipSong } from "~/server/api/routers/song";
+import {
+  addSongToUser,
+  playSong,
+  setVolume,
+  skipSong,
+  stopSong,
+} from "~/server/api/routers/song";
 import { twitchSendChatMessage } from "~/utils/twitch/twitchSendChatMessage";
 import type {
   Badge,
@@ -113,6 +119,9 @@ async function handleTwitchMessage(
   await redis.hExpire(key, senderID, CHATTER_TTL_IN_SECOUNDS);
 
   console.info(splitMessage);
+  if (command?.charAt(0) != "!") {
+    return null;
+  }
   if (command == "!sr" && param) {
     responseMessage = await addSongToUser(broadcasterID, param);
   } else if (command == "!skip") {
@@ -152,6 +161,10 @@ async function handleTwitchMessage(
     const song = await getCurrentSongInfo(broadcasterID);
     console.log(song);
     responseMessage = `currently is playing: ${song ? song.title : "nothing"}`;
+  } else if (command == "!stop") {
+    stopSong(broadcasterID);
+  } else if (command == "!play") {
+    playSong(broadcasterID);
   }
 
   if (!responseMessage || responseMessage == "") {
