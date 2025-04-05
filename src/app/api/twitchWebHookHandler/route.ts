@@ -43,7 +43,7 @@ function isModerator(badges: Badge[]) {
 }
 
 const CHATTER_TTL_IN_SECOUNDS = 3 * 60;
-const VOTESKIP_PERCENTAGE = 0.5;
+const VOTESKIP_PERCENTAGE = 0.66;
 export async function POST(req: Request): Promise<NextResponse> {
   const secret = process.env.TWITCH_WEBHOOK_SECRET;
   if (!secret) {
@@ -119,12 +119,12 @@ async function handleTwitchMessage(
   await redis.hExpire(key, senderID, CHATTER_TTL_IN_SECOUNDS);
 
   console.info(splitMessage);
-  if (command?.charAt(0) != "!") {
+  if (command?.charAt(0) != "!" || splitMessage.length > 2) {
     return null;
   }
   if (command == "!sr" && param) {
     responseMessage = await addSongToUser(broadcasterID, param);
-  } else if (command == "!skip") {
+  } else if (command == "!forceskip") {
     const isMod = isModerator(badges);
     if (isMod) {
       responseMessage = skipSong(broadcasterID);
@@ -136,7 +136,7 @@ async function handleTwitchMessage(
     responseMessage = setVolume(broadcasterID, param);
   } else if (command == "!srping") {
     responseMessage = "pong :3";
-  } else if (command == "!voteskip") {
+  } else if (command == "!voteskip" || command == "!skip") {
     await redis.hSet(key, senderID, 1);
     await redis.hExpire(key, senderID, CHATTER_TTL_IN_SECOUNDS);
 
@@ -148,7 +148,7 @@ async function handleTwitchMessage(
     const progress = Math.ceil(chatters.length * VOTESKIP_PERCENTAGE);
     if (amontOfChatterWhoSkipped >= progress) {
       for (const field of chattersWhoSkipped) {
-        await redis.hSet(key, field, "0");
+        redis.hSet(key, field, "0").catch((e) => console.error(e));
       }
       responseMessage = skipSong(broadcasterID);
       shouldResponse = false;
