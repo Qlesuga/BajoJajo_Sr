@@ -3,8 +3,8 @@
 </p>
 
 <h1 align="center">BajoJajo sr</h1>
-
 <p align="center">Simple open-source twitch song request</p>
+
 ## Features
 
 | Command     | Param                  | Description                                  |
