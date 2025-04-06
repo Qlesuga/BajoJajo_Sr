@@ -40,6 +40,9 @@ const Player: React.FC = () => {
         stopAudio();
       } else if (command == "play") {
         playAudio();
+      } else if (command == "clear") {
+        setNextSong(null);
+        setCurrentSong(null);
       }
     },
   });

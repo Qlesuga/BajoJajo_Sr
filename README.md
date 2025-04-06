@@ -18,6 +18,7 @@
 | `!play`     | None                   | **moderator only**,starts player             |
 | `!stop`     | None                   | **moderator only**,stop player               |
 | `!volume`   | `volume in percentage` | **moderator only**, changes volume of player |
+| `!clear`    | None                   | **broadcaster only**, clears song queue      |
 | `!srping`   | None                   | checks if bot is working                     |
 
 ## Tech Stack

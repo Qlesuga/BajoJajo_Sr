@@ -18,6 +18,7 @@ import type {
 } from "types/twitch";
 import { getCurrentSongInfo } from "~/utils/song/getCurrentSongInfo";
 import { addSongToUser } from "~/server/api/routers/song";
+import { clearSongQueue } from "~/utils/song/clearSongQueue";
 
 function getHmac(secret: string, message: string): string {
   return createHmac("sha256", secret).update(message).digest("hex");
@@ -40,6 +41,16 @@ function isModerator(badges: Badge[]) {
     }
   });
   return isMod;
+}
+
+function isBroadcaster(badges: Badge[]) {
+  let isBroadcaster = false;
+  badges.forEach((badge) => {
+    if (badge.set_id == "broadcaster") {
+      isBroadcaster = true;
+    }
+  });
+  return isBroadcaster;
 }
 
 const CHATTER_TTL_IN_SECOUNDS = 3 * 60;
@@ -118,7 +129,7 @@ async function handleTwitchMessage(
   }
   await redis.hExpire(key, senderID, CHATTER_TTL_IN_SECOUNDS);
 
-  console.info(splitMessage);
+  console.info(broadcasterID, splitMessage);
   if (command?.charAt(0) != "!" || splitMessage.length > 2) {
     return null;
   }
@@ -165,8 +176,9 @@ async function handleTwitchMessage(
     stopSong(broadcasterID);
   } else if (command == "!play") {
     playSong(broadcasterID);
+  } else if (command == "!clear" && isBroadcaster(badges)) {
+    responseMessage = await clearSongQueue(broadcasterID);
   }
-
   if (!responseMessage || responseMessage == "") {
     return null;
   }

@@ -16,6 +16,11 @@ export function playSong(userID: string): null {
   return null;
 }
 
+export function clearQueueOnFrontend(broadcasterID: string): null {
+  emitToSubscriptedUser(broadcasterID, { type: "clear" });
+  return null;
+}
+
 const SET_VOLUME_ERROR_MESSAGE = "volume must be a number between 0 and 100";
 const SET_VOLUME_SUCCESS_MESSAGE = "volume got set to:";
 export function setVolume(userID: string, value: string): string {
