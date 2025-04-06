@@ -4,12 +4,11 @@ import { redis } from "lib/redis";
 import { after, NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import {
-  addSongToUser,
   playSong,
   setVolume,
-  skipSong,
   stopSong,
-} from "~/server/api/routers/song";
+  skipSong,
+} from "lib/subscriptedUsers/songHandling";
 import { twitchSendChatMessage } from "~/utils/twitch/twitchSendChatMessage";
 import type {
   Badge,
@@ -18,6 +17,7 @@ import type {
   TwitchWebhookHeaders,
 } from "types/twitch";
 import { getCurrentSongInfo } from "~/utils/song/getCurrentSongInfo";
+import { addSongToUser } from "~/server/api/routers/song";
 
 function getHmac(secret: string, message: string): string {
   return createHmac("sha256", secret).update(message).digest("hex");

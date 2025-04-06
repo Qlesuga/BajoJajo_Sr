@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 import { type EventEmitter } from "stream";
+import { type AvailableEmits } from "types/subscriptedUsers";
 
 export interface ISubscriptedUser {
   eventEmitter: EventEmitter;
@@ -10,7 +11,7 @@ interface GlobalStore {
   id: string;
 }
 
-// Ensuring globalThis is properly typed.
+// Ensuring globalThis is properly .
 const globalThis = global as unknown as typeof global & {
   [GLOBAL_KEY]?: GlobalStore;
 };
@@ -27,4 +28,12 @@ if (!globalThis[GLOBAL_KEY]) {
 export function getSubscriptedUsers(): Record<string, ISubscriptedUser> {
   const store = globalThis[GLOBAL_KEY];
   return store!.users;
+}
+
+export function emitToSubscriptedUser(
+  userID: string,
+  data: AvailableEmits,
+): null {
+  getSubscriptedUsers()[userID]?.eventEmitter.emit("emit", data);
+  return null;
 }

@@ -9,7 +9,11 @@ import { getUserFromUserLink } from "~/utils/getUserFromUserLink";
 import { getYouTubeInfo, getYouTubeVideo } from "~/utils/utilsYTDL";
 import { getAllSongsWithoutBlob } from "~/utils/song/getAllSongsWithoutBlob";
 import { isSongAlreadyInQueue } from "~/utils/song/isSongAlreadyInQueue";
-import { getSubscriptedUsers } from "./subscripedUsers";
+import {
+  emitToSubscriptedUser,
+  getSubscriptedUsers,
+} from "lib/subscriptedUsers/subscripedUsers";
+import { type AvailableEmits } from "types/subscriptedUsers";
 
 export const songRouter = createTRPCRouter({
   nextSong: publicProcedure.input(z.string()).query(async (opts) => {
@@ -43,12 +47,10 @@ export const songRouter = createTRPCRouter({
           eventEmitter: emitter,
         };
       }
-      console.log(getSubscriptedUsers());
       for await (const data of on(emitter, "emit", {
         signal: opts.signal,
       })) {
-        console.log(data);
-        yield data[0] as { type: string; value: number | null };
+        yield data[0] as AvailableEmits;
       }
     }),
 });
@@ -122,39 +124,8 @@ export async function addSongToUser(
   };
   await addSongToRedis(broadcasterID, songID, song);
 
-  getSubscriptedUsers()[broadcasterID]?.eventEmitter.emit("emit", {
+  emitToSubscriptedUser(broadcasterID, {
     type: "new_song",
   });
   return ADD_SONG_SUCCESS_MESSAGE(title);
-}
-
-const SKIP_SONG_SUCCESS_MESSAGE = "successfully skiped a song";
-export function skipSong(userID: string): string {
-  getSubscriptedUsers()[userID]?.eventEmitter.emit("emit", { type: "skip" });
-  return SKIP_SONG_SUCCESS_MESSAGE;
-}
-
-export function stopSong(userID: string): null {
-  getSubscriptedUsers()[userID]?.eventEmitter.emit("emit", { type: "stop" });
-  return null;
-}
-
-export function playSong(userID: string): null {
-  getSubscriptedUsers()[userID]?.eventEmitter.emit("emit", { type: "play" });
-  return null;
-}
-
-const SET_VOLUME_ERROR_MESSAGE = "volume must be a number between 0 and 100";
-const SET_VOLUME_SUCCESS_MESSAGE = "volume got set to:";
-export function setVolume(userID: string, value: string): string {
-  const volume = parseInt(value);
-
-  if (isNaN(volume) || volume > 100 || volume < 0) {
-    return SET_VOLUME_ERROR_MESSAGE;
-  }
-  getSubscriptedUsers()[userID]?.eventEmitter.emit("emit", {
-    type: "volume",
-    value: Math.floor(volume) / 100,
-  });
-  return `${SET_VOLUME_SUCCESS_MESSAGE} ${volume}%`;
 }

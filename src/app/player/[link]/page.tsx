@@ -7,6 +7,7 @@ import { b64toBlob } from "~/utils/stringB64ToBlob";
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import type { SongType } from "types/song";
+import { type AvailableEmits } from "types/subscriptedUsers";
 
 const Player: React.FC = () => {
   const params = useParams<{ link: string }>();
@@ -14,14 +15,14 @@ const Player: React.FC = () => {
   const [currentSong, setCurrentSong] = useState<SongType | null>(null);
   const [nextSong, setNextSong] = useState<SongType | null>(null);
   const [isRunning, setIsRunning] = useState<boolean>(true);
-  const audioRef = useRef<HTMLAudioElement | undefined>();
-  const volume = useRef(0.2);
+  const audioRef = useRef<HTMLAudioElement | undefined>(null);
+  const volume = useRef<number>(0.2);
   const { data, refetch } = api.song.nextSong.useQuery(userLink.current, {
     enabled: true,
   });
 
   api.song.songSubscription.useSubscription(userLink.current, {
-    onData: (data) => {
+    onData: (data: AvailableEmits) => {
       console.log(data);
       const command = data.type;
       if (command == "skip") {
