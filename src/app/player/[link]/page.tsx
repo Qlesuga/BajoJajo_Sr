@@ -15,7 +15,7 @@ const Player: React.FC = () => {
   const [currentSong, setCurrentSong] = useState<SongType | null>(null);
   const [nextSong, setNextSong] = useState<SongType | null>(null);
   const [isRunning, setIsRunning] = useState<boolean>(true);
-  const audioRef = useRef<HTMLAudioElement | undefined>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const volume = useRef<number>(0.2);
   const { data, refetch } = api.song.nextSong.useQuery(userLink.current, {
     enabled: true,
