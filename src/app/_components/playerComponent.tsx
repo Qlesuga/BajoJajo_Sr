@@ -4,7 +4,6 @@ import { Card, CardContent, CardFooter } from "~/shadcn/components/ui/card";
 import Image from "next/image";
 import { Progress } from "~/shadcn/components/ui/progress";
 import { useState, useEffect } from "react";
-import type { MutableRefObject } from "react";
 import MarqueeText from "./MarqueeText";
 
 interface PlayerComponentProps {
@@ -65,7 +64,7 @@ function PlayerComponent({
               alt="thumbnail"
               width={168}
               height={168}
-              className="object-cover"
+              className="min-w-[168px] object-cover"
             />
           </div>
           <div className="flex flex-grow flex-col">

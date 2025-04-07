@@ -14,12 +14,12 @@ const MarqueeText = ({ children }: MarqueeTextProps) => {
         textRef.current.scrollWidth > containerRef.current.clientWidth;
       setShouldAnimate(isOverflowing);
     }
-  }, [children]);
+  }, [children, containerRef.current?.clientWidth]);
 
   return (
     <div
       ref={containerRef}
-      className="relative w-[200px] overflow-hidden whitespace-nowrap"
+      className="relative w-[calc(100%-1px)] overflow-hidden whitespace-nowrap"
     >
       <span
         ref={textRef}
