@@ -8,12 +8,14 @@ import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import type { SongType } from "types/song";
 import { type AvailableEmits } from "types/subscriptedUsers";
+import EmptyPlayerCOmponent from "~/app/_components/emptyPlayerComponent";
 
 const Player: React.FC = () => {
   const params = useParams<{ link: string }>();
   const userLink = useRef(params.link);
   const [currentSong, setCurrentSong] = useState<SongType | null>(null);
-  const [nextSong, setNextSong] = useState<SongType | null>(null);
+  const [nextSong, setNextSong] = useState<SongType | null>();
+  const isLoading = useRef(true);
   const [isRunning, setIsRunning] = useState<boolean>(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const volume = useRef<number>(0.2);
@@ -74,6 +76,7 @@ const Player: React.FC = () => {
   }, [nextSong, refetch]);
 
   useEffect(() => {
+    isLoading.current = false;
     if (currentSong) {
       audioRef.current = new Audio(
         URL.createObjectURL(b64toBlob(currentSong.songBlob, "audio/mp3")),
@@ -107,8 +110,10 @@ const Player: React.FC = () => {
     void refetch();
   };
 
-  if (!currentSong) {
-    return <div className="dark w-full">Loading or empty queue</div>;
+  if (isLoading.current) {
+    return <div>Loading</div>;
+  } else if (!currentSong) {
+    return <EmptyPlayerCOmponent />;
   }
 
   return (
