@@ -19,6 +19,10 @@ import type {
 import { getCurrentSongInfo } from "~/utils/song/getCurrentSongInfo";
 import { addSongToUser } from "~/server/api/routers/song";
 import { clearSongQueue } from "~/utils/song/clearSongQueue";
+import { isSrTurnedOn } from "~/utils/isSrTurnedOn";
+import { db } from "~/server/db";
+import { turnSrOn } from "~/utils/turnSrOn";
+import { turnSrOff } from "~/utils/turnSrOff";
 
 function getHmac(secret: string, message: string): string {
   return createHmac("sha256", secret).update(message).digest("hex");
@@ -111,13 +115,17 @@ async function handleTwitchMessage(
   const splitMessage = event.message.text.split(" ");
   const command = splitMessage[0];
   const param = splitMessage[1];
+  const isSrOn = await isSrTurnedOn(broadcasterID);
 
   if (
+    !isSrOn ||
     subscription.type != "channel.chat.message" ||
     event.reply != null ||
     senderID == process.env.TWITCH_BOT_USER_ID
   ) {
-    return null;
+    if (command != "!sron") {
+      return null;
+    }
   }
 
   let responseMessage: string | null = null;
@@ -178,6 +186,12 @@ async function handleTwitchMessage(
     playSong(broadcasterID);
   } else if (command == "!clear" && isBroadcaster(badges)) {
     responseMessage = await clearSongQueue(broadcasterID);
+  } else if (command == "!sron" && isBroadcaster(badges)) {
+    responseMessage = await turnSrOn(broadcasterID);
+    shouldResponse = true;
+  } else if (command == "!sroff" && isBroadcaster(badges)) {
+    responseMessage = await turnSrOff(broadcasterID);
+    shouldResponse = true;
   }
   if (!responseMessage || responseMessage == "") {
     return null;

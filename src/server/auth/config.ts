@@ -75,6 +75,11 @@ export const authConfig = {
             userId: user.id,
           },
         });
+        await db.srStatus.create({
+          data: {
+            userID: user.id,
+          },
+        });
       }
     },
     linkAccount: async ({ user, account, profile }) => {

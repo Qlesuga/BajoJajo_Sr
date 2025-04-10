@@ -50,7 +50,9 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
-    playerLink    UserPlayerLink[]
+    playerLink    UserPlayerLink?
+    SrStatus      SrStatus?
+
 }
 
 model VerificationToken {
@@ -66,4 +68,11 @@ model UserPlayerLink{
   userId String @unique
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   link String @default(nanoid()) @unique
+}
+
+model SrStatus{
+  userID String @id
+  status Boolean @default(true)
+  user         User     @relation(fields: [userID], references: [id], onDelete: Cascade)
+
 }
