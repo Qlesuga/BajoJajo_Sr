@@ -11,19 +11,18 @@ import { type AvailableEmits } from "types/subscriptedUsers";
 import EmptyPlayerCOmponent from "~/app/_components/emptyPlayerComponent";
 
 const Player: React.FC = () => {
-  const params = useParams<{ link: string }>();
-  const userLink = useRef(params.link);
+  const { link } = useParams<{ link: string }>();
   const [currentSong, setCurrentSong] = useState<SongType | null>(null);
   const [nextSong, setNextSong] = useState<SongType | null>();
   const isLoading = useRef(true);
   const [isRunning, setIsRunning] = useState<boolean>(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const volume = useRef<number>(0.2);
-  const { data, refetch } = api.song.nextSong.useQuery(userLink.current, {
+  const volume = useRef<number>(0.01);
+  const { data, refetch } = api.song.nextSong.useQuery(link, {
     enabled: true,
   });
 
-  api.song.songSubscription.useSubscription(userLink.current, {
+  api.song.songSubscription.useSubscription(link, {
     onData: (data: AvailableEmits) => {
       console.log(data);
       const command = data.type;
