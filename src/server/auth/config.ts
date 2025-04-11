@@ -80,6 +80,11 @@ export const authConfig = {
             userID: user.id,
           },
         });
+        await db.userPlayerSettings.create({
+          data: {
+            userID: user.id,
+          },
+        });
       }
     },
     linkAccount: async ({ user, account, profile }) => {

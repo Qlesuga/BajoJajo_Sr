@@ -14,6 +14,7 @@ import {
   getSubscriptedUsers,
 } from "lib/subscriptedUsers/subscripedUsers";
 import { type AvailableEmits } from "types/subscriptedUsers";
+import { getUserPlayerSettings } from "~/utils/getUserPlayerSettings";
 
 export const songRouter = createTRPCRouter({
   nextSong: publicProcedure.input(z.string()).query(async (opts) => {
@@ -25,6 +26,17 @@ export const songRouter = createTRPCRouter({
     }
 
     return await getNextSong(broadcasterID);
+  }),
+
+  getPlayerSettings: publicProcedure.input(z.string()).query(async (opts) => {
+    const userLink = opts.input;
+
+    const broadcasterID = await getUserFromUserLink(userLink);
+    if (!broadcasterID) {
+      return null;
+    }
+
+    return await getUserPlayerSettings(broadcasterID);
   }),
 
   songSubscription: publicProcedure

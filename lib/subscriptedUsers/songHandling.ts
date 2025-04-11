@@ -1,4 +1,5 @@
 import { emitToSubscriptedUser } from "./subscripedUsers";
+import { setUserVolumeSetting } from "~/utils/setUserVolumeSetting";
 
 export function stopSong(userID: string): null {
   emitToSubscriptedUser(userID, { type: "stop" });
@@ -23,13 +24,14 @@ export function clearQueueOnFrontend(broadcasterID: string): null {
 
 const SET_VOLUME_ERROR_MESSAGE = "volume must be a number between 0 and 100";
 const SET_VOLUME_SUCCESS_MESSAGE = "volume got set to:";
-export function setVolume(userID: string, value: string): string {
+export function setVolume(broadcasterID: string, value: string): string {
   const volume = parseInt(value);
 
   if (isNaN(volume) || volume > 100 || volume < 0) {
     return SET_VOLUME_ERROR_MESSAGE;
   }
-  emitToSubscriptedUser(userID, {
+  setUserVolumeSetting(broadcasterID, volume).catch((e) => console.error(e));
+  emitToSubscriptedUser(broadcasterID, {
     type: "volume",
     value: Math.floor(volume) / 100,
   });

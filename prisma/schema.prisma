@@ -51,8 +51,8 @@ model User {
     accounts      Account[]
     sessions      Session[]
     playerLink    UserPlayerLink?
-    SrStatus      SrStatus?
-
+    srStatus      SrStatus?
+    playerSettings UserPlayerSettings?
 }
 
 model VerificationToken {
@@ -72,7 +72,12 @@ model UserPlayerLink{
 
 model SrStatus{
   userID String @id
-  status Boolean @default(true)
   user         User     @relation(fields: [userID], references: [id], onDelete: Cascade)
+  status Boolean @default(true)
+}
 
+model UserPlayerSettings{
+  userID String @id
+  user         User     @relation(fields: [userID], references: [id], onDelete: Cascade)
+  volumeInPercentage Int @default(50)
 }
