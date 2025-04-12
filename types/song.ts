@@ -5,6 +5,11 @@ export type SongTypeWithoutBlob = {
   songThumbnail: string;
 };
 
+export type SongQueueElementType = {
+  songID: string;
+  addedBy: string;
+};
+
 export type SongType = SongTypeWithoutBlob & {
   songBlob: string;
 };

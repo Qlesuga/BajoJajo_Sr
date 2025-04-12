@@ -1,13 +1,16 @@
 import { redis } from "lib/redis";
-import type { SongType } from "types/song";
+import type { SongQueueElementType, SongType } from "types/song";
 import { getSong } from "./getSong";
 
 async function getNextSong(broadcasterID: string): Promise<SongType | null> {
-  const songID = await redis.lPop(`songs:${broadcasterID}`);
-  if (songID == null) {
+  const songsEntry = await redis.lPop(`songs:${broadcasterID}`);
+  if (songsEntry == null) {
     return null;
   }
-  const song = await getSong(songID);
+  const songQueueElement: SongQueueElementType = JSON.parse(
+    songsEntry,
+  ) as SongQueueElementType;
+  const song = await getSong(songQueueElement.songID);
   if (!song) {
     return null;
   }

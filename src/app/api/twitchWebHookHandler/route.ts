@@ -141,7 +141,11 @@ async function handleTwitchMessage(
     return null;
   }
   if (command == "!sr" && param) {
-    responseMessage = await addSongToUser(broadcasterID, param);
+    responseMessage = await addSongToUser(
+      broadcasterID,
+      param,
+      event.chatter_user_name,
+    );
   } else if (command == "!forceskip") {
     const isMod = isModerator(badges);
     if (isMod) {

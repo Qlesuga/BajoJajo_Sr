@@ -83,6 +83,7 @@ const MAX_LENGTH_REACHED = `song queue length can't exceed ${QUEUE_LENGTH_LIMIT}
 export async function addSongToUser(
   broadcasterID: string,
   url: string,
+  addedBy: string,
 ): Promise<string> {
   if (url == "") {
     return ADD_SONG_INVALID_SONG;
@@ -93,6 +94,7 @@ export async function addSongToUser(
   }
 
   const videoInfo = await getYouTubeInfo(url);
+  console.log("info");
   if (videoInfo == null) {
     return ADD_SONG_INVALID_SONG;
   }
@@ -134,7 +136,7 @@ export async function addSongToUser(
     songAuthor: videoInfo.channel,
     songThumbnail: videoInfo.thumbnail,
   };
-  await addSongToRedis(broadcasterID, songID, song);
+  await addSongToRedis(broadcasterID, songID, song, addedBy);
 
   emitToSubscriptedUser(broadcasterID, {
     type: "new_song",

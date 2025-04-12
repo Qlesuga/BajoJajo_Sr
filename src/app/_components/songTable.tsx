@@ -32,6 +32,7 @@ export default function SongTable({ songs = [] }: SongTableProps) {
             <TableHead className="w-[80px]">#</TableHead>
             <TableHead className="min-w-[250px]">Title</TableHead>
             <TableHead>Channel</TableHead>
+            <TableHead>Added By</TableHead>
             <TableHead className="text-right">
               <div className="flex items-center justify-end">
                 <Clock className="mr-1 h-4 w-4" />
@@ -66,10 +67,17 @@ export default function SongTable({ songs = [] }: SongTableProps) {
                         className="object-cover"
                       />
                     </div>
-                    <span className="font-medium">{song.title}</span>
+                    <span className="font-medium">
+                      <a
+                        href={`https://www.youtube.com/watch?v=${song.songID}`}
+                      >
+                        {song.title}
+                      </a>
+                    </span>
                   </div>
                 </TableCell>
                 <TableCell>{song.songAuthor}</TableCell>
+                <TableCell>{song.addedBy}</TableCell>
                 <TableCell className="text-right">
                   {formatTime(song.songLengthSeconds)}
                 </TableCell>
