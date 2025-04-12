@@ -2,7 +2,7 @@
 
 import { Card, CardContent } from "~/shadcn/components/ui/card";
 
-function EmptyPlayerCOmponent() {
+export default function EmptyPlayerComponent() {
   return (
     <Card
       className="h-144 w-screen"
@@ -20,5 +20,3 @@ function EmptyPlayerCOmponent() {
     </Card>
   );
 }
-
-export default EmptyPlayerCOmponent;

@@ -6,7 +6,7 @@ import { Progress } from "~/shadcn/components/ui/progress";
 import { useState, useEffect } from "react";
 import MarqueeText from "./MarqueeText";
 
-interface PlayerComponentProps {
+interface PlayingPlayerComponentProps {
   name: string;
   artist: string;
   image: string;
@@ -17,7 +17,7 @@ interface PlayerComponentProps {
   playAudio: () => void;
 }
 
-function PlayerComponent({
+export default function PlayingPlayerComponent({
   name,
   artist,
   image,
@@ -26,7 +26,7 @@ function PlayerComponent({
   isRunning,
   stopAudio,
   getNextSong,
-}: PlayerComponentProps) {
+}: PlayingPlayerComponentProps) {
   const [time, setTime] = useState<number>(0);
 
   useEffect(() => {
@@ -89,5 +89,3 @@ function PlayerComponent({
     </Card>
   );
 }
-
-export default PlayerComponent;
