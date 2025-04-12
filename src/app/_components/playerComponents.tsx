@@ -125,10 +125,10 @@ export default function PlayerComponent({
         artist={currentSong.songAuthor}
         length={currentSong.songLengthSeconds}
         image={currentSong.songThumbnail}
-        getNextSong={playNextSong}
+        getNextSongAction={playNextSong}
         isRunning={isRunning}
-        stopAudio={stopAudio}
-        playAudio={playAudio}
+        stopAudioAction={stopAudio}
+        playAudioAction={playAudio}
       />
     </div>
   );

@@ -11,10 +11,10 @@ interface PlayingPlayerComponentProps {
   artist: string;
   image: string;
   length: number;
-  getNextSong: () => void;
+  getNextSongAction: () => void;
   isRunning: boolean;
-  stopAudio: () => void;
-  playAudio: () => void;
+  stopAudioAction: () => void;
+  playAudioAction: () => void;
 }
 
 export default function PlayingPlayerComponent({
@@ -22,10 +22,10 @@ export default function PlayingPlayerComponent({
   artist,
   image,
   length,
-  playAudio,
+  playAudioAction,
   isRunning,
-  stopAudio,
-  getNextSong,
+  stopAudioAction,
+  getNextSongAction,
 }: PlayingPlayerComponentProps) {
   const [time, setTime] = useState<number>(0);
 
@@ -48,7 +48,7 @@ export default function PlayingPlayerComponent({
   }, [isRunning]);
   useEffect(() => {
     if (time >= length) {
-      getNextSong();
+      getNextSongAction();
     }
   }, [time]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
@@ -80,9 +80,9 @@ export default function PlayingPlayerComponent({
       {process.env.NODE_ENV == "development" && (
         <CardFooter>
           <div className="flex gap-2">
-            <button onClick={playAudio}>play</button>
-            <button onClick={stopAudio}>stop</button>
-            <button onClick={getNextSong}>next</button>
+            <button onClick={playAudioAction}>play</button>
+            <button onClick={stopAudioAction}>stop</button>
+            <button onClick={getNextSongAction}>next</button>
           </div>
         </CardFooter>
       )}
