@@ -1,5 +1,5 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import type { Account, User, DefaultSession, NextAuthConfig } from "next-auth";
+import type { DefaultSession, NextAuthConfig } from "next-auth";
 import TwitchProvider from "next-auth/providers/twitch";
 import { db } from "~/server/db";
 import { createTwitchChatSubscription } from "~/utils/twitch/twitchChatSubscription";
@@ -87,10 +87,10 @@ export const authConfig = {
         });
       }
     },
-    linkAccount: async ({ user, account, profile }) => {
+    linkAccount: async ({ account }) => {
       await createTwitchChatSubscription(account.providerAccountId);
     },
-    signIn: async ({ user, account, profile, isNewUser }) => {
+    signIn: async ({ account }) => {
       if (account?.providerAccountId) {
         await createTwitchChatSubscription(account.providerAccountId);
       }

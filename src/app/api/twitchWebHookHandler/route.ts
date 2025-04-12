@@ -20,7 +20,6 @@ import { getCurrentSongInfo } from "~/utils/song/getCurrentSongInfo";
 import { addSongToUser } from "~/server/api/routers/song";
 import { clearSongQueue } from "~/utils/song/clearSongQueue";
 import { isSrTurnedOn } from "~/utils/isSrTurnedOn";
-import { db } from "~/server/db";
 import { turnSrOn } from "~/utils/turnSrOn";
 import { turnSrOff } from "~/utils/turnSrOff";
 

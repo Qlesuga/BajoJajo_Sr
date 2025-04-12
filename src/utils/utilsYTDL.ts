@@ -41,6 +41,7 @@ export async function getYouTubeVideo(videoID: string): Promise<string | null> {
   try {
     file = readFileSync(filePath).toString("base64");
   } catch (e) {
+    console.error(e);
     return null;
   }
   return file;

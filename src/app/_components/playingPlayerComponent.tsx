@@ -50,7 +50,7 @@ export default function PlayingPlayerComponent({
     if (time >= length) {
       getNextSong();
     }
-  }, [time]);
+  }, [time]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <Card
       className="h-144 w-screen"
