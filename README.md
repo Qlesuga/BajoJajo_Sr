@@ -14,6 +14,7 @@
 | `!skip`      | None                   | same as `!voteskip`                                          |
 | `!current`   | None                   | write name of current song on chat                           |
 | `!queue`     | None                   | send link to sogn queue                                      |
+| `!whenmysr`  | None                   | response with time in which song added by you will be played |
 | `!forceskip` | None                   | **moderator only**, skips current song                       |
 | `!play`      | None                   | **moderator only**,starts player                             |
 | `!stop`      | None                   | **moderator only**,stop player                               |
