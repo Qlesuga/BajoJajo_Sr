@@ -3,7 +3,7 @@ import { EventEmitter, on } from "stream";
 import { z } from "zod";
 import { containsBannedString } from "~/utils/twitch/twitchBannedRegex";
 import { addSongToRedis } from "~/utils/song/addSongToRedis";
-import type { SongTypeWithoutBlob } from "types/song";
+import type { SongQueueElementType, SongTypeWithoutBlob } from "types/song";
 import { getNextSong } from "~/utils/song/getNextSong";
 import { getUserFromUserLink } from "~/utils/getUserFromUserLink";
 import { getYouTubeInfo, getYouTubeVideo } from "~/utils/utilsYTDL";
@@ -15,9 +15,21 @@ import {
 } from "lib/subscriptedUsers/subscripedUsers";
 import { type AvailableEmits } from "types/subscriptedUsers";
 import { getUserPlayerSettings } from "~/utils/getUserPlayerSettings";
+import { getCurrentSong } from "~/utils/song/getCurrentSongs";
+import { redis } from "lib/redis";
 
 export const songRouter = createTRPCRouter({
-  nextSong: publicProcedure.input(z.string()).query(async (opts) => {
+  getCurrentSong: publicProcedure.input(z.string()).query(async (opts) => {
+    const userLink = opts.input;
+
+    const broadcasterID = await getUserFromUserLink(userLink);
+    if (!broadcasterID) {
+      return null;
+    }
+
+    return await getCurrentSong(broadcasterID);
+  }),
+  getNextSong: publicProcedure.input(z.string()).query(async (opts) => {
     const userLink = opts.input;
 
     const broadcasterID = await getUserFromUserLink(userLink);
@@ -27,6 +39,22 @@ export const songRouter = createTRPCRouter({
 
     return await getNextSong(broadcasterID);
   }),
+  getNextSongAndCompleteCurrent: publicProcedure
+    .input(z.string())
+    .query(async (opts) => {
+      const userLink = opts.input;
+
+      const broadcasterID = await getUserFromUserLink(userLink);
+      if (!broadcasterID) {
+        return null;
+      }
+      const songElement = await redis.lPop(`songs:${broadcasterID}`);
+      if (process.env.NODE_ENV == "development" && songElement) {
+        const song = JSON.parse(songElement) as SongQueueElementType;
+        await addSongToUser(broadcasterID, song.songID, song.addedBy);
+      }
+      return await getNextSong(broadcasterID);
+    }),
 
   getPlayerSettings: publicProcedure.input(z.string()).query(async (opts) => {
     const userLink = opts.input;

@@ -2,8 +2,8 @@ import { redis } from "lib/redis";
 import type { SongQueueElementType, SongType } from "types/song";
 import { getSong } from "./getSong";
 
-async function getNextSong(broadcasterID: string): Promise<SongType | null> {
-  const songsEntries = await redis.lRange(`songs:${broadcasterID}`, 1, 1);
+async function getCurrentSong(broadcasterID: string): Promise<SongType | null> {
+  const songsEntries = await redis.lRange(`songs:${broadcasterID}`, 0, 0);
   if (songsEntries.length < 1) {
     return null;
   }
@@ -21,4 +21,4 @@ async function getNextSong(broadcasterID: string): Promise<SongType | null> {
   return song;
 }
 
-export { getNextSong };
+export { getCurrentSong };
