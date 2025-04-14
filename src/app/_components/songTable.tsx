@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { Clock } from "lucide-react";
 
-import { type SongTypeWithoutBlob } from "types/song";
+import { type allSongInfo } from "types/song";
 import {
   Table,
   TableBody,
@@ -14,7 +14,7 @@ import {
 } from "~/shadcn/components/ui/table";
 
 interface SongTableProps {
-  songs: SongTypeWithoutBlob[];
+  songs: allSongInfo[];
 }
 
 export default function SongTable({ songs = [] }: SongTableProps) {

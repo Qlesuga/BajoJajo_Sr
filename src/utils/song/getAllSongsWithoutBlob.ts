@@ -1,8 +1,6 @@
 import { redis } from "lib/redis";
-import type { SongQueueElementType, SongTypeWithoutBlob } from "types/song";
+import type { SongQueueElementType, allSongInfo } from "types/song";
 import { getSong } from "./getSong";
-
-type allSongInfo = SongTypeWithoutBlob & { addedBy: string; songID: string };
 
 async function getAllSongsWithoutBlob(
   broadcasterID: string,

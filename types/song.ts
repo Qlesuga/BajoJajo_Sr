@@ -15,3 +15,8 @@ export type SongType = SongTypeWithoutBlob & {
 };
 
 export type SongTypeInRedis = SongTypeWithoutBlob;
+
+export type allSongInfo = SongTypeWithoutBlob & {
+  addedBy: string;
+  songID: string;
+};
