@@ -1,5 +1,5 @@
 import { redis } from "lib/redis";
-import { type SongTypeWithoutBlob } from "types/song";
+import { type SongTypeInRedis, type SongTypeWithoutBlob } from "types/song";
 import { getYouTubeInfo, type InfoApiResponse } from "../utilsYTDL";
 
 export async function getSongInfo(
@@ -7,11 +7,18 @@ export async function getSongInfo(
 ): Promise<SongTypeWithoutBlob | null> {
   let song: Record<string, string> | null | InfoApiResponse =
     await redis.hGetAll(`song:${songID}`);
-  if (!song) {
+  if (!song?.title) {
     song = await getYouTubeInfo(songID);
     if (!song) {
       return null;
     }
+    const songObject: SongTypeInRedis = {
+      title: song.title,
+      songLengthSeconds: song.videoLength,
+      songAuthor: song.channel,
+      songThumbnail: song.thumbnail,
+    };
+    await redis.hSet(`song:${songID}`, songObject);
     return {
       title: song.title,
       songAuthor: song.channel,
