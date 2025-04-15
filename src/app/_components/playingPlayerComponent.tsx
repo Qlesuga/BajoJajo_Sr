@@ -46,25 +46,27 @@ export default function PlayingPlayerComponent({
     }
     return () => clearInterval(timer);
   }, [isRunning]);
+
   useEffect(() => {
     if (time >= length) {
       getNextSongAction();
     }
   }, [time]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <Card
       className="h-144 w-screen"
       style={{ backgroundColor: "hsl(var(--background))" }}
     >
-      <CardContent className="h-full w-full p-6">
+      <CardContent className="h-max-[168px] w-full p-6">
         <div className="flex h-full w-full flex-row gap-8">
-          <div className="relative h-auto w-[168px]">
+          <div className="relative h-[95] w-[168px]">
             <Image
               src={image || "/placeholder.svg"}
               alt="thumbnail"
               width={168}
-              height={168}
-              className="min-w-[168px] object-cover"
+              height={95}
+              className="h-[95px] min-w-[168px] object-cover"
             />
           </div>
           <div className="flex flex-grow flex-col">

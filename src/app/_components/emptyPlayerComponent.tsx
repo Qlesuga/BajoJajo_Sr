@@ -8,7 +8,7 @@ export default function EmptyPlayerComponent() {
       className="h-144 w-screen"
       style={{ height: "168px", backgroundColor: "hsl(var(--background))" }}
     >
-      <CardContent className="h-full w-full p-6">
+      <CardContent className="h-[168px] p-6">
         <div className="flex h-full w-full flex-row gap-8">
           <div className="relative h-auto text-8xl">😢</div>
           <div className="flex flex-grow flex-col text-5xl">
