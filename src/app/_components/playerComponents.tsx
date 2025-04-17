@@ -29,6 +29,7 @@ export default function PlayerComponent({
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const volumeRef = useRef<number>(initVolumeInPercentage / 100);
+  const fetchInProgressRef = useRef<boolean>(false);
 
   const {
     data: nextSongData,
@@ -39,18 +40,25 @@ export default function PlayerComponent({
     enabled: false,
   });
 
-  const playNextSong = useCallback(() => {
+  const getNextSong = useCallback(() => {
+    const shouldFetch = !nextSong && !isLoading && !fetchInProgressRef.current;
+    if (shouldFetch) {
+      console.log("get next song");
+      fetchInProgressRef.current = true;
+      void refetch();
+    }
+  }, [nextSong, isLoading, refetch]);
+
+  const playNextSong = () => {
+    console.log("play next song");
+
     if (audioRef.current) {
       audioRef.current.pause();
     }
 
-    if (nextSong) {
-      setCurrentSong(nextSong);
-      setNextSong(null);
-    } else {
-      setCurrentSong(null);
-    }
-  }, [nextSong]);
+    setCurrentSong(nextSong);
+    setNextSong(null);
+  };
 
   const stopAudio = useCallback(() => {
     audioRef.current?.pause();
@@ -58,29 +66,27 @@ export default function PlayerComponent({
   }, []);
 
   const playAudio = useCallback(() => {
-    audioRef.current?.play().catch((e) => console.log(e));
+    audioRef.current?.play().catch(() => null);
     setIsPlaying(true);
   }, []);
 
   useEffect(() => {
-    if (nextSongData) {
+    if (nextSongData && fetchInProgressRef.current == true) {
       if (!currentSong) {
         setCurrentSong(nextSongData);
-      } else if (!nextSong) {
+      } else if (!nextSong && nextSongData.title != currentSong.title) {
         setNextSong(nextSongData);
       }
+      fetchInProgressRef.current = false;
     }
-  }, [nextSongData, currentSong, nextSong]);
+  }, [nextSongData]);
 
   useEffect(() => {
-    if (!nextSong && !isLoading && currentSong) {
-      void refetch();
-    }
-  }, [nextSong, currentSong, isLoading, refetch]);
+    getNextSong();
+  }, [nextSong, currentSong]);
 
   useEffect(() => {
     if (!currentSong) return;
-
     const newAudio = new Audio(
       URL.createObjectURL(b64toBlob(currentSong.songBlob, "audio/mp3")),
     );
@@ -89,9 +95,8 @@ export default function PlayerComponent({
 
     newAudio.addEventListener("ended", playNextSong);
 
-    if (isPlaying) {
-      newAudio.play().catch((err) => console.error(err));
-    }
+    newAudio.play().catch(() => null);
+    setIsPlaying(true);
 
     audioRef.current = newAudio;
 
@@ -104,18 +109,20 @@ export default function PlayerComponent({
         audioRef.current = null;
       }
     };
-  }, [currentSong, isPlaying, playNextSong]);
+  }, [currentSong]);
 
   api.song.songSubscription.useSubscription(link, {
     onData: (data: AvailableEmits) => {
-      console.log("Received command:", data);
+      if (process.env.NODE_ENV == "development") {
+        console.log("Received command:", data);
+      }
 
       switch (data.type) {
         case "skip":
           playNextSong();
           break;
         case "new_song":
-          if (!nextSong) void refetch();
+          getNextSong();
           break;
         case "volume":
           if (data.value != null && audioRef.current) {
