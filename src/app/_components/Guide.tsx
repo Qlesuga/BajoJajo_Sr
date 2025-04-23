@@ -26,6 +26,9 @@ export default function GuideModal() {
         </DialogHeader>
         <div className="space-y-6 py-4">
           <div className="space-y-2">
+            <h1>WIP</h1>
+            <p>just open it in your browser</p>
+            {/*
             <h3 className="text-lg font-medium">
               Step 1: Copy your player link
             </h3>
@@ -102,6 +105,7 @@ export default function GuideModal() {
                 className="w-full"
               />
             </div>
+          */}
           </div>
         </div>
       </DialogContent>
