@@ -146,6 +146,7 @@ async function handleTwitchMessage(
       broadcasterID,
       param,
       event.chatter_user_name,
+      event.message_id,
     );
   } else if (command == "!forceskip") {
     const isMod = isModerator(badges);

@@ -17,6 +17,7 @@ import { type AvailableEmits } from "types/subscriptedUsers";
 import { getUserPlayerSettings } from "~/utils/getUserPlayerSettings";
 import { getCurrentSong } from "~/utils/song/getCurrentSongs";
 import { redis } from "lib/redis";
+import { twitchSendChatMessage } from "~/utils/twitch/twitchSendChatMessage";
 
 export const songRouter = createTRPCRouter({
   getCurrentSong: publicProcedure.input(z.string()).query(async (opts) => {
@@ -112,7 +113,8 @@ export async function addSongToUser(
   broadcasterID: string,
   url: string,
   addedBy: string,
-): Promise<string> {
+  messageIDToResponse: string | null = null,
+): Promise<string | null> {
   if (url == "") {
     return ADD_SONG_INVALID_SONG;
   }
@@ -153,7 +155,13 @@ export async function addSongToUser(
   if (isAgeRestricted) {
     return ADD_SONG_VIDEO_AGE_RESTRICTED;
   }
-
+  if (messageIDToResponse) {
+    await twitchSendChatMessage(
+      broadcasterID,
+      ADD_SONG_SUCCESS_MESSAGE(title),
+      messageIDToResponse,
+    );
+  }
   const VideoFile: string | null = await getYouTubeVideo(songID);
   if (!VideoFile) {
     return ADD_SONG_INVALID_SONG;
@@ -169,5 +177,5 @@ export async function addSongToUser(
   emitToSubscriptedUser(broadcasterID, {
     type: "new_song",
   });
-  return ADD_SONG_SUCCESS_MESSAGE(title);
+  return null;
 }
