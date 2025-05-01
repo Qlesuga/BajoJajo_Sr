@@ -23,6 +23,7 @@ import { isSrTurnedOn } from "~/utils/isSrTurnedOn";
 import { turnSrOn } from "~/utils/turnSrOn";
 import { turnSrOff } from "~/utils/turnSrOff";
 import { whenNextSongByUsername } from "~/utils/song/whenNextSongByUsername";
+import whenUserSong from "~/utils/whenUserSong";
 
 function getHmac(secret: string, message: string): string {
   return createHmac("sha256", secret).update(message).digest("hex");
@@ -198,17 +199,10 @@ async function handleTwitchMessage(
     responseMessage = await turnSrOff(broadcasterID);
     shouldResponse = true;
   } else if (command == "!whenmysr") {
-    const time = await whenNextSongByUsername(
+    responseMessage = await whenUserSong(
       broadcasterID,
       event.chatter_user_name,
     );
-    const minutes = Math.floor(time / 60);
-    const secounds = time - minutes * 60;
-    if (secounds == 0) {
-      responseMessage = "your song is currently playing";
-    } else {
-      responseMessage = `your song will be played in around: ${minutes}min ${secounds}s`;
-    }
   }
   if (!responseMessage || responseMessage == "") {
     return null;
