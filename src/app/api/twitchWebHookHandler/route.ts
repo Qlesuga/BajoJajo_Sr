@@ -204,7 +204,11 @@ async function handleTwitchMessage(
     );
     const minutes = Math.floor(time / 60);
     const secounds = time - minutes * 60;
-    responseMessage = `your song will be played in around: ${minutes}min ${secounds}s`;
+    if (secounds == 0) {
+      responseMessage = "your song is currently playing";
+    } else {
+      responseMessage = `your song will be played in around: ${minutes}min ${secounds}s`;
+    }
   }
   if (!responseMessage || responseMessage == "") {
     return null;
