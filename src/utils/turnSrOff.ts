@@ -2,7 +2,7 @@
 
 import { db } from "~/server/db";
 
-export async function turnSrOff(broadcasterID: string): Promise<string> {
+export async function turnSrOff(broadcasterID: string): Promise<string | null> {
   const account = await db.account.findFirst({
     where: {
       providerAccountId: broadcasterID,
@@ -10,7 +10,7 @@ export async function turnSrOff(broadcasterID: string): Promise<string> {
     },
   });
   if (!account) {
-    return "";
+    return null;
   }
   db.srStatus
     .update({

@@ -184,7 +184,6 @@ async function handleTwitchMessage(
     responseMessage = `${process.env.NEXTAUTH_URL}/queue/${event.broadcaster_user_name}`;
   } else if (command == "!current") {
     const song = await getCurrentSongInfo(broadcasterID);
-    console.log(song);
     responseMessage = `currently is playing: ${song ? song.title : "nothing"}`;
   } else if (command == "!stop") {
     stopSong(broadcasterID);
