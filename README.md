@@ -44,7 +44,7 @@ Go to the project directory
   cd bajojajo-sr
 ```
 
-Set environment varable found in `.env.example` and save if as `.env`
+Set environment varable found in `.env.example` and save it as `.env`
 
 Start the project
 
