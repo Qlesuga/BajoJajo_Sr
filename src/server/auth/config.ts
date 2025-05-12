@@ -3,6 +3,7 @@ import type { DefaultSession, NextAuthConfig } from "next-auth";
 import TwitchProvider from "next-auth/providers/twitch";
 import { db } from "~/server/db";
 import { createTwitchChatSubscription } from "~/utils/twitch/twitchChatSubscription";
+import { whitelist } from "./whitelist";
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.
@@ -66,6 +67,14 @@ export const authConfig = {
         },
       };
     },
+    signIn: async ({ account }) => {
+      console.log("account", account);
+      if (!account) {
+        return false;
+      }
+      const isWhitelisted = whitelist.includes(account.providerAccountId);
+      return isWhitelisted;
+    },
   },
   events: {
     createUser: async ({ user }) => {
@@ -94,7 +103,6 @@ export const authConfig = {
       if (account?.providerAccountId) {
         await createTwitchChatSubscription(account.providerAccountId);
       }
-      return;
     },
   },
 } satisfies NextAuthConfig;
