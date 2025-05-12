@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Clock } from "lucide-react";
+import { Clock, Trash2 } from "lucide-react";
 
 import { type allSongInfo } from "types/song";
 import {
@@ -15,13 +15,21 @@ import {
 
 interface SongTableProps {
   songs: allSongInfo[];
+  showDeleteButton?: boolean;
 }
 
-export default function SongTable({ songs = [] }: SongTableProps) {
+export default function SongTable({
+  songs = [],
+  showDeleteButton = false,
+}: SongTableProps) {
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+  };
+
+  const removeSongFromQueue = (songID: string, index: number) => {
+    console.log("removeSongFromQueue", songID, index);
   };
 
   return (
@@ -38,6 +46,7 @@ export default function SongTable({ songs = [] }: SongTableProps) {
                 <Clock className="mr-1 h-4 w-4" />
               </div>
             </TableHead>
+            <TableHead></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -58,11 +67,9 @@ export default function SongTable({ songs = [] }: SongTableProps) {
                   <div className="flex items-center gap-3">
                     <div className="relative h-10 w-10 overflow-hidden rounded-md">
                       <Image
-                        src={
-                          song.songThumbnail ||
-                          "/placeholder.svg?height=40&width=40"
-                        }
-                        alt={song.title}
+                        src={song.songThumbnail}
+                        alt={song.songID}
+                        sizes="40px"
                         fill
                         className="object-cover"
                       />
@@ -81,6 +88,15 @@ export default function SongTable({ songs = [] }: SongTableProps) {
                 <TableCell className="text-right">
                   {formatTime(song.songLengthSeconds)}
                 </TableCell>
+                {showDeleteButton && (
+                  <TableCell className="text-right">
+                    <button
+                      onClick={() => removeSongFromQueue(song.songID, index)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </TableCell>
+                )}
               </TableRow>
             ))
           )}

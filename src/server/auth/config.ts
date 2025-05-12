@@ -16,6 +16,9 @@ declare module "next-auth" {
       id: string;
       userLink: string;
     } & DefaultSession["user"];
+    account: {
+      providerId: string;
+    };
   }
 
   // interface User {
@@ -57,13 +60,21 @@ export const authConfig = {
           },
         });
       }
-
+      const account = await db.account.findFirst({
+        where: {
+          userId: user.id,
+          provider: "twitch",
+        },
+      });
       return {
         ...session,
         user: {
           ...session.user,
           id: user.id,
           userLink: userPlayerLink?.link,
+        },
+        account: {
+          providerId: account?.providerAccountId,
         },
       };
     },
