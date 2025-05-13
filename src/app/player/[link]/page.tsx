@@ -1,3 +1,5 @@
+"use server";
+
 import PlayerComponent from "~/app/_components/playerComponents";
 import { api } from "~/trpc/server";
 

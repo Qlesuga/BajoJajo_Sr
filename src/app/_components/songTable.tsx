@@ -12,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "~/shadcn/components/ui/table";
+import { api } from "~/trpc/react";
 
 interface SongTableProps {
   songs: allSongInfo[];
@@ -27,10 +28,8 @@ export default function SongTable({
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
-
-  const removeSongFromQueue = (songID: string, index: number) => {
-    console.log("removeSongFromQueue", songID, index);
-  };
+  // TODO handle frontend delete song
+  const removeSongFromQueue = api.song.removeSongFromQueue.useMutation();
 
   return (
     <div className="rounded-md border">
@@ -91,7 +90,12 @@ export default function SongTable({
                 {showDeleteButton && (
                   <TableCell className="text-right">
                     <button
-                      onClick={() => removeSongFromQueue(song.songID, index)}
+                      onClick={() =>
+                        removeSongFromQueue.mutate({
+                          songID: song.songID,
+                          songIndex: index,
+                        })
+                      }
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>

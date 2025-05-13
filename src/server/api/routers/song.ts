@@ -18,6 +18,7 @@ import { getUserPlayerSettings } from "~/utils/getUserPlayerSettings";
 import { getCurrentSong } from "~/utils/song/getCurrentSongs";
 import { redis } from "lib/redis";
 import { twitchSendChatMessage } from "~/utils/twitch/twitchSendChatMessage";
+import { auth } from "~/server/auth";
 
 export const songRouter = createTRPCRouter({
   getCurrentSong: publicProcedure.input(z.string()).query(async (opts) => {
@@ -55,6 +56,36 @@ export const songRouter = createTRPCRouter({
         await addSongToUser(broadcasterID, song.songID, song.addedBy);
       }
       return await getNextSong(broadcasterID);
+    }),
+
+  removeSongFromQueue: publicProcedure
+    .input(
+      z.object({
+        songID: z.string(),
+        songIndex: z.number(),
+      }),
+    )
+    .mutation(async (opts) => {
+      // TODO add handling deleting first and secound index with skip
+      const { songID } = opts.input;
+      const songIndex = opts.input.songIndex;
+      const session = await auth();
+      if (!session) {
+        return "not logged in";
+      }
+      const key = `songs:${session.account.providerId}`;
+      for (let i = 0; i < 3 && songIndex >= 0; i++) {
+        const rawSong = await redis.lIndex(key, songIndex - i);
+        if (!rawSong) {
+          continue;
+        }
+        const song = JSON.parse(rawSong) as SongQueueElementType;
+        if (song.songID == songID) {
+          await redis.lRem(key, 1, rawSong);
+          return "successfully removed song";
+        }
+      }
+      return "song not found, please refresh";
     }),
 
   getPlayerSettings: publicProcedure.input(z.string()).query(async (opts) => {
