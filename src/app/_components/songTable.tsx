@@ -13,24 +13,44 @@ import {
   TableRow,
 } from "~/shadcn/components/ui/table";
 import { api } from "~/trpc/react";
+import { useToast } from "~/shadcn/hooks/use-toast";
 
 interface SongTableProps {
-  songs: allSongInfo[];
+  userID: string;
   showDeleteButton?: boolean;
 }
 
 export default function SongTable({
-  songs = [],
+  userID,
   showDeleteButton = false,
 }: SongTableProps) {
+  const { toast } = useToast();
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
-  // TODO handle frontend delete song
-  const removeSongFromQueue = api.song.removeSongFromQueue.useMutation();
+  const { data, refetch } = api.song.getAllSongs.useQuery(userID);
+  const songs = data;
 
+  const removeSongFromQueue = api.song.removeSongFromQueue.useMutation({
+    onSuccess: () => {
+      toast({
+        description: "Successfully removed song from queue",
+      });
+      void refetch();
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        description: `Failed to remove song from queue: ${error.message}`,
+      });
+      void refetch();
+    },
+  });
+  if (!songs) {
+    return <div className="rounded-md border">Loading...</div>;
+  }
   return (
     <div className="rounded-md border">
       <Table>

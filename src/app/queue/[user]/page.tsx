@@ -1,6 +1,5 @@
 import SongTable from "~/app/_components/songTable";
 import { auth } from "~/server/auth";
-import { getAllSongsWithoutBlob } from "~/utils/song/getAllSongsWithoutBlob";
 import { twitchGetUserIDFromUserName } from "~/utils/twitch/twitchGetUserIDFromUserName";
 
 async function SongList({ params }: { params: Promise<{ user: string }> }) {
@@ -13,15 +12,12 @@ async function SongList({ params }: { params: Promise<{ user: string }> }) {
       </main>
     );
   }
-  console.log("userID", userID);
-  const allSongs = await getAllSongsWithoutBlob(userID);
   const session = await auth();
-  console.log("session", session);
   return (
     <div className="mx-auto max-w-4xl p-4">
       <h1 className="mb-6 text-2xl font-bold capitalize">{user} queue</h1>
       <SongTable
-        songs={allSongs}
+        userID={userID}
         showDeleteButton={session?.account.providerId == userID}
       />
     </div>

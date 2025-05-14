@@ -3,7 +3,8 @@ import "~/styles/globals.css";
 import { Providers } from "./providers";
 
 import { GeistSans } from "geist/font/sans";
-import { type Metadata } from "next";
+import type Metadata from "next";
+import { Toaster } from "~/shadcn/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "BajoJajo SR",
@@ -22,6 +23,7 @@ export default function RootLayout({
     >
       <body>
         <Providers>{children}</Providers>
+        <Toaster />
       </body>
     </html>
   );

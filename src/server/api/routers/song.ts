@@ -19,6 +19,7 @@ import { getCurrentSong } from "~/utils/song/getCurrentSongs";
 import { redis } from "lib/redis";
 import { twitchSendChatMessage } from "~/utils/twitch/twitchSendChatMessage";
 import { auth } from "~/server/auth";
+import { TRPCError } from "@trpc/server";
 
 export const songRouter = createTRPCRouter({
   getCurrentSong: publicProcedure.input(z.string()).query(async (opts) => {
@@ -71,7 +72,10 @@ export const songRouter = createTRPCRouter({
       const songIndex = opts.input.songIndex;
       const session = await auth();
       if (!session) {
-        return "not logged in";
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "you are not logged in",
+        });
       }
       const key = `songs:${session.account.providerId}`;
       for (let i = 0; i < 3 && songIndex >= 0; i++) {
@@ -85,7 +89,10 @@ export const songRouter = createTRPCRouter({
           return "successfully removed song";
         }
       }
-      return "song not found, please refresh";
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "could not find song",
+      });
     }),
 
   getPlayerSettings: publicProcedure.input(z.string()).query(async (opts) => {
@@ -97,6 +104,10 @@ export const songRouter = createTRPCRouter({
     }
 
     return await getUserPlayerSettings(broadcasterID);
+  }),
+
+  getAllSongs: publicProcedure.input(z.string()).query(async (opts) => {
+    return await getAllSongsWithoutBlob(opts.input);
   }),
 
   songSubscription: publicProcedure
