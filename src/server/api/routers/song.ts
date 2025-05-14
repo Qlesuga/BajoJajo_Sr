@@ -20,6 +20,7 @@ import { redis } from "lib/redis";
 import { twitchSendChatMessage } from "~/utils/twitch/twitchSendChatMessage";
 import { auth } from "~/server/auth";
 import { TRPCError } from "@trpc/server";
+import { skipSong } from "lib/subscriptedUsers/songHandling";
 
 export const songRouter = createTRPCRouter({
   getCurrentSong: publicProcedure.input(z.string()).query(async (opts) => {
@@ -67,7 +68,7 @@ export const songRouter = createTRPCRouter({
       }),
     )
     .mutation(async (opts) => {
-      // TODO add handling deleting first and secound index with skip
+      // TODO add handling deleting secound index with skip
       const { songID } = opts.input;
       const songIndex = opts.input.songIndex;
       const session = await auth();
@@ -77,7 +78,8 @@ export const songRouter = createTRPCRouter({
           message: "you are not logged in",
         });
       }
-      const key = `songs:${session.account.providerId}`;
+      const providerID = session.account.providerId;
+      const key = `songs:${providerID}`;
       for (let i = 0; i < 3 && songIndex >= 0; i++) {
         const rawSong = await redis.lIndex(key, songIndex - i);
         if (!rawSong) {
@@ -86,6 +88,9 @@ export const songRouter = createTRPCRouter({
         const song = JSON.parse(rawSong) as SongQueueElementType;
         if (song.songID == songID) {
           await redis.lRem(key, 1, rawSong);
+          if (songIndex == 0) {
+            skipSong(providerID);
+          }
           return "successfully removed song";
         }
       }

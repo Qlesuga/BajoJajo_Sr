@@ -22,7 +22,6 @@ import { clearSongQueue } from "~/utils/song/clearSongQueue";
 import { isSrTurnedOn } from "~/utils/isSrTurnedOn";
 import { turnSrOn } from "~/utils/turnSrOn";
 import { turnSrOff } from "~/utils/turnSrOff";
-import { whenNextSongByUsername } from "~/utils/song/whenNextSongByUsername";
 import whenUserSong from "~/utils/whenUserSong";
 
 function getHmac(secret: string, message: string): string {
