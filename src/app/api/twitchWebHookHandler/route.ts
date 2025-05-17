@@ -156,7 +156,7 @@ async function handleTwitchMessage(
       responseMessage =
         "you are unauthorized to use skip, use !voteskip instead";
     }
-  } else if (command == "!volume" && param) {
+  } else if (command == "!volume" && param && isModerator(badges)) {
     responseMessage = setVolume(broadcasterID, param);
   } else if (command == "!srping") {
     responseMessage = "pong :3";
