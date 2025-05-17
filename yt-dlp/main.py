@@ -16,6 +16,7 @@ ydl_opts = {
             "preferredquality": "192",
         }
     ],
+    "postprocessor_args": ["-af", "loudnorm=I=-16:TP=-1.5:LRA=11"],
     "outtmpl": "/music/%(id)s.%(ext)s",
 }
 
