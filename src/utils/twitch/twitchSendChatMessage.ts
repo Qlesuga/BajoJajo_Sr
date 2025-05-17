@@ -34,13 +34,9 @@ async function twitchSendChatMessage(
       "content-type": "application/json",
     },
     body: JSON.stringify(body),
-  })
-    .then((res) => {
-      console.log(res);
-    })
-    .catch((e) => {
-      console.error(e);
-    });
+  }).catch((e) => {
+    console.error(e);
+  });
   return null;
 }
 
