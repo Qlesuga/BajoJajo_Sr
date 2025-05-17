@@ -26,7 +26,7 @@ async function twitchSendChatMessage(
     body.reply_parent_message_id = parentMessageId;
   }
 
-  const res = fetch("https://api.twitch.tv/helix/chat/messages", {
+  fetch("https://api.twitch.tv/helix/chat/messages", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${twitchAppToken}`,
@@ -34,10 +34,13 @@ async function twitchSendChatMessage(
       "content-type": "application/json",
     },
     body: JSON.stringify(body),
-  }).catch((e) => {
-    console.error(e);
-  });
-  console.log(res);
+  })
+    .then((res) => {
+      console.log(res);
+    })
+    .catch((e) => {
+      console.error(e);
+    });
   return null;
 }
 
