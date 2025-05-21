@@ -152,7 +152,7 @@ const MAXIMUM_VIDEO_LENGTH = 60 * 9;
 const ADD_SONG_WRONG_LENGTH = `song length must be between ${MINIMUM_VIDEO_LENGTH}s and ${MAXIMUM_VIDEO_LENGTH / 60}min`;
 const MINIMUM_VIDEO_VIEWS = 2000;
 const ADD_SONG_MINIMUM_VIEWS = `song must have over ${MINIMUM_VIDEO_VIEWS} views`;
-const ADD_SONG_VIDEO_AGE_RESTRICTED = "song is age restricted";
+// const ADD_SONG_VIDEO_AGE_RESTRICTED = "song is age restricted";
 const ADD_SONG_INVALID_SONG = "invalid song";
 const QUEUE_LENGTH_LIMIT = 30;
 const MAX_LENGTH_REACHED = `song queue length can't exceed ${QUEUE_LENGTH_LIMIT}`;
@@ -180,7 +180,7 @@ export async function addSongToUser(
   const title: string = videoInfo.title;
   const videoLength: number = videoInfo.videoLength;
   const videoViews: number = videoInfo.videosViews;
-  const isAgeRestricted: boolean = videoInfo.isAgeRestricted;
+  //const isAgeRestricted: boolean = videoInfo.isAgeRestricted;
 
   const isAlreadyInQueue = await isSongAlreadyInQueue(broadcasterID, songID);
   if (isAlreadyInQueue) {
@@ -199,9 +199,11 @@ export async function addSongToUser(
   if (videoViews < MINIMUM_VIDEO_VIEWS) {
     return ADD_SONG_MINIMUM_VIEWS;
   }
+  /*
   if (isAgeRestricted) {
     return ADD_SONG_VIDEO_AGE_RESTRICTED;
   }
+  */
   if (messageIDToResponse) {
     await twitchSendChatMessage(
       broadcasterID,
