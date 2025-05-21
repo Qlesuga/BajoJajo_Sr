@@ -1,5 +1,6 @@
 import os
 from sys import exception
+from urllib.parse import unquote
 
 import yt_dlp
 from fastapi import FastAPI, Response
@@ -42,11 +43,14 @@ def endpoint_home():
     return {"Hello": ":3"}
 
 
-@app.get("/info/{video_id}", status_code=200)
-def endpoint_video_info(video_id: str, response: Response):
+@app.get("/info/{video}", status_code=200)
+def endpoint_video_info(video: str, response: Response):
     info = {}
+    video_url = video
+    if video[0:2] == "v=":
+        video_url = "https://www.youtube.com/watch?" + video
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = get_video_info(video_id, ydl)
+        info = get_video_info(unquote(video_url), ydl)
 
     if info is False:
         response.status_code = 400
