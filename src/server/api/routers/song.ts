@@ -148,7 +148,7 @@ const ADD_SONG_SUCCESS_MESSAGE = (title: string) =>
 const ADD_SONG_ALREADY_IN_QUEUE = "already in queue";
 const ADD_SONG_BANNED_WORD_IN_TITLE = "song contains banned word in title";
 const MINIMUM_VIDEO_LENGTH = 30;
-const MAXIMUM_VIDEO_LENGTH = 60 * 6;
+const MAXIMUM_VIDEO_LENGTH = 60 * 9;
 const ADD_SONG_WRONG_LENGTH = `song length must be between ${MINIMUM_VIDEO_LENGTH}s and ${MAXIMUM_VIDEO_LENGTH / 60}min`;
 const MINIMUM_VIDEO_VIEWS = 7000;
 const ADD_SONG_MINIMUM_VIEWS = `song must have over ${MINIMUM_VIDEO_VIEWS} views`;
