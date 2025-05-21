@@ -72,18 +72,20 @@ export default function PlayerComponent({
 
   useEffect(() => {
     if (nextSongData && fetchInProgressRef.current == true) {
-      if (!currentSong) {
-        setCurrentSong(nextSongData);
-      } else if (!nextSong && nextSongData.title != currentSong.title) {
-        setNextSong(nextSongData);
-      }
       fetchInProgressRef.current = false;
+      if (nextSongData) {
+        if (!currentSong) {
+          setCurrentSong(nextSongData);
+        } else if (!nextSong && nextSongData.title != currentSong.title) {
+          setNextSong(nextSongData);
+        }
+      }
     }
   }, [nextSongData]);
 
   useEffect(() => {
     getNextSong();
-  }, [nextSong, currentSong]);
+  }, [currentSong]);
 
   useEffect(() => {
     if (!currentSong) return;
