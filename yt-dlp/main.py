@@ -20,6 +20,7 @@ ydl_opts = {
     "postprocessor_args": ["-af", "loudnorm=I=-16:TP=-1.5:LRA=11"],
     "outtmpl": "/music/%(id)s.%(ext)s",
     "noplaylist": True,
+    "playlist_items": "1",
 }
 
 
