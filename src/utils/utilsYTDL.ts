@@ -15,21 +15,15 @@ const YT_DLP_API_URL = "http://yt-dlp:8000";
 export async function getYouTubeInfo(
   url: string,
 ): Promise<InfoApiResponse | null> {
-  const url_split = url.split("?");
-  let final_url;
-  if (url_split.length == 2) {
-    final_url = url_split[1];
-  } else if (url_split.length == 1) {
-    final_url = url_split[0];
-  } else {
-    return null;
-  }
-  if (!final_url) {
-    return null;
-  }
-  const info = await fetch(
-    `${YT_DLP_API_URL}/info/${encodeURIComponent(final_url)}`,
-  );
+  const info = await fetch(`${YT_DLP_API_URL}/info`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      url: url,
+    }),
+  });
   if (info.status != 200) {
     return null;
   }
