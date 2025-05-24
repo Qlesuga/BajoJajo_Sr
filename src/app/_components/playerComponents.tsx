@@ -85,7 +85,7 @@ export default function PlayerComponent({
 
   useEffect(() => {
     getNextSong();
-  }, [currentSong]);
+  }, [nextSong, currentSong]);
 
   useEffect(() => {
     if (!currentSong) return;
