@@ -58,6 +58,8 @@ export default function PlayerComponent({
 
     setCurrentSong(nextSong);
     setNextSong(null);
+
+    getNextSong();
   };
 
   const stopAudio = useCallback(() => {
@@ -95,7 +97,13 @@ export default function PlayerComponent({
     newAudio.volume = volumeRef.current;
     newAudio.loop = false;
 
-    newAudio.addEventListener("ended", playNextSong);
+    newAudio.addEventListener("ended", () => {
+      if (nextSong) {
+        playNextSong();
+      } else {
+        getNextSong();
+      }
+    });
 
     newAudio.play().catch(() => null);
     setIsPlaying(true);
