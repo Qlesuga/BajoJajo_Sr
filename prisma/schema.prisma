@@ -54,7 +54,7 @@ model User {
     srStatus      SrStatus?
     playerSettings UserPlayerSettings?
     userSettings UserSongRequestSettings?
-    userMusicHistory UserMusicHistory?
+    userMusicHistory UserMusicHistory[]
 }
 
 model VerificationToken {
@@ -107,7 +107,8 @@ model UserSongRequestSettings {
 }
 
 model UserMusicHistory{
-  usierID String @id
-  user         User     @relation(fields: [usierID], references: [id], onDelete: Cascade)
-  songID String
+  id      Int       @id @default(autoincrement())
+  userID  String 
+  user    User      @relation(fields: [userID], references: [id], onDelete: Cascade)
+  songID  String    @unique 
 }
