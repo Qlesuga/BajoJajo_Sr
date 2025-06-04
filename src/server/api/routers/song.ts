@@ -21,6 +21,7 @@ import { twitchSendChatMessage } from "~/utils/twitch/twitchSendChatMessage";
 import { auth } from "~/server/auth";
 import { TRPCError } from "@trpc/server";
 import { skipSong } from "lib/subscriptedUsers/songHandling";
+import { db } from "~/server/db";
 
 export const songRouter = createTRPCRouter({
   getCurrentSong: publicProcedure.input(z.string()).query(async (opts) => {
@@ -149,10 +150,11 @@ const ADD_SONG_ALREADY_IN_QUEUE = "already in queue";
 const ADD_SONG_BANNED_WORD_IN_TITLE = "song contains banned word in title";
 const MINIMUM_VIDEO_LENGTH = 30;
 const MAXIMUM_VIDEO_LENGTH = 60 * 9;
+const BLOCK_AGE_RESTRICTED_VIDEOS = false;
 const ADD_SONG_WRONG_LENGTH = `song length must be between ${MINIMUM_VIDEO_LENGTH}s and ${MAXIMUM_VIDEO_LENGTH / 60}min`;
 const MINIMUM_VIDEO_VIEWS = 2000;
 const ADD_SONG_MINIMUM_VIEWS = `song must have over ${MINIMUM_VIDEO_VIEWS} views`;
-// const ADD_SONG_VIDEO_AGE_RESTRICTED = "song is age restricted";
+const ADD_SONG_VIDEO_AGE_RESTRICTED = "song is age restricted";
 const ADD_SONG_INVALID_SONG = "invalid song";
 const QUEUE_LENGTH_LIMIT = 30;
 const MAX_LENGTH_REACHED = `song queue length can't exceed ${QUEUE_LENGTH_LIMIT}`;
@@ -180,7 +182,7 @@ export async function addSongToUser(
   const title: string = videoInfo.title;
   const videoLength: number = videoInfo.videoLength;
   const videoViews: number = videoInfo.videosViews;
-  //const isAgeRestricted: boolean = videoInfo.isAgeRestricted;
+  const isAgeRestricted: boolean = videoInfo.isAgeRestricted;
 
   const isAlreadyInQueue = await isSongAlreadyInQueue(broadcasterID, songID);
   if (isAlreadyInQueue) {
@@ -199,11 +201,9 @@ export async function addSongToUser(
   if (videoViews < MINIMUM_VIDEO_VIEWS) {
     return ADD_SONG_MINIMUM_VIEWS;
   }
-  /*
-  if (isAgeRestricted) {
+  if (BLOCK_AGE_RESTRICTED_VIDEOS && isAgeRestricted) {
     return ADD_SONG_VIDEO_AGE_RESTRICTED;
   }
-  */
   if (messageIDToResponse) {
     await twitchSendChatMessage(
       broadcasterID,
@@ -221,6 +221,32 @@ export async function addSongToUser(
     songAuthor: videoInfo.channel,
     songThumbnail: videoInfo.thumbnail,
   };
+
+  const account = await db.account.findFirst({
+    where: {
+      provider: "twitch",
+      providerAccountId: broadcasterID,
+    },
+  });
+  if (!account) {
+    return "User ID not found";
+  }
+  db.userMusicHistory
+    .upsert({
+      where: {
+        userID: account.userId,
+        songID: songID,
+      },
+      update: {},
+      create: {
+        userID: account.userId,
+        songID: songID,
+      },
+    })
+    .catch((err) => {
+      console.error("Error creating user music history:", err);
+    });
+
   await addSongToRedis(broadcasterID, songID, song, addedBy);
 
   emitToSubscriptedUser(broadcasterID, {
