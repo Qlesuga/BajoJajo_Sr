@@ -154,23 +154,23 @@ export default function PlayerComponent({
     },
   });
 
-  if (!currentSong) {
-    return <EmptyPlayerComponent />;
-  }
-
   return (
     <div className="dark w-full">
-      <PlayingPlayerComponent
-        key={currentSong.title}
-        name={currentSong.title}
-        artist={currentSong.songAuthor}
-        length={currentSong.songLengthSeconds}
-        image={currentSong.songThumbnail}
-        getNextSongAction={playNextSong}
-        isRunning={isPlaying}
-        stopAudioAction={stopAudio}
-        playAudioAction={playAudio}
-      />
+      {currentSong ? (
+        <PlayingPlayerComponent
+          key={currentSong.title}
+          name={currentSong.title}
+          artist={currentSong.songAuthor}
+          length={currentSong.songLengthSeconds}
+          image={currentSong.songThumbnail}
+          getNextSongAction={playNextSong}
+          isRunning={isPlaying}
+          stopAudioAction={stopAudio}
+          playAudioAction={playAudio}
+        />
+      ) : (
+        <EmptyPlayerComponent />
+      )}
     </div>
   );
 }
