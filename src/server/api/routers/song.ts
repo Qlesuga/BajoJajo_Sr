@@ -54,10 +54,12 @@ export const songRouter = createTRPCRouter({
         return null;
       }
       const songElement = await redis.lPop(`songs:${broadcasterID}`);
+      /*
       if (process.env.NODE_ENV == "development" && songElement) {
         const song = JSON.parse(songElement) as SongQueueElementType;
         await addSongToUser(broadcasterID, song.songID, song.addedBy);
       }
+      */
       return await getNextSong(broadcasterID);
     }),
 
@@ -231,6 +233,8 @@ export async function addSongToUser(
   if (!account) {
     return "User ID not found";
   }
+
+  //Add song to user history
   db.userMusicHistory
     .upsert({
       where: {
