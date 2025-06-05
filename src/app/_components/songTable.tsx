@@ -2,8 +2,6 @@
 
 import Image from "next/image";
 import { Clock, Trash2 } from "lucide-react";
-
-import { type allSongInfo } from "types/song";
 import {
   Table,
   TableBody,
@@ -30,7 +28,10 @@ export default function SongTable({
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
-  const { data, refetch } = api.song.getAllSongs.useQuery(userID);
+  const { data, refetch } = api.song.getAllSongs.useQuery(userID, {
+    refetchInterval: 10000,
+    refetchIntervalInBackground: true,
+  });
   const songs = data;
 
   const removeSongFromQueue = api.song.removeSongFromQueue.useMutation({

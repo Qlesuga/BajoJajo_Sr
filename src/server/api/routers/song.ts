@@ -53,13 +53,7 @@ export const songRouter = createTRPCRouter({
       if (!broadcasterID) {
         return null;
       }
-      const songElement = await redis.lPop(`songs:${broadcasterID}`);
-      /*
-      if (process.env.NODE_ENV == "development" && songElement) {
-        const song = JSON.parse(songElement) as SongQueueElementType;
-        await addSongToUser(broadcasterID, song.songID, song.addedBy);
-      }
-      */
+      await redis.lPop(`songs:${broadcasterID}`);
       return await getNextSong(broadcasterID);
     }),
 
