@@ -4,7 +4,31 @@ import { db } from "~/server/db";
 import { redis } from "lib/redis";
 import { readdir } from "fs";
 
-const models = [
+interface ModelWithCount {
+  count: () => Promise<number>;
+  name?: string;
+  findMany: () => Promise<unknown[]>;
+}
+
+interface PostgresTableSize {
+  size: string;
+}
+
+interface PostgresColumn {
+  column_name: string;
+}
+
+interface TableData {
+  data: unknown[];
+  columns: string[];
+  size: string;
+}
+
+interface PostgresData {
+  [tableName: string]: TableData;
+}
+
+const models: ModelWithCount[] = [
   db.userMusicHistory,
   db.userSongRequestSettings,
   db.userPlayerSettings,
@@ -27,7 +51,6 @@ export const admingRouter = createTRPCRouter({
 
     let postgresRowCount = 0;
     for (const model of models) {
-      // @ts-ignore
       postgresRowCount += await model.count();
     }
 
@@ -84,17 +107,16 @@ export const admingRouter = createTRPCRouter({
       return null;
     }
 
-    const data = {};
+    const data: PostgresData = {};
     for (const model of models) {
-      //@ts-ignore
-      const name = model.name as string;
-      if (!name) {
-        console.warn(`Model does not have a name property.`);
+      const tableName = getTableName(model);
+      if (!tableName) {
+        console.warn(`Model does not have a valid table name.`);
         continue;
       }
 
       const sizeQuerry = await db.$queryRawUnsafe<{ size: string }[]>(` 
-        SELECT pg_size_pretty(pg_total_relation_size('"${name}"')) AS size; 
+        SELECT pg_size_pretty(pg_total_relation_size('"${tableName}"')) AS size; 
       `);
 
       const columnsQuerry = await db.$queryRawUnsafe<
@@ -102,16 +124,13 @@ export const admingRouter = createTRPCRouter({
       >(`
         SELECT column_name
         FROM information_schema.columns
-        WHERE table_name = '${name}'
+        WHERE table_name = '${tableName}'
       `);
       const columns = columnsQuerry.map((col) => col.column_name);
-      console.log(`Columns for ${name}:`, columns);
+      console.log(`Columns for ${tableName}:`, columns);
 
-      //@ts-ignore
-      const dbData = (await model.findMany()) as any[]; // eslint-disable-line
-      //@ts-ignore
-      data[name] = {
-        data: dbData,
+      data[tableName] = {
+        data: await model.findMany(),
         columns,
         size: sizeQuerry[0]?.size || "0 bytes",
       };
@@ -119,3 +138,10 @@ export const admingRouter = createTRPCRouter({
     return data;
   }),
 });
+
+function getTableName(model: ModelWithCount): string | null {
+  if (model.name && typeof model.name === "string") {
+    return model.name;
+  }
+  return null;
+}
