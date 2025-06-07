@@ -33,10 +33,10 @@ export function PostgresTables() {
         <h2 className="text-2xl font-bold">PostgreSQL Tables</h2>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {data == null || isLoading
           ? "Loading"
-          : Object.keys(data).map((table) => (
+          : Object.keys(data).map((table: string) => (
               <Card key={table} className="transition-shadow hover:shadow-md">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
@@ -46,7 +46,7 @@ export function PostgresTables() {
                     <div className="flex items-center space-x-2">
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" className="p-0">
                             <Eye className="h-4 w-4" />
                           </Button>
                         </DialogTrigger>
@@ -61,9 +61,8 @@ export function PostgresTables() {
                               <UITable>
                                 <TableHeader>
                                   <TableRow>
-                                    {/*@ts-ignore */}
+                                    {/*@ts-ignore-next-line*/}
                                     {data[table].columns.map(
-                                      /* eslint-disable-prev-line */
                                       (column: string) => (
                                         <TableHead key={column}>
                                           {column}
@@ -73,14 +72,16 @@ export function PostgresTables() {
                                   </TableRow>
                                 </TableHeader>
                                 <TableBody>
+                                  {/*@ts-ignore-next-line*/}
                                   {data[table].data.map(
                                     (row, index: number) => (
                                       <TableRow key={index}>
-                                        {/*@ts-ignore */}
+                                        {/*@ts-ignore-next-line*/}
+
                                         {data[table].columns.map(
                                           (column: string) => (
                                             <TableCell key={column}>
-                                              {/*eslint-disable-next-line*/}
+                                              {/*@ts-ignore-next-line*/}
                                               {`${row[column]}`}{" "}
                                             </TableCell>
                                           ),
@@ -102,12 +103,13 @@ export function PostgresTables() {
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Rows:</span>
                       <span className="font-medium">
-                        {/*@ts-ignore */}
-                        {data[table].data.length} {/*eslint-disable-line*/}
+                        {/*@ts-ignore-next-line*/}
+                        {data[table].data.length}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Size:</span>
+                      {/*@ts-ignore-next-line*/}
                       <span className="font-medium">{data[table].size}</span>
                     </div>
                   </div>
