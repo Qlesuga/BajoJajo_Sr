@@ -164,7 +164,7 @@ export async function addSongToUser(
     return ADD_SONG_INVALID_SONG;
   }
   const allCurrentSongs = await getAllSongsWithoutBlob(broadcasterID);
-  if (allCurrentSongs.length > QUEUE_LENGTH_LIMIT) {
+  if (allCurrentSongs.length >= QUEUE_LENGTH_LIMIT) {
     return MAX_LENGTH_REACHED;
   }
 
