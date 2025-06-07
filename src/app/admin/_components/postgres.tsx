@@ -23,126 +23,10 @@ import {
   TableHeader,
   TableRow,
 } from "~/shadcn/components/ui/table";
-
-const mockTables = [
-  {
-    name: "users",
-    rows: 1247,
-    size: "2.3 MB",
-    data: [
-      {
-        id: 1,
-        email: "john@example.com",
-        name: "John Doe",
-        created_at: "2024-01-15 10:30:00",
-      },
-      {
-        id: 2,
-        email: "jane@example.com",
-        name: "Jane Smith",
-        created_at: "2024-01-16 14:22:00",
-      },
-      {
-        id: 3,
-        email: "bob@example.com",
-        name: "Bob Johnson",
-        created_at: "2024-01-17 09:15:00",
-      },
-      {
-        id: 1,
-        email: "john@example.com",
-        name: "John Doe",
-        created_at: "2024-01-15 10:30:00",
-      },
-      {
-        id: 2,
-        email: "jane@example.com",
-        name: "Jane Smith",
-        created_at: "2024-01-16 14:22:00",
-      },
-      {
-        id: 3,
-        email: "bob@example.com",
-        name: "Bob Johnson",
-        created_at: "2024-01-17 09:15:00",
-      },
-      {
-        id: 1,
-        email: "john@example.com",
-        name: "John Doe",
-        created_at: "2024-01-15 10:30:00",
-      },
-      {
-        id: 2,
-        email: "jane@example.com",
-        name: "Jane Smith",
-        created_at: "2024-01-16 14:22:00",
-      },
-      {
-        id: 3,
-        email: "bob@example.com",
-        name: "Bob Johnson",
-        created_at: "2024-01-17 09:15:00",
-      },
-      {
-        id: 1,
-        email: "john@example.com",
-        name: "John Doe",
-        created_at: "2024-01-15 10:30:00",
-      },
-      {
-        id: 2,
-        email: "jane@example.com",
-        name: "Jane Smith",
-        created_at: "2024-01-16 14:22:00",
-      },
-      {
-        id: 3,
-        email: "bob@example.com",
-        name: "Bob Johnson",
-        created_at: "2024-01-17 09:15:00",
-      },
-      {
-        id: 1,
-        email: "john@example.com",
-        name: "John Doe",
-        created_at: "2024-01-15 10:30:00",
-      },
-      {
-        id: 2,
-        email: "jane@example.com",
-        name: "Jane Smith",
-        created_at: "2024-01-16 14:22:00",
-      },
-      {
-        id: 3,
-        email: "bob@example.com",
-        name: "Bob Johnson",
-        created_at: "2024-01-17 09:15:00",
-      },
-      {
-        id: 1,
-        email: "john@example.com",
-        name: "John Doe",
-        created_at: "2024-01-15 10:30:00",
-      },
-      {
-        id: 2,
-        email: "jane@example.com",
-        name: "Jane Smith",
-        created_at: "2024-01-16 14:22:00",
-      },
-      {
-        id: 3,
-        email: "bob@example.com",
-        name: "Bob Johnson",
-        created_at: "2024-01-17 09:15:00",
-      },
-    ],
-  },
-];
+import { api } from "~/trpc/react";
 
 export function PostgresTables() {
+  const { data, isLoading } = api.admin.getPostgresData.useQuery();
   return (
     <div className="space-y-6">
       <div>
@@ -150,70 +34,86 @@ export function PostgresTables() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {mockTables.map((table) => (
-          <Card key={table.name} className="transition-shadow hover:shadow-md">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <CardTitle className="text-lg">{table.name}</CardTitle>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-h-[840px] max-w-4xl overflow-scroll">
-                      <DialogHeader>
-                        <DialogTitle className="flex items-center">
-                          <h1 className="text-2xl">{table.name}</h1>
-                        </DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-6">
-                        <div>
-                          <UITable>
-                            <TableHeader>
-                              <TableRow>
-                                {Object.keys(table.data[0] || {}).map((key) => (
-                                  <TableHead key={key}>{key}</TableHead>
-                                ))}
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {table.data.map((row, index) => (
-                                <TableRow key={index}>
-                                  {Object.keys(row).map((key) => (
-                                    // @ts-ignore
-                                    <TableCell key={key}>{row[key]}</TableCell>
-                                  ))}
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </UITable>
-                        </div>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Rows:</span>
-                  <span className="font-medium">
-                    {table.rows.toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Size:</span>
-                  <span className="font-medium">{table.size}</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        {data == null || isLoading
+          ? "Loading"
+          : Object.keys(data).map((table) => (
+              <Card key={table} className="transition-shadow hover:shadow-md">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <CardTitle className="text-lg">{table}</CardTitle>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-h-[840px] max-w-7xl overflow-scroll">
+                          <DialogHeader>
+                            <DialogTitle className="flex items-center">
+                              <h1 className="text-2xl">{table}</h1>
+                            </DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-6">
+                            <div>
+                              <UITable>
+                                <TableHeader>
+                                  <TableRow>
+                                    {/*@ts-ignore */}
+                                    {data[table].columns.map(
+                                      /* eslint-disable-prev-line */
+                                      (column: string) => (
+                                        <TableHead key={column}>
+                                          {column}
+                                        </TableHead>
+                                      ),
+                                    )}
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {data[table].data.map(
+                                    (row, index: number) => (
+                                      <TableRow key={index}>
+                                        {/*@ts-ignore */}
+                                        {data[table].columns.map(
+                                          (column: string) => (
+                                            <TableCell key={column}>
+                                              {/*eslint-disable-next-line*/}
+                                              {`${row[column]}`}{" "}
+                                            </TableCell>
+                                          ),
+                                        )}
+                                      </TableRow>
+                                    ),
+                                  )}
+                                </TableBody>
+                              </UITable>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Rows:</span>
+                      <span className="font-medium">
+                        {/*@ts-ignore */}
+                        {data[table].data.length} {/*eslint-disable-line*/}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Size:</span>
+                      <span className="font-medium">{data[table].size}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
       </div>
     </div>
   );
