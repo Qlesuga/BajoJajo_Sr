@@ -34,7 +34,12 @@ const stats = [
 ];
 
 export function DashboardOverview() {
-  const { data, isLoading, refetch } = api.admin.getOverviewData.useQuery();
+  const { data, isLoading, refetch } = api.admin.getOverviewData.useQuery(
+    undefined,
+    {
+      refetchInterval: 5000,
+    },
+  );
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">

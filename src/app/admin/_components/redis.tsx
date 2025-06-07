@@ -21,55 +21,22 @@ import {
   DialogTrigger,
 } from "~/shadcn/components/ui/dialog";
 import { Label } from "~/shadcn/components/ui/label";
-
-const mockRedisKeys = [
-  {
-    key: "user:1001",
-    type: "hash",
-    ttl: 3600,
-    value: '{"name":"John Doe","email":"john@example.com"}',
-  },
-  { key: "session:abc123", type: "string", ttl: 1800, value: "active" },
-  {
-    key: "cache:products",
-    type: "list",
-    ttl: -1,
-    value: '["product1","product2","product3"]',
-  },
-  { key: "counter:visits", type: "string", ttl: -1, value: "1247" },
-  {
-    key: "config:app",
-    type: "hash",
-    ttl: -1,
-    value: '{"theme":"dark","lang":"en"}',
-  },
-];
+import { api } from "~/trpc/react";
 
 export function RedisKeys() {
-  const [keys, setKeys] = useState(mockRedisKeys);
+  const { data, isLoading } = api.admin.getRedisKeys.useQuery();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedKey, setSelectedKey] = useState<
-    (typeof mockRedisKeys)[0] | null
-  >(null);
+  const [selectedKey, setSelectedKey] = useState<typeof data>(null);
   const [newKey, setNewKey] = useState({ key: "", value: "", ttl: "" });
 
-  const filteredKeys = keys.filter((item) =>
-    item.key.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
-
-  const handleAddKey = () => {
-    if (newKey.key && newKey.value) {
-      setKeys([
-        ...keys,
-        {
-          key: newKey.key,
-          type: "string",
-          ttl: newKey.ttl ? Number.parseInt(newKey.ttl) : -1,
-          value: newKey.value,
-        },
-      ]);
-      setNewKey({ key: "", value: "", ttl: "" });
-    }
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const remainingHouurs = hours % 24;
+    const remainingMinutes = minutes % 60;
+    const remainingSeconds = seconds % 60;
+    return `${days}days ${remainingHouurs}h ${remainingMinutes}min ${remainingSeconds.toString().padStart(2, "0")}s`;
   };
 
   return (
@@ -127,9 +94,7 @@ export function RedisKeys() {
                   placeholder="-1"
                 />
               </div>
-              <Button onClick={handleAddKey} className="w-full">
-                Add Key
-              </Button>
+              <Button className="w-full">Add Key</Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -146,38 +111,54 @@ export function RedisKeys() {
       </div>
 
       <div className="grid gap-4">
-        {filteredKeys.map((item) => (
-          <Card
-            key={item.key}
-            className="cursor-pointer transition-shadow hover:shadow-md"
-          >
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <CardTitle className="text-lg">{item.key}</CardTitle>
-                  <Badge variant="secondary">{item.type}</Badge>
-                  {item.ttl > 0 && (
-                    <Badge variant="outline">TTL: {item.ttl}s</Badge>
-                  )}
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setSelectedKey(item)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="rounded-md bg-muted p-3">
-                <code className="text-sm">{item.value}</code>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        {isLoading
+          ? "loading"
+          : !data
+            ? "ups"
+            : data.map((item) => (
+                <Card
+                  key={item.key}
+                  className="cursor-pointer transition-shadow hover:shadow-md"
+                >
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <CardTitle className="text-lg">{item.key}</CardTitle>
+                        <Badge variant="secondary">{item.type}</Badge>
+                        {item.ttl > 0 && (
+                          <Badge variant="outline">
+                            TTL: {formatTime(item.ttl)}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Button variant="ghost" size="sm">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="rounded-md bg-muted p-3">
+                      <div className="text-sm">
+                        {typeof item.value === "string"
+                          ? item.value
+                          : Array.isArray(item.value)
+                            ? item.value.join(", ")
+                            : Object.keys(
+                                item.value as Record<string, string>,
+                              ).map((key, index) => (
+                                <div key={index}>
+                                  {/*@ts-ignore*/}
+                                  {key}: {item.value[key]}
+                                  <br />
+                                </div>
+                              ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
       </div>
     </div>
   );

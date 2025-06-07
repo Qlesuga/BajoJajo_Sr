@@ -45,12 +45,35 @@ export const admingRouter = createTRPCRouter({
       });
     });
 
-    console.log("Files count:", filesCount);
     return {
       usersCount,
       postgresRowCount,
       redisKeys: redisKeys.length,
       filesCount,
     };
+  }),
+  getRedisKeys: publicProcedure.query(async () => {
+    const session = await auth();
+    const isAdmin = session?.account.providerId === process.env.ADMIN_TWITCH_ID;
+    if (!isAdmin) {
+      return null;
+    }
+    const keys = await redis.keys("*");
+    const keyDetails = await Promise.all(
+      keys.map(async (key) => {
+        const type = await redis.type(key);
+        let value;
+        if (type === "string") {
+          value = await redis.get(key);
+        } else if (type === "hash") {
+          value = await redis.hGetAll(key);
+        } else if (type === "list") {
+          value = await redis.lRange(key, 0, -1);
+        }
+        const ttl = await redis.ttl(key);
+        return { key, type, ttl, value };
+      }),
+    );
+    return keyDetails;
   }),
 });
