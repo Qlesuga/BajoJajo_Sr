@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, Plus, Trash2, Users, ShoppingCart, Package } from "lucide-react";
+import { Eye, Plus } from "lucide-react";
 import { Button } from "~/shadcn/components/ui/button";
 import {
   Card,
@@ -30,7 +30,6 @@ import {
 const mockTables = [
   {
     name: "users",
-    icon: Users,
     rows: 1247,
     size: "2.3 MB",
     columns: [
@@ -63,11 +62,46 @@ const mockTables = [
         name: "Bob Johnson",
         created_at: "2024-01-17 09:15:00",
       },
+      {
+        id: 1,
+        email: "john@example.com",
+        name: "John Doe",
+        created_at: "2024-01-15 10:30:00",
+      },
+      {
+        id: 2,
+        email: "jane@example.com",
+        name: "Jane Smith",
+        created_at: "2024-01-16 14:22:00",
+      },
+      {
+        id: 3,
+        email: "bob@example.com",
+        name: "Bob Johnson",
+        created_at: "2024-01-17 09:15:00",
+      },
+      {
+        id: 1,
+        email: "john@example.com",
+        name: "John Doe",
+        created_at: "2024-01-15 10:30:00",
+      },
+      {
+        id: 2,
+        email: "jane@example.com",
+        name: "Jane Smith",
+        created_at: "2024-01-16 14:22:00",
+      },
+      {
+        id: 3,
+        email: "bob@example.com",
+        name: "Bob Johnson",
+        created_at: "2024-01-17 09:15:00",
+      },
     ],
   },
   {
     name: "orders",
-    icon: ShoppingCart,
     rows: 3891,
     size: "5.7 MB",
     columns: [
@@ -108,7 +142,6 @@ const mockTables = [
   },
   {
     name: "products",
-    icon: Package,
     rows: 567,
     size: "1.2 MB",
     columns: [
@@ -150,20 +183,10 @@ const mockTables = [
 ];
 
 export function PostgresTables() {
-  const [selectedTable, setSelectedTable] = useState<
-    (typeof mockTables)[0] | null
-  >(null);
-
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">PostgreSQL Tables</h2>
-        </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Create Table
-        </Button>
+      <div>
+        <h2 className="text-2xl font-bold">PostgreSQL Tables</h2>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -172,24 +195,18 @@ export function PostgresTables() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <table.icon className="h-5 w-5 text-primary" />
                   <CardTitle className="text-lg">{table.name}</CardTitle>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setSelectedTable(table)}
-                      >
+                      <Button variant="ghost" size="sm">
                         <Eye className="h-4 w-4" />
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-4xl">
+                    <DialogContent className="h-[840px] max-w-4xl overflow-scroll">
                       <DialogHeader>
                         <DialogTitle className="flex items-center space-x-2">
-                          <table.icon className="h-5 w-5" />
                           <span>{table.name}</span>
                         </DialogTitle>
                         <DialogDescription>
@@ -264,9 +281,6 @@ export function PostgresTables() {
                       </div>
                     </DialogContent>
                   </Dialog>
-                  <Button variant="ghost" size="sm">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
                 </div>
               </div>
             </CardHeader>
