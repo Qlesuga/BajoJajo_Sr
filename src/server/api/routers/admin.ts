@@ -10,23 +10,13 @@ interface ModelWithCount {
   findMany: () => Promise<unknown[]>;
 }
 
-interface PostgresTableSize {
-  size: string;
-}
-
-interface PostgresColumn {
-  column_name: string;
-}
-
 interface TableData {
   data: unknown[];
   columns: string[];
   size: string;
 }
 
-interface PostgresData {
-  [tableName: string]: TableData;
-}
+type PostgresData = Record<string, TableData>;
 
 const models: ModelWithCount[] = [
   db.userMusicHistory,

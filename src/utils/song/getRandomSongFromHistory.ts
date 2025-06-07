@@ -1,4 +1,4 @@
-import { SongType } from "types/song";
+import { type SongType } from "types/song";
 import { db } from "~/server/db";
 import { getSong } from "./getSong";
 

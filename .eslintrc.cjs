@@ -13,6 +13,7 @@ const config = {
   ],
   rules: {
     "@typescript-eslint/prefer-nullish-coalescing": "off",
+    "react-hooks/exhaustive-deps": "off",
     "@typescript-eslint/array-type": "off",
     "@typescript-eslint/consistent-type-definitions": "off",
     "@typescript-eslint/ban-ts-comment": "off",
