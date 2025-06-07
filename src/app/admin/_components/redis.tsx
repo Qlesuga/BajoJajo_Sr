@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Plus, Edit } from "lucide-react";
+import { Plus, Edit } from "lucide-react";
 import { Button } from "~/shadcn/components/ui/button";
 import { Input } from "~/shadcn/components/ui/input";
 import {
@@ -25,8 +25,6 @@ import { api } from "~/trpc/react";
 
 export function RedisKeys() {
   const { data, isLoading } = api.admin.getRedisKeys.useQuery();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedKey, setSelectedKey] = useState<typeof data>(null);
   const [newKey, setNewKey] = useState({ key: "", value: "", ttl: "" });
 
   const formatTime = (seconds: number) => {
@@ -98,16 +96,6 @@ export function RedisKeys() {
             </div>
           </DialogContent>
         </Dialog>
-      </div>
-
-      <div className="flex items-center space-x-2">
-        <Search className="h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search keys..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm"
-        />
       </div>
 
       <div className="grid gap-4">
