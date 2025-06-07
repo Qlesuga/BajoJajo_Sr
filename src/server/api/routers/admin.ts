@@ -76,4 +76,46 @@ export const admingRouter = createTRPCRouter({
     );
     return keyDetails;
   }),
+
+  getPostgresData: publicProcedure.query(async () => {
+    const session = await auth();
+    const isAdmin = session?.account.providerId === process.env.ADMIN_TWITCH_ID;
+    if (!isAdmin) {
+      return null;
+    }
+
+    const data = {};
+    for (const model of models) {
+      //@ts-ignore
+      const name = model.name as string;
+      if (!name) {
+        console.warn(`Model does not have a name property.`);
+        continue;
+      }
+
+      const sizeQuerry = await db.$queryRawUnsafe<{ size: string }[]>(` 
+        SELECT pg_size_pretty(pg_total_relation_size('"${name}"')) AS size; 
+      `);
+
+      const columnsQuerry = await db.$queryRawUnsafe<
+        { column_name: string }[]
+      >(`
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name = '${name}'
+      `);
+      const columns = columnsQuerry.map((col) => col.column_name);
+      console.log(`Columns for ${name}:`, columns);
+
+      //@ts-ignore
+      const dbData = (await model.findMany()) as any[]; // eslint-disable-line
+      //@ts-ignore
+      data[name] = {
+        data: dbData,
+        columns,
+        size: sizeQuerry[0]?.size || "0 bytes",
+      };
+    }
+    return data;
+  }),
 });
