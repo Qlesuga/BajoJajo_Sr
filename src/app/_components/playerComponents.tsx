@@ -4,7 +4,7 @@ import "~/styles/player.css";
 import { api } from "~/trpc/react";
 import PlayingPlayerComponent from "./playingPlayerComponent";
 import { b64toBlob } from "~/utils/stringB64ToBlob";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import type { SongType } from "types/song";
 import { type AvailableEmits } from "types/subscriptedUsers";
@@ -29,11 +29,18 @@ export default function PlayerComponent({
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const volumeRef = useRef<number>(initVolumeInPercentage / 100);
+  const isFetching = useRef(false);
 
-  const { mutate: completeCurrentSongAndGetNext, data: nextSongData } =
-    api.song.getNextSongAndCompleteCurrent.useMutation();
+  const { mutate: completeCurrentSongAndGetNext } =
+    api.song.getNextSongAndCompleteCurrent.useMutation({
+      onSuccess: (data) => {
+        isFetching.current = false;
+        setNextSong(data);
+      },
+    });
 
   const playNextSong = () => {
+    if (isFetching.current) return;
     console.log("play next song");
 
     if (audioRef.current) {
@@ -41,18 +48,13 @@ export default function PlayerComponent({
     }
 
     console.log(currentSong?.songID);
+    isFetching.current = true;
     completeCurrentSongAndGetNext({
       userLink: link,
       songID: currentSong?.songID,
     });
     setCurrentSong(nextSong);
   };
-
-  useEffect(() => {
-    if (nextSongData) {
-      setNextSong(nextSongData);
-    }
-  }, [nextSongData]);
 
   const stopAudio = () => {
     audioRef.current?.pause();
