@@ -29,28 +29,9 @@ export default function PlayerComponent({
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const volumeRef = useRef<number>(initVolumeInPercentage / 100);
-  const fetchInProgressRef = useRef<boolean>(false);
 
-  const {
-    data: nextSongData,
-    refetch,
-    isLoading,
-  } = api.song.getNextSongAndCompleteCurrent.useQuery(
-    { userLink: link, songID: currentSong?.songID },
-    {
-      refetchOnWindowFocus: false,
-      enabled: false,
-    },
-  );
-
-  const getNextSong = useCallback(() => {
-    const shouldFetch = !nextSong && !isLoading && !fetchInProgressRef.current;
-    if (shouldFetch) {
-      console.log("get next song");
-      fetchInProgressRef.current = true;
-      void refetch();
-    }
-  }, [nextSong, isLoading, refetch]);
+  const { mutate: completeCurrentSongAndGetNext, data: nextSongData } =
+    api.song.getNextSongAndCompleteCurrent.useMutation();
 
   const playNextSong = () => {
     console.log("play next song");
@@ -59,11 +40,19 @@ export default function PlayerComponent({
       audioRef.current.pause();
     }
 
+    console.log(currentSong?.songID);
+    completeCurrentSongAndGetNext({
+      userLink: link,
+      songID: currentSong?.songID,
+    });
     setCurrentSong(nextSong);
-    setNextSong(null);
-
-    getNextSong();
   };
+
+  useEffect(() => {
+    if (nextSongData) {
+      setNextSong(nextSongData);
+    }
+  }, [nextSongData]);
 
   const stopAudio = useCallback(() => {
     audioRef.current?.pause();
@@ -76,23 +65,6 @@ export default function PlayerComponent({
   }, []);
 
   useEffect(() => {
-    if (nextSongData && fetchInProgressRef.current == true) {
-      fetchInProgressRef.current = false;
-      if (nextSongData) {
-        if (!currentSong) {
-          setCurrentSong(nextSongData);
-        } else if (!nextSong && nextSongData.title != currentSong.title) {
-          setNextSong(nextSongData);
-        }
-      }
-    }
-  }, [nextSongData]);
-
-  useEffect(() => {
-    getNextSong();
-  }, [nextSong, currentSong]);
-
-  useEffect(() => {
     if (!currentSong) return;
     const newAudio = new Audio(
       URL.createObjectURL(b64toBlob(currentSong.songBlob, "audio/mp3")),
@@ -101,11 +73,7 @@ export default function PlayerComponent({
     newAudio.loop = false;
 
     newAudio.addEventListener("ended", () => {
-      if (nextSong) {
-        playNextSong();
-      } else {
-        getNextSong();
-      }
+      playNextSong();
     });
 
     newAudio.play().catch(() => null);
@@ -135,7 +103,7 @@ export default function PlayerComponent({
           playNextSong();
           break;
         case "new_song":
-          getNextSong();
+          // TODO fix this
           break;
         case "volume":
           if (data.value != null && audioRef.current) {

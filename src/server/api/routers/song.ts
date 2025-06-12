@@ -51,20 +51,23 @@ export const songRouter = createTRPCRouter({
         songID: z.string().optional(),
       }),
     )
-    .query(async ({ input }) => {
+    .mutation(async ({ input }) => {
       const { userLink, songID } = input;
-      console.log(input);
+      console.info(input);
 
       const broadcasterID = await getUserFromUserLink(userLink);
       if (!broadcasterID) {
         return null;
       }
+
       const firstSong = (await redis.lIndex(
         `songs:${broadcasterID}`,
         0,
       )) as SongQueueElementType | null;
-      if (firstSong?.songID == songID)
+      if (firstSong?.songID === songID) {
         await redis.lPop(`songs:${broadcasterID}`);
+      }
+
       return await getNextSong(broadcasterID);
     }),
 
