@@ -35,10 +35,13 @@ export default function PlayerComponent({
     data: nextSongData,
     refetch,
     isLoading,
-  } = api.song.getNextSongAndCompleteCurrent.useQuery(link, {
-    refetchOnWindowFocus: false,
-    enabled: false,
-  });
+  } = api.song.getNextSongAndCompleteCurrent.useQuery(
+    { userLink: link, songID: currentSong?.songID },
+    {
+      refetchOnWindowFocus: false,
+      enabled: false,
+    },
+  );
 
   const getNextSong = useCallback(() => {
     const shouldFetch = !nextSong && !isLoading && !fetchInProgressRef.current;
@@ -123,7 +126,7 @@ export default function PlayerComponent({
 
   api.song.songSubscription.useSubscription(link, {
     onData: (data: AvailableEmits) => {
-      if (process.env.NODE_ENV == "development") {
+      if (process.env.NODE_ENV === "development") {
         console.log("Received command:", data);
       }
 

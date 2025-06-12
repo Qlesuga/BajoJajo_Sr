@@ -14,6 +14,7 @@ async function getSong(
     return null;
   }
   return {
+    songID: songID,
     title: songInfo.title,
     songAuthor: songInfo.songAuthor,
     songLengthSeconds: songInfo.songLengthSeconds,

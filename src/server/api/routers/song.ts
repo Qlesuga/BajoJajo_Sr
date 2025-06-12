@@ -45,15 +45,26 @@ export const songRouter = createTRPCRouter({
     return await getNextSong(broadcasterID);
   }),
   getNextSongAndCompleteCurrent: publicProcedure
-    .input(z.string())
-    .query(async (opts) => {
-      const userLink = opts.input;
+    .input(
+      z.object({
+        userLink: z.string(),
+        songID: z.string().optional(),
+      }),
+    )
+    .query(async ({ input }) => {
+      const { userLink, songID } = input;
+      console.log(input);
 
       const broadcasterID = await getUserFromUserLink(userLink);
       if (!broadcasterID) {
         return null;
       }
-      await redis.lPop(`songs:${broadcasterID}`);
+      const firstSong = (await redis.lIndex(
+        `songs:${broadcasterID}`,
+        0,
+      )) as SongQueueElementType | null;
+      if (firstSong?.songID == songID)
+        await redis.lPop(`songs:${broadcasterID}`);
       return await getNextSong(broadcasterID);
     }),
 
@@ -212,6 +223,7 @@ export async function addSongToUser(
     return ADD_SONG_INVALID_SONG;
   }
   const song: SongTypeWithoutBlob = {
+    songID: songID,
     title: title,
     songLengthSeconds: videoLength,
     songAuthor: videoInfo.channel,

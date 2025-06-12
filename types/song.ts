@@ -1,4 +1,5 @@
 export type SongTypeWithoutBlob = {
+  songID: string;
   title: string;
   songLengthSeconds: number;
   songAuthor: string;
