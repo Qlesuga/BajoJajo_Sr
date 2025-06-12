@@ -54,15 +54,15 @@ export default function PlayerComponent({
     }
   }, [nextSongData]);
 
-  const stopAudio = useCallback(() => {
+  const stopAudio = () => {
     audioRef.current?.pause();
     setIsPlaying(false);
-  }, []);
+  };
 
-  const playAudio = useCallback(() => {
+  const playAudio = () => {
     audioRef.current?.play().catch(() => null);
     setIsPlaying(true);
-  }, []);
+  };
 
   useEffect(() => {
     if (!currentSong) return;
