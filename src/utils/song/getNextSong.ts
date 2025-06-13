@@ -4,14 +4,9 @@ import { getSong } from "./getSong";
 import getRandomSongFromHistory from "./getRandomSongFromHistory";
 
 async function getNextSong(broadcasterID: string): Promise<SongType | null> {
-  const songsEntries = await redis.lRange(`songs:${broadcasterID}`, 1, 1);
-  if (songsEntries.length < 1) {
-    const randomSong = await getRandomSongFromHistory(broadcasterID);
-    return randomSong;
-  }
-  const songEntry = songsEntries[0];
+  const songEntry = await redis.lIndex(`songs:${broadcasterID}`, 1);
   if (!songEntry) {
-    return null;
+    return getRandomSongFromHistory(broadcasterID);
   }
   const songQueueElement: SongQueueElementType = JSON.parse(
     songEntry,

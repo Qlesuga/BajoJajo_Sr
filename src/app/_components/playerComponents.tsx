@@ -47,7 +47,6 @@ export default function PlayerComponent({
       audioRef.current.pause();
     }
 
-    console.log(currentSong?.songID);
     isFetching.current = true;
     completeCurrentSongAndGetNext({
       userLink: link,

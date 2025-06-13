@@ -53,22 +53,20 @@ export const songRouter = createTRPCRouter({
     )
     .mutation(async ({ input }) => {
       const { userLink, songID } = input;
-      console.info(input);
 
       const broadcasterID = await getUserFromUserLink(userLink);
       if (!broadcasterID) {
         return null;
       }
 
-      const firstSong = (await redis.lIndex(
-        `songs:${broadcasterID}`,
-        0,
-      )) as SongQueueElementType | null;
+      const firstSong = await getCurrentSong(broadcasterID);
+
       if (firstSong?.songID === songID) {
         await redis.lPop(`songs:${broadcasterID}`);
+        return await getNextSong(broadcasterID);
       }
 
-      return await getNextSong(broadcasterID);
+      return firstSong;
     }),
 
   removeSongFromQueue: publicProcedure
