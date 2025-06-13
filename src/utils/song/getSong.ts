@@ -1,10 +1,8 @@
-import type { SongTypeInRedis } from "types/song";
+import type { SongType } from "types/song";
 import { getYouTubeVideo } from "../utilsYTDL";
 import { getSongInfo } from "./getSongInfo";
 
-async function getSong(
-  songID: string,
-): Promise<(SongTypeInRedis & { songBlob: string }) | null> {
+async function getSong(songID: string): Promise<SongType | null> {
   const songInfo = await getSongInfo(songID);
   if (!songInfo) {
     return null;

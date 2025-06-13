@@ -7,19 +7,23 @@ export async function getSongInfo(
 ): Promise<SongTypeWithoutBlob | null> {
   let song: Record<string, string> | null | InfoApiResponse =
     await redis.hGetAll(`song:${songID}`);
+
   if (!song?.title) {
     song = await getYouTubeInfo(songID);
     if (!song) {
       return null;
     }
+
     const songObject: SongTypeInRedis = {
       title: song.title,
       songLengthSeconds: song.videoLength,
       songAuthor: song.channel,
       songThumbnail: song.thumbnail,
     };
+
     await redis.hSet(`song:${songID}`, songObject);
     return {
+      songID: songID,
       title: song.title,
       songAuthor: song.channel,
       songLengthSeconds: song.videoLength,
@@ -31,6 +35,7 @@ export async function getSongInfo(
       return null;
     }
     return {
+      songID: songID,
       title: title,
       songAuthor: songAuthor,
       songLengthSeconds: parseInt(songLengthSeconds),
