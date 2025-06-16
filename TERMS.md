@@ -34,4 +34,4 @@ The administrator reserves the right to modify these Terms at any time. Any upda
 
 ## 8. Contact
 
-For issues or questions, please contact via email: qlesmail@proton.me
+For issues or questions, please contact via email: contact@qles.dev

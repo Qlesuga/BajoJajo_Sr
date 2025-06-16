@@ -49,7 +49,7 @@ You have the right to:
 - Request deletion,
 - Restrict processing.
 
-To exercise your rights, contact: qlesmail@proton.me
+To exercise your rights, contact: contact@qles.dev
 
 ## 8. Data Security
 
@@ -58,4 +58,4 @@ No personal data is used for profiling or advertising.
 
 ## 9. Contact
 
-For privacy-related questions, please reach out via emial: qlesmail@proton.me
+For privacy-related questions, please reach out via emial: contact@qles.dev
