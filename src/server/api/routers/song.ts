@@ -63,6 +63,12 @@ export const songRouter = createTRPCRouter({
 
       if (firstSong?.songID === songID) {
         await redis.lPop(`songs:${broadcasterID}`);
+        if (process.env.NODE_ENV == "development") {
+          console.log("SONGID", songID);
+          addSongToUser(broadcasterID, songID || "", "loop").catch((e) =>
+            console.error(e),
+          );
+        }
         return await getNextSong(broadcasterID);
       }
 

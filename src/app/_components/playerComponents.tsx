@@ -9,6 +9,7 @@ import { useParams } from "next/navigation";
 import type { SongType } from "types/song";
 import { type AvailableEmits } from "types/subscriptedUsers";
 import EmptyPlayerComponent from "./emptyPlayerComponent";
+import { Card, CardContent, CardFooter } from "~/shadcn/components/ui/card";
 
 interface PlayerComponentProps {
   initVolumeInPercentage: number;
@@ -25,7 +26,7 @@ export default function PlayerComponent({
   const [currentSong, setCurrentSong] = useState<SongType | null>(
     initCurrentSong,
   );
-  const [nextSong, setNextSong] = useState<SongType | null>(initNextSong);
+  const nextSong = useRef<SongType | null>(initNextSong);
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const volumeRef = useRef<number>(initVolumeInPercentage / 100);
@@ -35,7 +36,11 @@ export default function PlayerComponent({
     api.song.getNextSongAndCompleteCurrent.useMutation({
       onSuccess: (data) => {
         isFetching.current = false;
-        setNextSong(data);
+        if (currentSong) {
+          nextSong.current = data;
+          return;
+        }
+        setCurrentSong(data);
       },
     });
 
@@ -52,7 +57,9 @@ export default function PlayerComponent({
       userLink: link,
       songID: currentSong?.songID,
     });
-    setCurrentSong(nextSong);
+
+    setCurrentSong(nextSong.current);
+    nextSong.current = null;
   };
 
   const stopAudio = () => {
@@ -74,13 +81,15 @@ export default function PlayerComponent({
     newAudio.loop = false;
 
     newAudio.addEventListener("ended", () => {
+      console.log("song ended");
       playNextSong();
     });
 
-    newAudio.play().catch(() => null);
-    setIsPlaying(true);
-
     audioRef.current = newAudio;
+    playAudio();
+    if (process.env.NODE_ENV == "development") {
+      newAudio.playbackRate = 5;
+    }
 
     return () => {
       if (audioRef.current) {
@@ -119,7 +128,7 @@ export default function PlayerComponent({
           playAudio();
           break;
         case "clear":
-          setNextSong(null);
+          nextSong.current = null;
           setCurrentSong(null);
           break;
       }
@@ -128,21 +137,32 @@ export default function PlayerComponent({
 
   return (
     <div className="dark w-full">
-      {currentSong ? (
-        <PlayingPlayerComponent
-          key={currentSong.title}
-          name={currentSong.title}
-          artist={currentSong.songAuthor}
-          length={currentSong.songLengthSeconds}
-          image={currentSong.songThumbnail}
-          getNextSongAction={playNextSong}
-          isRunning={isPlaying}
-          stopAudioAction={stopAudio}
-          playAudioAction={playAudio}
-        />
-      ) : (
-        <EmptyPlayerComponent />
-      )}
+      <Card
+        className="h-144 w-screen"
+        style={{ backgroundColor: "hsl(var(--background))" }}
+      >
+        <CardContent className="w-full p-6">
+          {currentSong ? (
+            <PlayingPlayerComponent
+              key={currentSong.title}
+              name={currentSong.title}
+              artist={currentSong.songAuthor}
+              length={currentSong.songLengthSeconds}
+              image={currentSong.songThumbnail}
+              isRunning={isPlaying}
+            />
+          ) : (
+            <EmptyPlayerComponent />
+          )}
+        </CardContent>
+        <CardFooter>
+          <div className="flex gap-2">
+            <button onClick={playAudio}>play</button>
+            <button onClick={stopAudio}>stop</button>
+            <button onClick={playNextSong}>next</button>
+          </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 }
