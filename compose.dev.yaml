@@ -16,6 +16,22 @@ services:
     networks:
       - app-network
 
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+    volumes:
+      - db:/var/lib/postgresql/data
+      - music:/music
+    expose:
+      - 5432
+    ports:
+      - 5432:5432
+    networks:
+      - app-network
+
   redis:
     image: redis:7.4-alpine
     restart: always
@@ -42,6 +58,7 @@ services:
       - cloudflared
       - yt-dlp
     links:
+      - db
       - redis
       - yt-dlp
     env_file:
@@ -77,6 +94,8 @@ services:
       - app-network
 
 volumes:
+  db:
+    driver: local
   redis:
     driver: local
   music:
