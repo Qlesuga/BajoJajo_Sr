@@ -28,6 +28,7 @@ The data is used solely for:
 The legal basis for processing data:
 
 - User consent (via Twitch login),
+- Data Storage (via SupaBase),
 - Legitimate interest (functionality of the site).
 
 ## 5. Cookies

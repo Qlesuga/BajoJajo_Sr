@@ -23,7 +23,7 @@ EXPOSE 3000
 CMD if [ "$NODE_ENV" = "development" ]; then \
       sh -c "pnpm run dev"; \
     elif [ "$NODE_ENV" = "production" ]; then \
-      sh -c "pnpm run build && pnpm run db:push && pnpm start"; \
+      sh -c "pnpm run prisma generate && pnpm run build && pnpm start"; \
     else \
       echo "No valid node_env specified"; \
     fi
