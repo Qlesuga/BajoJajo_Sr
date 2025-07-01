@@ -17,7 +17,7 @@ import type {
   TwitchWebhookHeaders,
 } from "types/twitch";
 import { getCurrentSongInfo } from "~/utils/song/getCurrentSongInfo";
-import { addSongToUser } from "~/server/api/routers/song";
+import { addSongToUser, forceAddSongToUser } from "~/server/api/routers/song";
 import { clearSongQueue } from "~/utils/song/clearSongQueue";
 import { isSrTurnedOn } from "~/utils/isSrTurnedOn";
 import { turnSrOn } from "~/utils/turnSrOn";
@@ -150,7 +150,7 @@ async function handleTwitchMessage(
     );
   }
   if (command == "!forcesr" && param && isModerator(badges)) {
-    responseMessage = await addSongToUser(
+    responseMessage = await forceAddSongToUser(
       broadcasterID,
       param,
       event.chatter_user_name,
