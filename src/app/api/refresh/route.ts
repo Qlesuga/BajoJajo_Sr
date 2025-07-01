@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import type { NextApiResponse } from "next";
 import { db } from "~/server/db";
 
-export async function POST(_req: Request, _res: NextApiResponse) {
+export async function POST(req: Request): Promise<NextResponse> {
   console.info("REFRESH START");
+
   try {
     await db.srStatus.findMany();
   } catch (e) {
