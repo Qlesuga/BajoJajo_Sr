@@ -21,6 +21,7 @@ RUN rm -r ffmpeg
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install fastapi[standard]
+RUN pip install -U yt-dlp
 COPY . .
 
 EXPOSE 8000 
