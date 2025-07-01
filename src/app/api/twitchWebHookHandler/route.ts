@@ -148,6 +148,14 @@ async function handleTwitchMessage(
       event.chatter_user_name,
       event.message_id,
     );
+  }
+  if (command == "!forcesr" && param && isModerator(badges)) {
+    responseMessage = await addSongToUser(
+      broadcasterID,
+      param,
+      event.chatter_user_name,
+      event.message_id,
+    );
   } else if (command == "!forceskip") {
     const isMod = isModerator(badges);
     if (isMod) {

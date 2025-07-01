@@ -247,7 +247,6 @@ export async function addSongToUser(
     return "User ID not found";
   }
 
-  //Add song to user history
   db.userMusicHistory
     .upsert({
       where: {
@@ -269,5 +268,84 @@ export async function addSongToUser(
   emitToSubscriptedUser(broadcasterID, {
     type: "new_song",
   });
+  return null;
+}
+
+export async function forceAddSongToUser(
+  broadcasterID: string,
+  url: string,
+  addedBy: string,
+  messageIDToResponse: string | null = null,
+): Promise<string | null> {
+  if (url == "") {
+    return ADD_SONG_INVALID_SONG;
+  }
+
+  const videoInfo = await getYouTubeInfo(url);
+  console.log("info");
+  if (videoInfo == null) {
+    return ADD_SONG_INVALID_SONG;
+  }
+
+  const songID = videoInfo.id;
+  const title: string = videoInfo.title;
+  const videoLength: number = videoInfo.videoLength;
+
+  if (containsBannedString(title)) {
+    return ADD_SONG_BANNED_WORD_IN_TITLE;
+  }
+
+  if (messageIDToResponse) {
+    await twitchSendChatMessage(
+      broadcasterID,
+      "Successfully added song to queue",
+      messageIDToResponse,
+    );
+  }
+
+  const VideoFile: string | null = await getYouTubeVideo(songID);
+  if (!VideoFile) {
+    return ADD_SONG_INVALID_SONG;
+  }
+  const song: SongTypeWithoutBlob = {
+    songID: songID,
+    title: title,
+    songLengthSeconds: videoLength,
+    songAuthor: videoInfo.channel,
+    songThumbnail: videoInfo.thumbnail,
+  };
+
+  const account = await db.account.findFirst({
+    where: {
+      provider: "twitch",
+      providerAccountId: broadcasterID,
+    },
+  });
+  if (!account) {
+    return "User ID not found";
+  }
+
+  db.userMusicHistory
+    .upsert({
+      where: {
+        userID: account.userId,
+        songID: songID,
+      },
+      update: {},
+      create: {
+        userID: account.userId,
+        songID: songID,
+      },
+    })
+    .catch((err) => {
+      console.error("Error creating user music history:", err);
+    });
+
+  await addSongToRedis(broadcasterID, songID, song, addedBy);
+
+  emitToSubscriptedUser(broadcasterID, {
+    type: "new_song",
+  });
+
   return null;
 }
