@@ -3,7 +3,6 @@ import type { DefaultSession, NextAuthConfig } from "next-auth";
 import TwitchProvider from "next-auth/providers/twitch";
 import { db } from "~/server/db";
 import { createTwitchChatSubscription } from "~/utils/twitch/twitchChatSubscription";
-import { whitelist } from "./whitelist";
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.
@@ -83,8 +82,18 @@ export const authConfig = {
       if (!account) {
         return false;
       }
-      const isWhitelisted = whitelist.includes(account.providerAccountId);
-      return isWhitelisted;
+
+      const whitelist = await db.whitelist.findFirst({
+        where: {
+          provider: account.provider,
+          providerAccountId: account.providerAccountId,
+        },
+      });
+
+      if (!whitelist) {
+        return false;
+      }
+      return true;
     },
   },
   events: {

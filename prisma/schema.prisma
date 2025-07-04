@@ -43,18 +43,18 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
-    playerLink    UserPlayerLink?
-    srStatus      SrStatus?
-    playerSettings UserPlayerSettings?
-    userSettings UserSongRequestSettings?
-    userMusicHistory UserMusicHistory[]
+    id                String    @id @default(cuid())
+    name              String?
+    email             String?   @unique
+    emailVerified     DateTime?
+    image             String?
+    accounts          Account[]
+    sessions          Session[]
+    playerLink        UserPlayerLink?
+    srStatus          SrStatus?
+    playerSettings    UserPlayerSettings?
+    userSettings      UserSongRequestSettings?
+    userMusicHistory  UserMusicHistory[]
 }
 
 model VerificationToken {
@@ -66,43 +66,43 @@ model VerificationToken {
 }
 
 model UserPlayerLink{
-  id            String    @id @default(cuid())
-  userId String @unique
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  link String @default(nanoid()) @unique
+  id      String  @id @default(cuid())
+  userId  String  @unique
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  link    String  @default(nanoid()) @unique
 }
 
 model SrStatus{
-  userID String @id
-  user         User     @relation(fields: [userID], references: [id], onDelete: Cascade)
-  status Boolean @default(true)
+  userID  String  @id
+  user    User    @relation(fields: [userID], references: [id], onDelete: Cascade)
+  status  Boolean @default(true)
 }
 
 model UserPlayerSettings{
-  userID String @id
-  user         User     @relation(fields: [userID], references: [id], onDelete: Cascade)
-  volumeInPercentage Int @default(50)
+  userID              String  @id
+  user                User    @relation(fields: [userID], references: [id], onDelete: Cascade)
+  volumeInPercentage  Int     @default(50)
 }
 
-model UserSongRequestSettings {
-  userID String @id
-  user         User     @relation(fields: [userID], references: [id], onDelete: Cascade)
+model UserSongRequestSettings{
+  userID  String  @id
+  user    User    @relation(fields: [userID], references: [id], onDelete: Cascade)
 
-  maxRequests Int @default(30)
-  minSongLength Int @default(15)
-  maxSongLength Int @default(600) 
-  minSongViews Int @default(1500)
-  blockAgeRestrictedSongs Boolean @default(false)
-  autoPlayer Boolean @default(true)
+  maxRequests               Int       @default(30)
+  minSongLength             Int       @default(15)
+  maxSongLength             Int       @default(600) 
+  minSongViews              Int       @default(1500)
+  blockAgeRestrictedSongs   Boolean   @default(false)
+  autoPlayer                Boolean   @default(true)
 
-  messageAddSongSuccess             String   @default("successfully added \"%song_title\" to queue")
-  messageAlreadyInQueue             String   @default("already in queue")
-  messageBannedWordInTitle          String   @default("song contains banned word in title")
-  messageWrongLength                String   @default("song length must be between %formated_min_length and %formated_max_length")
-  messageMinimumViews               String   @default("song must have over %minView views")
-  messageVideoAgeRestricted         String   @default("song is age restricted")
-  messageInvalidSong                String   @default("invalid song")
-  messageMaxQueueLengthReached      String   @default("song queue length can't exceed %max_queue_length songs")
+  messageAddSongSuccess         String   @default("successfully added \"%song_title\" to queue")
+  messageAlreadyInQueue         String   @default("already in queue")
+  messageBannedWordInTitle      String   @default("song contains banned word in title")
+  messageWrongLength            String   @default("song length must be between %formated_min_length and %formated_max_length")
+  messageMinimumViews           String   @default("song must have over %minView views")
+  messageVideoAgeRestricted     String   @default("song is age restricted")
+  messageInvalidSong            String   @default("invalid song")
+  messageMaxQueueLengthReached  String   @default("song queue length can't exceed %max_queue_length songs")
 
 }
 
@@ -112,3 +112,10 @@ model UserMusicHistory{
   user    User      @relation(fields: [userID], references: [id], onDelete: Cascade)
   songID  String    @unique 
 }
+
+model Whitelist{
+  providerAccountId String 
+  provider          String
+  @@id([providerAccountId , provider])
+}
+
