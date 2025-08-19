@@ -10,7 +10,7 @@ COPY prisma ./prisma
 COPY .env .env
 
 # Install dependencies
-RUN pnpm install
+RUN pnpm install --frozen-lockfile
 
 # Set environment variables for building
 RUN pnpm exec next telemetry disable
