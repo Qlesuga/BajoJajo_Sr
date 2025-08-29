@@ -1,6 +1,6 @@
 "use client";
 
-import { Database, Key, Table, BarChart3, Home, Folder } from "lucide-react";
+import { Database, Key, BarChart3, Home, Folder } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -26,7 +26,6 @@ const navigation = [
     title: "Database",
     items: [
       { title: "Redis Keys", icon: Key, id: "redis-keys" },
-      { title: "Postgres Tables", icon: Table, id: "postgres-tables" },
       { title: "Music Files", icon: Folder, id: "files" },
     ],
   },

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { AppSidebar } from "./sidebar";
 import { DashboardOverview } from "./overview";
 import { RedisKeys } from "./redis";
-import { PostgresTables } from "./postgres";
 import { SidebarInset, SidebarProvider } from "~/shadcn/components/ui/sidebar";
 
 export default function DatabaseDashboard() {
@@ -16,8 +15,6 @@ export default function DatabaseDashboard() {
         return <DashboardOverview />;
       case "redis-keys":
         return <RedisKeys />;
-      case "postgres-tables":
-        return <PostgresTables />;
       case "analytics":
         return (
           <div className="flex h-64 items-center justify-center">

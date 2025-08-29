@@ -10,14 +10,6 @@ interface ModelWithCount {
   findMany: () => Promise<unknown[]>;
 }
 
-interface TableData {
-  data: unknown[];
-  columns: string[];
-  size: string;
-}
-
-type PostgresData = Record<string, TableData>;
-
 const models: ModelWithCount[] = [
   db.userMusicHistory,
   db.userSongRequestSettings,
@@ -89,49 +81,4 @@ export const admingRouter = createTRPCRouter({
     );
     return keyDetails;
   }),
-
-  getPostgresData: publicProcedure.query(async () => {
-    const session = await auth();
-    const isAdmin = session?.account.providerId === process.env.ADMIN_TWITCH_ID;
-    if (!isAdmin) {
-      return null;
-    }
-
-    const data: PostgresData = {};
-    for (const model of models) {
-      const tableName = getTableName(model);
-      if (!tableName) {
-        console.warn(`Model does not have a valid table name.`);
-        continue;
-      }
-
-      const sizeQuerry = await db.$queryRawUnsafe<{ size: string }[]>(` 
-        SELECT pg_size_pretty(pg_total_relation_size('"${tableName}"')) AS size; 
-      `);
-
-      const columnsQuerry = await db.$queryRawUnsafe<
-        { column_name: string }[]
-      >(`
-        SELECT column_name
-        FROM information_schema.columns
-        WHERE table_name = '${tableName}'
-      `);
-      const columns = columnsQuerry.map((col) => col.column_name);
-      console.log(`Columns for ${tableName}:`, columns);
-
-      data[tableName] = {
-        data: await model.findMany(),
-        columns,
-        size: sizeQuerry[0]?.size || "0 bytes",
-      };
-    }
-    return data;
-  }),
 });
-
-function getTableName(model: ModelWithCount): string | null {
-  if (model.name && typeof model.name === "string") {
-    return model.name;
-  }
-  return null;
-}
