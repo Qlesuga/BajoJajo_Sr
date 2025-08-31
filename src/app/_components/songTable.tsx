@@ -66,7 +66,7 @@ export default function SongTable({
                 <Clock className="mr-1 h-4 w-4" />
               </div>
             </TableHead>
-            <TableHead></TableHead>
+            {showDeleteButton && <TableHead></TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
