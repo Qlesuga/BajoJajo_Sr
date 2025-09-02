@@ -210,12 +210,8 @@ async function handleTwitchMessage(
       broadcasterID,
       event.chatter_user_name,
     );
-  } else if (command == "!ban" || command == "!ruletka") {
-    if (!isModerator(badges)) {
-      shouldResponse = false;
-      responseMessage = `/ban ${username}`;
-    }
-  }
+  } 
+  
   if (!responseMessage || responseMessage == "") {
     return null;
   }
