@@ -116,6 +116,7 @@ async function handleTwitchMessage(
   const command = splitMessage[0];
   const param = splitMessage[1];
   const isSrOn = await isSrTurnedOn(broadcasterID);
+  const username = event.chatter_user_name;
 
   if (
     !isSrOn ||
@@ -209,6 +210,10 @@ async function handleTwitchMessage(
       broadcasterID,
       event.chatter_user_name,
     );
+  } else if (command == "!ban" || command == "!ruletka") {
+    if (!isModerator(badges)) {
+      responseMessage = `/ban ${username}`;
+    }
   }
   if (!responseMessage || responseMessage == "") {
     return null;
