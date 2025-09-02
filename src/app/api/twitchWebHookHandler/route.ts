@@ -212,6 +212,7 @@ async function handleTwitchMessage(
     );
   } else if (command == "!ban" || command == "!ruletka") {
     if (!isModerator(badges)) {
+      shouldResponse = false;
       responseMessage = `/ban ${username}`;
     }
   }
