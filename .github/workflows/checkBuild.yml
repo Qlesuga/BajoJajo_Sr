@@ -55,7 +55,7 @@ jobs:
             -d "{
               \"broadcaster_id\": \"${{ secrets.BOT_ID }}\",
               \"sender_id\": \"${{ secrets.BOT_ID }}\",
-              \"message\": \"starting github jobs for ${GITHUB_SHA::7}\"
+              \"message\": \"Job started on commit: ${GITHUB_SHA::7}\"
             }"
 
       - name: Setup pnpm
@@ -80,7 +80,7 @@ jobs:
             -d "{
               \"broadcaster_id\": \"${{ secrets.BOT_ID }}\",
               \"sender_id\": \"${{ secrets.BOT_ID }}\",
-              \"message\": \"Deployment failed on commit ${GITHUB_SHA::7}\"
+              \"message\": \"Job failed on commit: ${GITHUB_SHA::7}\"
             }"
 
       - name: Send message for ending github job on Twitch chat
@@ -92,5 +92,5 @@ jobs:
             -d "{
               \"broadcaster_id\": \"${{ secrets.BOT_ID }}\",
               \"sender_id\": \"${{ secrets.BOT_ID }}\",
-              \"message\": \"ended github jobs for ${GITHUB_SHA::7}\"
+              \"message\": \"Job ended on commit: ${GITHUB_SHA::7}\"
             }"
