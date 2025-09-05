@@ -55,7 +55,7 @@ jobs:
             -d "{
               \"broadcaster_id\": \"${{ secrets.BOT_ID }}\",
               \"sender_id\": \"${{ secrets.BOT_ID }}\",
-              \"message\": \"starting github jobs for $GITHUB_SHA\"
+              \"message\": \"starting github jobs for ${GITHUB_SHA::7}\"
             }"
 
       - name: Setup pnpm
@@ -69,6 +69,20 @@ jobs:
           pnpm typecheck 
           pnpm lint
 
+      - name: Notify Twitch on failure
+        if: failure()
+        run: |
+          TOKEN=$(jq -r '.access_token' .twitch_token.json)
+          curl -s -X POST "https://api.twitch.tv/helix/chat/messages" \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Client-Id: ${{ secrets.TWITCH_CLIENT_ID }}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"broadcaster_id\": \"${{ secrets.BOT_ID }}\",
+              \"sender_id\": \"${{ secrets.BOT_ID }}\",
+              \"message\": \"Deployment failed on commit ${GITHUB_SHA::7}\"
+            }"
+
       - name: Send message for ending github job on Twitch chat
         run: |
           curl -s -X POST "https://api.twitch.tv/helix/chat/messages" \
@@ -78,5 +92,5 @@ jobs:
             -d "{
               \"broadcaster_id\": \"${{ secrets.BOT_ID }}\",
               \"sender_id\": \"${{ secrets.BOT_ID }}\",
-              \"message\": \"ended github jobs for $GITHUB_SHA\"
+              \"message\": \"ended github jobs for ${GITHUB_SHA::7}\"
             }"
