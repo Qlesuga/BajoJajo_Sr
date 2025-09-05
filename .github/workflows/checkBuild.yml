@@ -8,8 +8,47 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
+
+      - name: Restore cached Twitch client credentials token
+        id: cache-token
+        uses: actions/cache@v3
+        with:
+          path: .twitch_token.json
+          key: twitch-token-cache
+
+      - name: Check if token is expired
+        id: token-check
+        run: |
+          if [ -f .twitch_token.json ]; then
+            CREATED=$(jq -r '.created_at // 0' .twitch_token.json)
+            EXPIRES=$(jq -r '.expires_in // 0' .twitch_token.json)
+            NOW=$(date +%s)
+            if [ $((CREATED + EXPIRES - 60)) -gt $NOW ]; then
+              echo "use_cached=true" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          fi
+          echo "use_cached=false" >> $GITHUB_OUTPUT
+
+      - name: Fetch new Twitch token if expired
+        if: steps.token-check.outputs.use_cached != 'true'
+        run: |
+          curl -s -X POST "https://id.twitch.tv/oauth2/token" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "client_id=${{ secrets.TWITCH_CLIENT_ID }}" \
+            -d "client_secret=${{ secrets.TWITCH_CLIENT_SECRET }}" \
+            -d "grant_type=client_credentials" \
+          | jq --arg now "$(date +%s)" '. + {created_at: ($now|tonumber)}' \
+          > .twitch_token.json
+
+      - name: Save Twitch token to env
+        run: |
+          TOKEN=$(jq -r '.access_token' .twitch_token.json)
+          echo "TWITCH_TOKEN=$TOKEN" >> $GITHUB_ENV
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
+
       - name: Check types and linting
         env:
           SKIP_ENV_VALIDATION: true
