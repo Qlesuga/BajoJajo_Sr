@@ -55,7 +55,7 @@ jobs:
             -d "{
               \"broadcaster_id\": \"${{ secrets.BOT_ID }}\",
               \"sender_id\": \"${{ secrets.BOT_ID }}\",
-              \"message\": \"starting github jobs for ${{$GITHUB_SHA}}\"
+              \"message\": \"starting github jobs for $GITHUB_SHA\"
             }"
 
       - name: Setup pnpm
@@ -78,5 +78,5 @@ jobs:
             -d "{
               \"broadcaster_id\": \"${{ secrets.BOT_ID }}\",
               \"sender_id\": \"${{ secrets.BOT_ID }}\",
-              \"message\": \"ended github jobs for ${{$GITHUB_SHA}}\"
+              \"message\": \"ended github jobs for $GITHUB_SHA\"
             }"
