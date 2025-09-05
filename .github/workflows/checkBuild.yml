@@ -46,6 +46,18 @@ jobs:
           TOKEN=$(jq -r '.access_token' .twitch_token.json)
           echo "TWITCH_TOKEN=$TOKEN" >> $GITHUB_ENV
 
+      - name: Send message to Twitch chat
+        run: |
+          curl -s -X POST "https://api.twitch.tv/helix/chat/messages" \
+            -H "Authorization: Bearer $TWITCH_TOKEN" \
+            -H "Client-Id: ${{ secrets.TWITCH_CLIENT_ID }}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"broadcaster_id\": \"${{ secrets.BOT_ID }}\",
+              \"sender_id\": \"${{ secrets.BOT_ID }}\",
+              \"message\": \":)\"
+            }"
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
