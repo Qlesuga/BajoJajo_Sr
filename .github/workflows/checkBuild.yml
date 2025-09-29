@@ -80,7 +80,7 @@ jobs:
             -d "{
               \"broadcaster_id\": \"${{ secrets.BOT_ID }}\",
               \"sender_id\": \"${{ secrets.BOT_ID }}\",
-              \"message\": \"Job failed on commit: ${GITHUB_SHA::7}\"
+              \"message\": \"@Qles Job failed on commit: ${GITHUB_SHA::7}\"
             }"
 
       - name: Send message for ending github job on Twitch chat
@@ -92,5 +92,5 @@ jobs:
             -d "{
               \"broadcaster_id\": \"${{ secrets.BOT_ID }}\",
               \"sender_id\": \"${{ secrets.BOT_ID }}\",
-              \"message\": \"Job ended on commit: ${GITHUB_SHA::7}\"
+              \"message\": \"@Qles Job ended on commit: ${GITHUB_SHA::7}\"
             }"
