@@ -1,4 +1,5 @@
 import { readFileSync, existsSync } from "fs";
+import { db } from "~/server/db";
 
 export type InfoApiResponse = {
   id: string;
@@ -27,7 +28,25 @@ export async function getYouTubeInfo(
   if (info.status != 200) {
     return null;
   }
-  return (await info.json()) as InfoApiResponse;
+  const json = (await info.json()) as InfoApiResponse;
+  db.songInfo
+    .upsert({
+      where: {
+        songID: json.id,
+      },
+      update: {},
+      create: {
+        songID: json.id,
+        title: json.title,
+        autohor: json.channel,
+        lengthInSeconds: json.videoLength,
+        thumbnailUrl: json.thumbnail,
+      },
+    })
+    .catch((e) => {
+      console.error(e);
+    });
+  return json;
 }
 
 type DownloadApiResponse = {

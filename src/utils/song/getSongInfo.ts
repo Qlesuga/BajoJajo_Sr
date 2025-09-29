@@ -1,15 +1,27 @@
 import { redis } from "lib/redis";
 import { type SongTypeInRedis, type SongTypeWithoutBlob } from "types/song";
 import { getYouTubeInfo, type InfoApiResponse } from "../utilsYTDL";
+import { db } from "~/server/db";
 
 export async function getSongInfo(
   songID: string,
 ): Promise<SongTypeWithoutBlob | null> {
-  let song: Record<string, string> | null | InfoApiResponse =
+  const song: Record<string, string> | null | InfoApiResponse =
     await redis.hGetAll(`song:${songID}`);
 
   if (!song?.title) {
-    song = await getYouTubeInfo(songID);
+    const dbSong = await db.songInfo.findUnique({ where: { songID } });
+    let song;
+    if (dbSong) {
+      song = {
+        title: dbSong.title,
+        videoLength: dbSong.lengthInSeconds,
+        channel: dbSong.autohor,
+        thumbnail: dbSong.thumbnailUrl,
+      };
+    } else {
+      song = await getYouTubeInfo(songID);
+    }
     if (!song) {
       return null;
     }
@@ -29,17 +41,16 @@ export async function getSongInfo(
       songLengthSeconds: song.videoLength,
       songThumbnail: song.thumbnail,
     };
-  } else {
-    const { title, songLengthSeconds, songAuthor, songThumbnail } = song;
-    if (!title || !songLengthSeconds || !songAuthor || !songThumbnail) {
-      return null;
-    }
-    return {
-      songID: songID,
-      title: title,
-      songAuthor: songAuthor,
-      songLengthSeconds: parseInt(songLengthSeconds),
-      songThumbnail: songThumbnail,
-    };
   }
+  const { title, songLengthSeconds, songAuthor, songThumbnail } = song;
+  if (!title || !songLengthSeconds || !songAuthor || !songThumbnail) {
+    return null;
+  }
+  return {
+    songID: songID,
+    title: title,
+    songAuthor: songAuthor,
+    songLengthSeconds: parseInt(songLengthSeconds),
+    songThumbnail: songThumbnail,
+  };
 }

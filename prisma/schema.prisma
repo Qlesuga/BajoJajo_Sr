@@ -119,3 +119,10 @@ model Whitelist{
   @@id([providerAccountId , provider])
 }
 
+model SongInfo{
+  songID           String   @id
+  title            String
+  autohor          String
+  lengthInSeconds  Int
+  thumbnailUrl     String
+}
