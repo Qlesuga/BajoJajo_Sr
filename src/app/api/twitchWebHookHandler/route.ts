@@ -17,7 +17,10 @@ import type {
   TwitchWebhookHeaders,
 } from "types/twitch";
 import { getCurrentSongInfo } from "~/utils/song/getCurrentSongInfo";
-import { addSongToUser, forceAddSongToUser } from "~/server/api/routers/song";
+import {
+  addSongToUser,
+  forceAddSongToUser,
+} from "~/server/api/routers/songOLD";
 import { clearSongQueue } from "~/utils/song/clearSongQueue";
 import { isSrTurnedOn } from "~/utils/isSrTurnedOn";
 import { turnSrOn } from "~/utils/turnSrOn";
@@ -210,8 +213,8 @@ async function handleTwitchMessage(
       broadcasterID,
       event.chatter_user_name,
     );
-  } 
-  
+  }
+
   if (!responseMessage || responseMessage == "") {
     return null;
   }

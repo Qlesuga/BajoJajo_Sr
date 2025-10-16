@@ -9,9 +9,9 @@ export default async function Player({
   params: Promise<{ link: string }>;
 }) {
   const link = (await params).link;
-  const settings = await api.song.getPlayerSettings(link);
-  const currentSong = await api.song.getCurrentSong(link);
-  const nextSong = await api.song.getNextSong(link);
+  const settings = await api.songOld.getPlayerSettings(link);
+  const currentSong = await api.songOld.getCurrentSong(link);
+  const nextSong = await api.songOld.getNextSong(link);
   if (!settings) {
     return <div>failed to load player settings</div>;
   }

@@ -23,8 +23,10 @@ import { TRPCError } from "@trpc/server";
 import { skipSong } from "lib/subscriptedUsers/songHandling";
 import { db } from "~/server/db";
 
-export const songRouter = createTRPCRouter({
+export const songRouterOLD = createTRPCRouter({
   getCurrentSong: publicProcedure.input(z.string()).query(async (opts) => {
+    const userLink = opts.input;
+
     const broadcasterID = await getUserFromUserLink(userLink);
     if (!broadcasterID) {
       return null;

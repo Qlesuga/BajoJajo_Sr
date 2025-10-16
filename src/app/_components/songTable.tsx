@@ -28,13 +28,13 @@ export default function SongTable({
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
-  const { data, refetch } = api.song.getAllSongs.useQuery(userID, {
+  const { data, refetch } = api.songOld.getAllSongs.useQuery(userID, {
     refetchInterval: 10000,
     refetchIntervalInBackground: true,
   });
   const songs = data;
 
-  const removeSongFromQueue = api.song.removeSongFromQueue.useMutation({
+  const removeSongFromQueue = api.songOld.removeSongFromQueue.useMutation({
     onSuccess: () => {
       toast({
         description: "Successfully removed song from queue",
@@ -97,6 +97,7 @@ export default function SongTable({
                     <span className="font-medium">
                       <a
                         href={`https://www.youtube.com/watch?v=${song.songID}`}
+                        target="_blank"
                       >
                         {song.title}
                       </a>

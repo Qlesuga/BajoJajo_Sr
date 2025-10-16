@@ -33,7 +33,7 @@ export default function PlayerComponent({
   const isFetching = useRef(false);
 
   const { mutate: completeCurrentSongAndGetNext } =
-    api.song.getNextSongAndCompleteCurrent.useMutation({
+    api.songOld.getNextSongAndCompleteCurrent.useMutation({
       onSuccess: (data) => {
         isFetching.current = false;
         if (currentSong) {
@@ -102,7 +102,7 @@ export default function PlayerComponent({
     };
   }, [currentSong]);
 
-  api.song.songSubscription.useSubscription(link, {
+  api.songOld.songSubscription.useSubscription(link, {
     onData: (data: AvailableEmits) => {
       if (process.env.NODE_ENV === "development") {
         console.log("Received command:", data);

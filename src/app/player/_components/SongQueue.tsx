@@ -1,0 +1,95 @@
+import { ScrollArea } from "~/shadcn/components/ui/scroll-area";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/shadcn/components/ui/table";
+import Image from "next/image";
+import { Ban, Trash2 } from "lucide-react";
+import { api } from "~/trpc/react";
+import MarqueeText from "~/app/_components/MarqueeText";
+
+export default function SongQueue() {
+  const { data } = api.songOld.getAllSongs.useQuery("108019089", {
+    refetchInterval: 3000,
+    refetchIntervalInBackground: true,
+  });
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+  };
+
+  return (
+    <ScrollArea className="h-full w-full rounded-md border-none">
+      <Table noWrapper={true}>
+        <TableHeader className="border-1 sticky top-0 z-10 border-b-white bg-[var(--card)]">
+          <TableRow>
+            <TableHead className="px-2 py-1">#</TableHead>
+            <TableHead className="max-w-md px-2 py-1">
+              Title <span className="text-xs">(hover to scroll)</span>
+            </TableHead>
+            <TableHead className="px-2 py-1">Channel</TableHead>
+            <TableHead className="px-2 py-1">Added By</TableHead>
+            <TableHead className="px-2 py-1">Length</TableHead>
+            <TableHead className="px-2 py-1">Remove</TableHead>
+            <TableHead className="px-2 py-1">Ban</TableHead>
+          </TableRow>
+        </TableHeader>
+
+        <TableBody className="border-none">
+          {data?.map((song, index) => {
+            return (
+              <TableRow className="px-2 py-1" key={index}>
+                <TableCell className="px-2 py-1">{index + 1}</TableCell>
+                <TableCell className="max-w-[200px]">
+                  <div className="flex max-w-sm items-center gap-3">
+                    <div className="relative h-10 w-10 overflow-hidden rounded-md">
+                      <Image
+                        src={`https://i.ytimg.com/vi_webp/${song.songID}/maxresdefault.webp`}
+                        alt="mikumiku"
+                        sizes="40px"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <span className="w-[calc(100%-3.5rem)] font-medium">
+                      <a
+                        href={`https://www.youtube.com/watch?v=${song.songID}`}
+                        target="_blank"
+                      >
+                        <MarqueeText shouldAnimateOnlyOnHover>
+                          {song.title}
+                        </MarqueeText>
+                      </a>
+                    </span>
+                  </div>
+                </TableCell>
+                <TableCell className="px-2 py-1">
+                  <MarqueeText shouldAnimateOnlyOnHover>
+                    {song.songAuthor}
+                  </MarqueeText>
+                </TableCell>
+                <TableCell className="px-2 py-1">{song.addedBy}</TableCell>
+                <TableCell className="px-2 py-1">
+                  {formatTime(song.songLengthSeconds)}
+                </TableCell>
+                <TableCell className="justify-center px-2 py-1">
+                  <Trash2 className="m-auto block h-6 w-6" />
+                </TableCell>
+
+                <TableCell className="px-2 py-1">
+                  <Ban className="m-auto block h-6 w-6" />
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </ScrollArea>
+  );
+}
