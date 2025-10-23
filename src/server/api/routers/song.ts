@@ -5,7 +5,6 @@ import { containsBannedString } from "~/utils/twitch/twitchBannedRegex";
 import { addSongToRedis } from "~/utils/song/addSongToRedis";
 import type { SongQueueElementType, SongTypeWithoutBlob } from "types/song";
 import { getNextSong } from "~/utils/song/getNextSong";
-import { getUserFromUserLink } from "~/utils/getUserFromUserLink";
 import { getYouTubeInfo, getYouTubeVideo } from "~/utils/utilsYTDL";
 import { getAllSongsWithoutBlob } from "~/utils/song/getAllSongsWithoutBlob";
 import { isSongAlreadyInQueue } from "~/utils/song/isSongAlreadyInQueue";
@@ -24,38 +23,37 @@ import { skipSong } from "lib/subscriptedUsers/songHandling";
 import { db } from "~/server/db";
 
 export const songRouter = createTRPCRouter({
-  getCurrentSong: publicProcedure.input(z.string()).query(async (opts) => {
-    const broadcasterID = await getUserFromUserLink(userLink);
-    if (!broadcasterID) {
+  getCurrentSong: publicProcedure.query(async () => {
+    const session = await auth();
+    if (!session) {
       return null;
     }
 
-    return await getCurrentSong(broadcasterID);
+    return await getCurrentSong(session.account.providerId);
   }),
-  getNextSong: publicProcedure.input(z.string()).query(async (opts) => {
-    const userLink = opts.input;
 
-    const broadcasterID = await getUserFromUserLink(userLink);
-    if (!broadcasterID) {
+  getNextSong: publicProcedure.query(async () => {
+    const session = await auth();
+    if (!session) {
       return null;
     }
 
-    return await getNextSong(broadcasterID);
+    return await getNextSong(session.account.providerId);
   }),
   getNextSongAndCompleteCurrent: publicProcedure
     .input(
       z.object({
-        userLink: z.string(),
         songID: z.string().optional(),
       }),
     )
     .mutation(async ({ input }) => {
-      const { userLink, songID } = input;
+      const { songID } = input;
 
-      const broadcasterID = await getUserFromUserLink(userLink);
-      if (!broadcasterID) {
+      const session = await auth();
+      if (!session) {
         return null;
       }
+      const broadcasterID = session.account.providerId;
 
       const firstSong = await getCurrentSong(broadcasterID);
 
@@ -82,6 +80,7 @@ export const songRouter = createTRPCRouter({
     )
     .mutation(async (opts) => {
       // TODO add handling deleting secound index with skip
+      // TODO add removing songs by mods
       const { songID } = opts.input;
       const songIndex = opts.input.songIndex;
       const session = await auth();
@@ -113,13 +112,12 @@ export const songRouter = createTRPCRouter({
       });
     }),
 
-  getPlayerSettings: publicProcedure.input(z.string()).query(async (opts) => {
-    const userLink = opts.input;
-
-    const broadcasterID = await getUserFromUserLink(userLink);
-    if (!broadcasterID) {
+  getPlayerSettings: publicProcedure.query(async () => {
+    const session = await auth();
+    if (!session) {
       return null;
     }
+    const broadcasterID = session.account.providerId;
 
     return await getUserPlayerSettings(broadcasterID);
   }),
@@ -128,32 +126,29 @@ export const songRouter = createTRPCRouter({
     return await getAllSongsWithoutBlob(opts.input);
   }),
 
-  songSubscription: publicProcedure
-    .input(z.string())
-    .subscription(async function* (opts) {
-      const userLink = opts.input;
+  songSubscription: publicProcedure.subscription(async function* (opts) {
+    const session = await auth();
+    if (!session) {
+      return;
+    }
+    const broadcasterID = session.account.providerId;
 
-      const broadcasterID = await getUserFromUserLink(userLink);
-      if (!broadcasterID) {
-        return;
-      }
-
-      let emitter: EventEmitter;
-      const users = getSubscriptedUsers();
-      if (broadcasterID in users) {
-        emitter = users[broadcasterID]!.eventEmitter;
-      } else {
-        emitter = new EventEmitter();
-        users[broadcasterID] = {
-          eventEmitter: emitter,
-        };
-      }
-      for await (const data of on(emitter, "emit", {
-        signal: opts.signal,
-      })) {
-        yield data[0] as AvailableEmits;
-      }
-    }),
+    let emitter: EventEmitter;
+    const users = getSubscriptedUsers();
+    if (broadcasterID in users) {
+      emitter = users[broadcasterID]!.eventEmitter;
+    } else {
+      emitter = new EventEmitter();
+      users[broadcasterID] = {
+        eventEmitter: emitter,
+      };
+    }
+    for await (const data of on(emitter, "emit", {
+      signal: opts.signal,
+    })) {
+      yield data[0] as AvailableEmits;
+    }
+  }),
 });
 
 const ADD_SONG_SUCCESS_MESSAGE = (title: string) =>

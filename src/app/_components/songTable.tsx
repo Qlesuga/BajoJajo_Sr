@@ -28,7 +28,7 @@ export default function SongTable({
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
-  const { data, refetch } = api.songOld.getAllSongs.useQuery(userID, {
+  const { data, refetch } = api.song.getAllSongs.useQuery(userID, {
     refetchInterval: 10000,
     refetchIntervalInBackground: true,
   });
