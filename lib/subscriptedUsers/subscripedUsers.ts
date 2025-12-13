@@ -11,22 +11,22 @@ interface GlobalStore {
   id: string;
 }
 
-// Ensuring globalThis is properly .
-const globalThis = global as unknown as typeof global & {
+const GLOBAL_KEY = "__SUBSCRIPTED_USERS_STORE__";
+
+// Ensuring global store is properly initialized
+const globalForStore = global as unknown as typeof global & {
   [GLOBAL_KEY]?: GlobalStore;
 };
 
-const GLOBAL_KEY = "__SUBSCRIPTED_USERS_STORE__";
-
-if (!globalThis[GLOBAL_KEY]) {
-  globalThis[GLOBAL_KEY] = {
+if (!globalForStore[GLOBAL_KEY]) {
+  globalForStore[GLOBAL_KEY] = {
     users: {} as Record<string, ISubscriptedUser>,
     id: randomUUID(),
   };
 }
 
 export function getSubscriptedUsers(): Record<string, ISubscriptedUser> {
-  const store = globalThis[GLOBAL_KEY];
+  const store = globalForStore[GLOBAL_KEY];
   return store!.users;
 }
 
