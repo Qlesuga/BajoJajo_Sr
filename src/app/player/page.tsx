@@ -9,6 +9,5 @@ export default async function Page() {
   if (!session) {
     redirect("/api/auth/signin");
   }
-  console.log(session);
   return <Player />;
 }

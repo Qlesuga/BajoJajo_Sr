@@ -13,7 +13,7 @@ import { api } from "~/trpc/react";
 import MarqueeText from "~/app/_components/MarqueeText";
 
 export default function SongQueue() {
-  const { data } = api.songOld.getAllSongs.useQuery("108019089", {
+  const { data } = api.song.getAllMySongs.useQuery(undefined, {
     refetchInterval: 3000,
     refetchIntervalInBackground: true,
   });

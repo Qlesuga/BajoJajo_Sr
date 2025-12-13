@@ -125,6 +125,14 @@ export const songRouter = createTRPCRouter({
   getAllSongs: publicProcedure.input(z.string()).query(async (opts) => {
     return await getAllSongsWithoutBlob(opts.input);
   }),
+  getAllMySongs: publicProcedure.query(async () => {
+    const session = await auth();
+    if (!session) {
+      return;
+    }
+    const broadcasterID = session.account.providerId;
+    return await getAllSongsWithoutBlob(broadcasterID);
+  }),
 
   songSubscription: publicProcedure.subscription(async function* (opts) {
     const session = await auth();
