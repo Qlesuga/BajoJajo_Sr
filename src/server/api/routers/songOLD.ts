@@ -62,6 +62,14 @@ export const songRouterOLD = createTRPCRouter({
       const firstSong = await getCurrentSong(broadcasterID);
 
       if (firstSong?.songID === songID) {
+        //Reset voteskip counts
+        const key = `chatter:${broadcasterID}`;
+        const chattersWhoSkipped = await redis.hGetAll(key);
+
+        for (const field of Object.keys(chattersWhoSkipped)) {
+          redis.hSet(key, field, "0").catch((e) => console.error(e));
+        }
+
         await redis.lPop(`songs:${broadcasterID}`);
         if (process.env.NODE_ENV == "development") {
           console.log("SONGID", songID);
