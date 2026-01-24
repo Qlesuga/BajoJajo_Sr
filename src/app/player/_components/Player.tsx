@@ -1,18 +1,35 @@
 "use client";
 
-import { useRef } from "react";
-import YouTube from "react-youtube";
 import SongQueue from "./SongQueue";
 import { Card, CardContent, CardHeader } from "~/shadcn/components/ui/card";
+import YoutubePlayer from "./YoutubePlayer";
+import "~/styles/player.css";
+import { api } from "~/trpc/react";
+import { type AvailableEmits } from "types/subscriptedUsers";
 
 export default function Player() {
-  const videoID = "_-2dIuV34cs";
-  const playerRef = useRef<YouTube>(null);
-  const playerOpts = {
-    playerVars: {
-      autoplay: 0,
+  api.song.songSubscription.useSubscription(undefined, {
+    onData: (data: AvailableEmits) => {
+      if (process.env.NODE_ENV === "development") {
+        console.log("Received command:", data);
+      }
+
+      switch (data.type) {
+        case "skip":
+          break;
+        case "new_song":
+          break;
+        case "volume":
+          break;
+        case "stop":
+          break;
+        case "play":
+          break;
+        case "clear":
+          break;
+      }
     },
-  };
+  });
 
   return (
     <div className="flex h-screen w-screen flex-row gap-4 bg-[var(--background)] p-8">
@@ -24,8 +41,7 @@ export default function Player() {
           <SongQueue />
         </CardContent>
       </Card>
-
-      <YouTube ref={playerRef} opts={playerOpts} videoId={videoID} />
+      <YoutubePlayer />
     </div>
   );
 }

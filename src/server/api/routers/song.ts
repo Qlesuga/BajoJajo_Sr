@@ -135,6 +135,7 @@ export const songRouter = createTRPCRouter({
   }),
 
   songSubscription: publicProcedure.subscription(async function* (opts) {
+    console.log("boop");
     const session = await auth();
     if (!session) {
       return;
