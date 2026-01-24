@@ -6,22 +6,9 @@ import { Button } from "~/shadcn/components/ui/button";
 
 interface LogedInDashboardProps {
   userName: string;
-  userLink: string;
 }
 
-const LogedInDashboard = ({ userName, userLink }: LogedInDashboardProps) => {
-  const CopyPlayerLink = () => {
-    const hostname = window.location.hostname;
-    let link = `/player/${userLink}`;
-    if (hostname == "localhost") {
-      link = `http://localhost:3000${link}`;
-    } else {
-      link = `https://${hostname}${link}`;
-    }
-    navigator.clipboard.writeText(link).catch(() => {
-      console.error("ERROR WHILE COPYING PLAYER LINK TO CLIPBOARD");
-    });
-  };
+const LogedInDashboard = ({ userName }: LogedInDashboardProps) => {
   return (
     <div className="flex flex-col items-center justify-center gap-4">
       <p className="text-center text-2xl text-white">
@@ -31,7 +18,7 @@ const LogedInDashboard = ({ userName, userLink }: LogedInDashboardProps) => {
         <Link href={"/api/auth/signout"}>Log Out</Link>
       </Button>
       <div className="flex flex-col items-center">
-        <Button onClick={CopyPlayerLink}>COPY PLAYER LINK</Button>
+        <Link href={"/player"}>Go To The Player</Link>
         <GuideModal />
       </div>
     </div>

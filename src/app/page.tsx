@@ -16,10 +16,7 @@ export default async function Home() {
           <div className="container flex flex-col items-center justify-center gap-12 px-4 py-4">
             <div className="flex flex-col items-center gap-2">
               {session ? (
-                <LogedInDashboard
-                  userName={session.user.name ?? ""}
-                  userLink={session.user.userLink}
-                />
+                <LogedInDashboard userName={session.user.name ?? ""} />
               ) : (
                 <LogInForm />
               )}
