@@ -1,4 +1,3 @@
-import { songRouterOLD } from "~/server/api/routers/songOLD";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { admingRouter } from "./routers/admin";
 import { songRouter } from "./routers/song";
@@ -10,7 +9,6 @@ import { songRouter } from "./routers/song";
  */
 export const appRouter = createTRPCRouter({
   song: songRouter,
-  songOld: songRouterOLD,
   admin: admingRouter,
 });
 

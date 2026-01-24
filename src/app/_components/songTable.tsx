@@ -34,7 +34,7 @@ export default function SongTable({
   });
   const songs = data;
 
-  const removeSongFromQueue = api.songOld.removeSongFromQueue.useMutation({
+  const removeSongFromQueue = api.song.removeSongFromQueue.useMutation({
     onSuccess: () => {
       toast({
         description: "Successfully removed song from queue",

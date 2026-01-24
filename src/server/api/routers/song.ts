@@ -3,9 +3,9 @@ import { EventEmitter, on } from "stream";
 import { z } from "zod";
 import { containsBannedString } from "~/utils/twitch/twitchBannedRegex";
 import { addSongToRedis } from "~/utils/song/addSongToRedis";
-import type { SongQueueElementType, SongTypeWithoutBlob } from "types/song";
+import type { SongQueueElementType, SongType } from "types/song";
 import { getNextSong } from "~/utils/song/getNextSong";
-import { getYouTubeInfo, getYouTubeVideo } from "~/utils/utilsYTDL";
+import { getYouTubeInfo } from "~/utils/utilsYTDL";
 import { getAllSongsWithoutBlob } from "~/utils/song/getAllSongsWithoutBlob";
 import { isSongAlreadyInQueue } from "~/utils/song/isSongAlreadyInQueue";
 import {
@@ -227,11 +227,8 @@ export async function addSongToUser(
       messageIDToResponse,
     );
   }
-  const VideoFile: string | null = await getYouTubeVideo(songID);
-  if (!VideoFile) {
-    return ADD_SONG_INVALID_SONG;
-  }
-  const song: SongTypeWithoutBlob = {
+
+  const song: SongType = {
     songID: songID,
     title: title,
     songLengthSeconds: videoLength,
@@ -305,11 +302,7 @@ export async function forceAddSongToUser(
     );
   }
 
-  const VideoFile: string | null = await getYouTubeVideo(songID);
-  if (!VideoFile) {
-    return ADD_SONG_INVALID_SONG;
-  }
-  const song: SongTypeWithoutBlob = {
+  const song: SongType = {
     songID: songID,
     title: title,
     songLengthSeconds: videoLength,

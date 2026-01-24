@@ -1,10 +1,10 @@
-import type { SongTypeWithoutBlob } from "types/song";
+import type { SongType } from "types/song";
 import { getSongInfo } from "./getSongInfo";
 import { getCurrentSong } from "./getCurrentSongs";
 
 async function getCurrentSongInfo(
   broadcasterID: string,
-): Promise<SongTypeWithoutBlob | null> {
+): Promise<SongType | null> {
   const song = await getCurrentSong(broadcasterID);
   if (!song) {
     return null;

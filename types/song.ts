@@ -1,4 +1,4 @@
-export type SongTypeWithoutBlob = {
+export type SongType = {
   songID: string;
   title: string;
   songLengthSeconds: number;
@@ -11,17 +11,12 @@ export type SongQueueElementType = {
   addedBy: string;
 };
 
-export type SongType = SongTypeWithoutBlob & {
-  songBlob: string;
-};
-
 export type SongTypeInRedis = {
   title: string;
   songLengthSeconds: number;
   songAuthor: string;
   songThumbnail: string;
 };
-export type allSongInfo = SongTypeWithoutBlob & {
+export type SongTypeWithAddedBy = SongType & {
   addedBy: string;
-  songID: string;
 };

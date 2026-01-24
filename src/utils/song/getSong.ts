@@ -1,5 +1,4 @@
 import type { SongType } from "types/song";
-import { getYouTubeVideo } from "../utilsYTDL";
 import { getSongInfo } from "./getSongInfo";
 
 async function getSong(songID: string): Promise<SongType | null> {
@@ -7,17 +6,13 @@ async function getSong(songID: string): Promise<SongType | null> {
   if (!songInfo) {
     return null;
   }
-  const songFile = await getYouTubeVideo(songID);
-  if (!songFile) {
-    return null;
-  }
+
   return {
     songID: songID,
     title: songInfo.title,
     songAuthor: songInfo.songAuthor,
     songLengthSeconds: songInfo.songLengthSeconds,
     songThumbnail: songInfo.songThumbnail,
-    songBlob: songFile,
   };
 }
 

@@ -1,11 +1,9 @@
 import { redis } from "lib/redis";
-import { type SongTypeInRedis, type SongTypeWithoutBlob } from "types/song";
+import { type SongTypeInRedis, type SongType } from "types/song";
 import { getYouTubeInfo, type InfoApiResponse } from "../utilsYTDL";
 import { db } from "~/server/db";
 
-export async function getSongInfo(
-  songID: string,
-): Promise<SongTypeWithoutBlob | null> {
+export async function getSongInfo(songID: string): Promise<SongType | null> {
   const song: Record<string, string> | null | InfoApiResponse =
     await redis.hGetAll(`song:${songID}`);
 

@@ -17,10 +17,7 @@ import type {
   TwitchWebhookHeaders,
 } from "types/twitch";
 import { getCurrentSongInfo } from "~/utils/song/getCurrentSongInfo";
-import {
-  addSongToUser,
-  forceAddSongToUser,
-} from "~/server/api/routers/songOLD";
+import { addSongToUser, forceAddSongToUser } from "~/server/api/routers/song";
 import { clearSongQueue } from "~/utils/song/clearSongQueue";
 import { isSrTurnedOn } from "~/utils/isSrTurnedOn";
 import { turnSrOn } from "~/utils/turnSrOn";
