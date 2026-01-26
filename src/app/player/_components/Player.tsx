@@ -11,7 +11,7 @@ export default function Player() {
   api.song.songSubscription.useSubscription(undefined, {
     onData: (data: AvailableEmits) => {
       if (process.env.NODE_ENV === "development") {
-        console.log("Received command:", data);
+        console.debug("Received command:", data);
       }
 
       switch (data.type) {
