@@ -9,8 +9,6 @@ services:
       - 8000
     env_file:
       - .env
-    volumes:
-      - music:/music
     networks:
       - app-network
 
@@ -43,8 +41,6 @@ services:
       - NODE_ENV=${ENVIRONMENT}
     networks:
       - app-network
-    volumes:
-      - music:/music
     develop:
       watch:
         - action: sync
@@ -71,8 +67,6 @@ services:
 
 volumes:
   redis:
-    driver: local
-  music:
     driver: local
 
 networks:
