@@ -6,6 +6,7 @@ import YoutubePlayer from "./YoutubePlayer";
 import "~/styles/player.css";
 import { api } from "~/trpc/react";
 import { type AvailableEmits } from "types/subscriptedUsers";
+import { emitSongEvent } from "./songEvents";
 
 export default function Player() {
   api.song.songSubscription.useSubscription(undefined, {
@@ -14,20 +15,7 @@ export default function Player() {
         console.debug("Received command:", data);
       }
 
-      switch (data.type) {
-        case "skip":
-          break;
-        case "new_song":
-          break;
-        case "volume":
-          break;
-        case "stop":
-          break;
-        case "play":
-          break;
-        case "clear":
-          break;
-      }
+      emitSongEvent(data);
     },
   });
 
