@@ -18,11 +18,9 @@ services:
     expose:
       - 3000
     depends_on:
-      - redis
       - cloudflared
       - yt-dlp
     links:
-      - redis
       - yt-dlp
     env_file:
       - .env
@@ -55,9 +53,6 @@ services:
       - app-network
 
 volumes:
-  redis:
-    driver: local
-
 networks:
   app-network:
     driver: bridge
