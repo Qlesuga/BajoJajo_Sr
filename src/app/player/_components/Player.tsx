@@ -18,7 +18,13 @@ export default function Player() {
   }, [initialCurrentSong]);
 
   const { mutate: completeCurrentSong } =
-    api.song.completeCurrentSong.useMutation({});
+    api.song.completeCurrentSong.useMutation({
+      onSuccess: () => {
+        refetchSongQueue().catch((e) => {
+          console.error(e);
+        });
+      },
+    });
 
   const { data: songQueue, refetch: refetchSongQueue } =
     api.song.getAllMySongs.useQuery(undefined, {
@@ -26,19 +32,22 @@ export default function Player() {
       refetchIntervalInBackground: true,
     });
 
+  const playNextSong = (whatCurrentSongShouldBe: string) => {
+    if (currentSong == whatCurrentSongShouldBe) {
+      setCurrentSong(songQueue[1]?.songID ?? null);
+    } else {
+      setCurrentSong(songQueue[0]?.songID ?? null);
+    }
+    completeCurrentSong({ songID: whatCurrentSongShouldBe });
+  };
+
   api.song.songSubscription.useSubscription(undefined, {
     onData: (data: AvailableEmits) => {
       if (process.env.NODE_ENV === "development") {
         console.debug("Received command:", data);
       }
       if (data.type === "skip") {
-        if (currentSong === data.value) {
-          setCurrentSong(songQueue[1]?.songID ?? null);
-          completeCurrentSong({ songID: data.value });
-          refetchSongQueue().catch((e) => {
-            console.error(e);
-          });
-        }
+        playNextSong(data.value);
       } else if (data.type === "new_song") {
         refetchSongQueue().catch((e) => {
           console.error(e);
@@ -59,7 +68,10 @@ export default function Player() {
           <SongQueue Queue={songQueue} />
         </CardContent>
       </Card>
-      <YoutubePlayer currentSong={currentSong} />
+      <YoutubePlayer
+        currentSong={currentSong}
+        playNextSongAction={playNextSong}
+      />
     </div>
   );
 }

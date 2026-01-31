@@ -7,9 +7,13 @@ import { type AvailableEmits } from "types/subscriptedUsers";
 
 type YoutubePlayerProps = {
   currentSong: string | null;
+  playNextSongAction: (whatCurrentSongShouldBe: string) => void;
 };
 
-export default function YoutubePlayer({ currentSong }: YoutubePlayerProps) {
+export default function YoutubePlayer({
+  currentSong,
+  playNextSongAction,
+}: YoutubePlayerProps) {
   const playerEvent = useRef<YouTubeEvent>(null);
 
   useSongEventListener((event: AvailableEmits) => {
@@ -38,5 +42,12 @@ export default function YoutubePlayer({ currentSong }: YoutubePlayerProps) {
     return <div>No song is currently playing.</div>;
   }
 
-  return <YouTube opts={playerOpts} videoId={currentSong} onReady={onReady} />;
+  return (
+    <YouTube
+      opts={playerOpts}
+      videoId={currentSong}
+      onReady={onReady}
+      onEnd={() => playNextSongAction(currentSong)}
+    />
+  );
 }
