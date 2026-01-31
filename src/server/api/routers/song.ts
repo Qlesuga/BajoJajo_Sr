@@ -32,19 +32,10 @@ export const songRouter = createTRPCRouter({
     return await getCurrentSong(session.account.providerId);
   }),
 
-  getNextSong: publicProcedure.query(async () => {
-    const session = await auth();
-    if (!session) {
-      return null;
-    }
-
-    return await getNextSong(session.account.providerId);
-  }),
-
   completeCurrentSong: publicProcedure
     .input(
       z.object({
-        songID: z.string().optional(),
+        songID: z.string(),
       }),
     )
     .mutation(async ({ input }) => {
@@ -54,6 +45,7 @@ export const songRouter = createTRPCRouter({
       if (!session) {
         return null;
       }
+
       const broadcasterID = session.account.providerId;
 
       const firstSong = await getCurrentSong(broadcasterID);
@@ -66,10 +58,7 @@ export const songRouter = createTRPCRouter({
             console.error(e),
           );
         }
-        return await getNextSong(broadcasterID);
       }
-
-      return firstSong;
     }),
 
   removeSongFromQueue: publicProcedure

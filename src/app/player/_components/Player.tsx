@@ -22,7 +22,7 @@ export default function Player() {
 
   const { data: songQueue, refetch: refetchSongQueue } =
     api.song.getAllMySongs.useQuery(undefined, {
-      refetchInterval: 3000,
+      refetchInterval: 15000,
       refetchIntervalInBackground: true,
     });
 
@@ -39,6 +39,10 @@ export default function Player() {
             console.error(e);
           });
         }
+      } else if (data.type === "new_song") {
+        refetchSongQueue().catch((e) => {
+          console.error(e);
+        });
       }
 
       emitSongEvent(data);

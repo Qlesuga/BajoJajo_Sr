@@ -28,7 +28,7 @@ export default function YoutubePlayer({ currentSong }: YoutubePlayerProps) {
 
   const playerOpts = {
     playerVars: {
-      autoplay: 0,
+      autoplay: 1,
     },
   };
 
