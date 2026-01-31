@@ -34,9 +34,9 @@ export default function Player() {
 
   const playNextSong = (whatCurrentSongShouldBe: string) => {
     if (currentSong == whatCurrentSongShouldBe) {
-      setCurrentSong(songQueue[1]?.songID ?? null);
+      setCurrentSong(songQueue?.[1]?.songID ?? null);
     } else {
-      setCurrentSong(songQueue[0]?.songID ?? null);
+      setCurrentSong(songQueue?.[0]?.songID ?? null);
     }
     completeCurrentSong({ songID: whatCurrentSongShouldBe });
   };

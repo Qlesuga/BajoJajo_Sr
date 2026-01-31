@@ -17,13 +17,18 @@ export default function YoutubePlayer({
   const playerEvent = useRef<YouTubeEvent>(null);
 
   useSongEventListener((event: AvailableEmits) => {
-    console.debug(playerEvent.current);
+    const player = playerEvent.current;
+    if (!player) return;
+
     if (event.type === "play") {
-      playerEvent.current?.target.playVideo();
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      player.target.playVideo();
     } else if (event.type === "stop") {
-      playerEvent.current?.target.pauseVideo();
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      player.target.pauseVideo();
     } else if (event.type === "volume") {
-      playerEvent.current?.target.setVolume(event.value);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      player.target.setVolume(event.value);
     }
   });
 
