@@ -5,8 +5,11 @@ import YouTube, { type YouTubeEvent } from "react-youtube";
 import { useSongEventListener } from "./songEvents";
 import { type AvailableEmits } from "types/subscriptedUsers";
 
-export default function YoutubePlayer() {
-  const videoID = "_-2dIuV34cs";
+type YoutubePlayerProps = {
+  currentSong: string | null;
+};
+
+export default function YoutubePlayer({ currentSong }: YoutubePlayerProps) {
   const playerEvent = useRef<YouTubeEvent>(null);
 
   useSongEventListener((event: AvailableEmits) => {
@@ -29,5 +32,9 @@ export default function YoutubePlayer() {
     },
   };
 
-  return <YouTube opts={playerOpts} videoId={videoID} onReady={onReady} />;
+  if (!currentSong) {
+    return <div>No song is currently playing.</div>;
+  }
+
+  return <YouTube opts={playerOpts} videoId={currentSong} onReady={onReady} />;
 }

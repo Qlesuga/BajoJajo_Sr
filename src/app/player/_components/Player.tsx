@@ -7,12 +7,38 @@ import "~/styles/player.css";
 import { api } from "~/trpc/react";
 import { type AvailableEmits } from "types/subscriptedUsers";
 import { emitSongEvent } from "./songEvents";
+import { useEffect, useState } from "react";
 
 export default function Player() {
+  const [currentSong, setCurrentSong] = useState<null | string>(null);
+
+  const { data: initialCurrentSong } = api.song.getCurrentSong.useQuery();
+  useEffect(() => {
+    setCurrentSong(initialCurrentSong?.songID ?? null);
+  }, [initialCurrentSong]);
+
+  const { mutate: completeCurrentSong } =
+    api.song.completeCurrentSong.useMutation({});
+
+  const { data: songQueue, refetch: refetchSongQueue } =
+    api.song.getAllMySongs.useQuery(undefined, {
+      refetchInterval: 3000,
+      refetchIntervalInBackground: true,
+    });
+
   api.song.songSubscription.useSubscription(undefined, {
     onData: (data: AvailableEmits) => {
       if (process.env.NODE_ENV === "development") {
         console.debug("Received command:", data);
+      }
+      if (data.type === "skip") {
+        if (currentSong === data.value) {
+          setCurrentSong(songQueue[1]?.songID ?? null);
+          completeCurrentSong({ songID: data.value });
+          refetchSongQueue().catch((e) => {
+            console.error(e);
+          });
+        }
       }
 
       emitSongEvent(data);
@@ -26,10 +52,10 @@ export default function Player() {
           <h2 className="text-l font-semibold">Song Queue</h2>
         </CardHeader>
         <CardContent className="h-[calc(100%-20px)] px-2">
-          <SongQueue />
+          <SongQueue Queue={songQueue} />
         </CardContent>
       </Card>
-      <YoutubePlayer />
+      <YoutubePlayer currentSong={currentSong} />
     </div>
   );
 }

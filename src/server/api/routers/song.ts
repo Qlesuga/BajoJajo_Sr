@@ -40,7 +40,8 @@ export const songRouter = createTRPCRouter({
 
     return await getNextSong(session.account.providerId);
   }),
-  getNextSongAndCompleteCurrent: publicProcedure
+
+  completeCurrentSong: publicProcedure
     .input(
       z.object({
         songID: z.string().optional(),
@@ -101,7 +102,7 @@ export const songRouter = createTRPCRouter({
         if (song.songID == songID) {
           await redis.lRem(key, 1, rawSong);
           if (songIndex == 0) {
-            skipSong(providerID);
+            await skipSong(providerID);
           }
           return "successfully removed song";
         }

@@ -1,3 +1,4 @@
+import { getCurrentSongInfo } from "~/utils/song/getCurrentSongInfo";
 import { emitToSubscriptedUser } from "./subscripedUsers";
 import { setUserVolumeSetting } from "~/utils/setUserVolumeSetting";
 
@@ -7,8 +8,13 @@ export function stopSong(userID: string): null {
 }
 
 const SKIP_SONG_SUCCESS_MESSAGE = "successfully skiped a song";
-export function skipSong(userID: string): string {
-  emitToSubscriptedUser(userID, { type: "skip" });
+export async function skipSong(userID: string): Promise<string> {
+  const value = await getCurrentSongInfo(userID);
+  if (!value) {
+    return "no song is currently playing";
+  }
+
+  emitToSubscriptedUser(userID, { type: "skip", value: value?.songID });
   return SKIP_SONG_SUCCESS_MESSAGE;
 }
 
