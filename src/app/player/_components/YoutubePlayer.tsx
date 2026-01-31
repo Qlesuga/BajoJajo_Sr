@@ -10,15 +10,17 @@ export default function YoutubePlayer() {
   const playerEvent = useRef<YouTubeEvent>(null);
 
   useSongEventListener((event: AvailableEmits) => {
+    console.debug(playerEvent.current);
     if (event.type === "play") {
       playerEvent.current?.target.playVideo();
     } else if (event.type === "stop") {
-      playerEvent.current?.target.stopVideo();
+      playerEvent.current?.target.pauseVideo();
     }
   });
 
   const onReady = (event: YouTubeEvent) => {
     playerEvent.current = event;
+    console.debug("Player is ready", event);
   };
 
   const playerOpts = {
