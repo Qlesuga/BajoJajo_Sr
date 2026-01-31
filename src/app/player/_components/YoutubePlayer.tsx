@@ -18,6 +18,8 @@ export default function YoutubePlayer({ currentSong }: YoutubePlayerProps) {
       playerEvent.current?.target.playVideo();
     } else if (event.type === "stop") {
       playerEvent.current?.target.pauseVideo();
+    } else if (event.type === "volume") {
+      playerEvent.current?.target.setVolume(event.value);
     }
   });
 

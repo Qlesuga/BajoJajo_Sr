@@ -39,7 +39,7 @@ export function setVolume(broadcasterID: string, value: string): string {
   setUserVolumeSetting(broadcasterID, volume).catch((e) => console.error(e));
   emitToSubscriptedUser(broadcasterID, {
     type: "volume",
-    value: Math.floor(volume) / 100,
+    value: volume,
   });
   return `${SET_VOLUME_SUCCESS_MESSAGE} ${volume}%`;
 }
