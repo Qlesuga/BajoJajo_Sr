@@ -31,7 +31,3 @@ The service is provided "as is" with no warranties regarding its functionality, 
 ## 7. Changes to the Terms
 
 The administrator reserves the right to modify these Terms at any time. Any updates will be published on the website.
-
-## 8. Contact
-
-For issues or questions, please contact via email: contact@qles.dev

@@ -3,9 +3,9 @@ import { EventEmitter, on } from "stream";
 import { z } from "zod";
 import { containsBannedString } from "~/utils/twitch/twitchBannedRegex";
 import { addSongToRedis } from "~/utils/song/addSongToRedis";
-import type { SongQueueElementType, SongTypeWithoutBlob } from "types/song";
+import type { SongQueueElementType, SongType } from "types/song";
 import { getNextSong } from "~/utils/song/getNextSong";
-import { getYouTubeInfo, getYouTubeVideo } from "~/utils/utilsYTDL";
+import { getYouTubeInfo } from "~/utils/utilsYTDL";
 import { getAllSongsWithoutBlob } from "~/utils/song/getAllSongsWithoutBlob";
 import { isSongAlreadyInQueue } from "~/utils/song/isSongAlreadyInQueue";
 import {
@@ -32,18 +32,10 @@ export const songRouter = createTRPCRouter({
     return await getCurrentSong(session.account.providerId);
   }),
 
-  getNextSong: publicProcedure.query(async () => {
-    const session = await auth();
-    if (!session) {
-      return null;
-    }
-
-    return await getNextSong(session.account.providerId);
-  }),
-  getNextSongAndCompleteCurrent: publicProcedure
+  completeCurrentSong: publicProcedure
     .input(
       z.object({
-        songID: z.string().optional(),
+        songID: z.string(),
       }),
     )
     .mutation(async ({ input }) => {
@@ -53,6 +45,7 @@ export const songRouter = createTRPCRouter({
       if (!session) {
         return null;
       }
+
       const broadcasterID = session.account.providerId;
 
       const firstSong = await getCurrentSong(broadcasterID);
@@ -65,10 +58,7 @@ export const songRouter = createTRPCRouter({
             console.error(e),
           );
         }
-        return await getNextSong(broadcasterID);
       }
-
-      return firstSong;
     }),
 
   removeSongFromQueue: publicProcedure
@@ -101,7 +91,7 @@ export const songRouter = createTRPCRouter({
         if (song.songID == songID) {
           await redis.lRem(key, 1, rawSong);
           if (songIndex == 0) {
-            skipSong(providerID);
+            await skipSong(providerID);
           }
           return "successfully removed song";
         }
@@ -135,6 +125,7 @@ export const songRouter = createTRPCRouter({
   }),
 
   songSubscription: publicProcedure.subscription(async function* (opts) {
+    console.log("boop");
     const session = await auth();
     if (!session) {
       return;
@@ -226,11 +217,8 @@ export async function addSongToUser(
       messageIDToResponse,
     );
   }
-  const VideoFile: string | null = await getYouTubeVideo(songID);
-  if (!VideoFile) {
-    return ADD_SONG_INVALID_SONG;
-  }
-  const song: SongTypeWithoutBlob = {
+
+  const song: SongType = {
     songID: songID,
     title: title,
     songLengthSeconds: videoLength,
@@ -304,11 +292,7 @@ export async function forceAddSongToUser(
     );
   }
 
-  const VideoFile: string | null = await getYouTubeVideo(songID);
-  if (!VideoFile) {
-    return ADD_SONG_INVALID_SONG;
-  }
-  const song: SongTypeWithoutBlob = {
+  const song: SongType = {
     songID: songID,
     title: title,
     songLengthSeconds: videoLength,

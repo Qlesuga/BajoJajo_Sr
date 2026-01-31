@@ -1,18 +1,62 @@
 "use client";
 
-import { useRef } from "react";
-import YouTube from "react-youtube";
 import SongQueue from "./SongQueue";
 import { Card, CardContent, CardHeader } from "~/shadcn/components/ui/card";
+import YoutubePlayer from "./YoutubePlayer";
+import "~/styles/player.css";
+import { api } from "~/trpc/react";
+import { type AvailableEmits } from "types/subscriptedUsers";
+import { emitSongEvent } from "./songEvents";
+import { useEffect, useState } from "react";
 
 export default function Player() {
-  const videoID = "_-2dIuV34cs";
-  const playerRef = useRef<YouTube>(null);
-  const playerOpts = {
-    playerVars: {
-      autoplay: 0,
-    },
+  const [currentSong, setCurrentSong] = useState<null | string>(null);
+
+  const { data: initialCurrentSong } = api.song.getCurrentSong.useQuery();
+  useEffect(() => {
+    setCurrentSong(initialCurrentSong?.songID ?? null);
+  }, [initialCurrentSong]);
+
+  const { mutate: completeCurrentSong } =
+    api.song.completeCurrentSong.useMutation({
+      onSuccess: () => {
+        refetchSongQueue().catch((e) => {
+          console.error(e);
+        });
+      },
+    });
+
+  const { data: songQueue, refetch: refetchSongQueue } =
+    api.song.getAllMySongs.useQuery(undefined, {
+      refetchInterval: 15000,
+      refetchIntervalInBackground: true,
+    });
+
+  const playNextSong = (whatCurrentSongShouldBe: string) => {
+    if (currentSong == whatCurrentSongShouldBe) {
+      setCurrentSong(songQueue[1]?.songID ?? null);
+    } else {
+      setCurrentSong(songQueue[0]?.songID ?? null);
+    }
+    completeCurrentSong({ songID: whatCurrentSongShouldBe });
   };
+
+  api.song.songSubscription.useSubscription(undefined, {
+    onData: (data: AvailableEmits) => {
+      if (process.env.NODE_ENV === "development") {
+        console.debug("Received command:", data);
+      }
+      if (data.type === "skip") {
+        playNextSong(data.value);
+      } else if (data.type === "new_song") {
+        refetchSongQueue().catch((e) => {
+          console.error(e);
+        });
+      }
+
+      emitSongEvent(data);
+    },
+  });
 
   return (
     <div className="flex h-screen w-screen flex-row gap-4 bg-[var(--background)] p-8">
@@ -21,11 +65,13 @@ export default function Player() {
           <h2 className="text-l font-semibold">Song Queue</h2>
         </CardHeader>
         <CardContent className="h-[calc(100%-20px)] px-2">
-          <SongQueue />
+          <SongQueue Queue={songQueue} />
         </CardContent>
       </Card>
-
-      <YouTube ref={playerRef} opts={playerOpts} videoId={videoID} />
+      <YoutubePlayer
+        currentSong={currentSong}
+        playNextSongAction={playNextSong}
+      />
     </div>
   );
 }

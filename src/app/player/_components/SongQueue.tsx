@@ -9,15 +9,14 @@ import {
 } from "~/shadcn/components/ui/table";
 import Image from "next/image";
 import { Ban, Trash2 } from "lucide-react";
-import { api } from "~/trpc/react";
 import MarqueeText from "~/app/_components/MarqueeText";
+import { type SongTypeWithAddedBy } from "types/song";
 
-export default function SongQueue() {
-  const { data } = api.song.getAllMySongs.useQuery(undefined, {
-    refetchInterval: 3000,
-    refetchIntervalInBackground: true,
-  });
+type SongQueueProps = {
+  Queue?: SongTypeWithAddedBy[];
+};
 
+export default function SongQueue({ Queue }: SongQueueProps) {
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
@@ -42,7 +41,7 @@ export default function SongQueue() {
         </TableHeader>
 
         <TableBody className="border-none">
-          {data?.map((song, index) => {
+          {Queue?.map((song, index) => {
             return (
               <TableRow className="px-2 py-1" key={index}>
                 <TableCell className="px-2 py-1">{index + 1}</TableCell>

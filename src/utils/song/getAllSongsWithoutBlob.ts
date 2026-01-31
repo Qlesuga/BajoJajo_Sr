@@ -1,13 +1,13 @@
 import { redis } from "lib/redis";
-import type { SongQueueElementType, allSongInfo } from "types/song";
+import type { SongQueueElementType, SongTypeWithAddedBy } from "types/song";
 import { getSong } from "./getSong";
 
 async function getAllSongsWithoutBlob(
   broadcasterID: string,
-): Promise<allSongInfo[]> {
+): Promise<SongTypeWithAddedBy[]> {
   const songsEntries = await redis.lRange(`songs:${broadcasterID}`, 0, -1);
 
-  const songs: (allSongInfo | null)[] = await Promise.all(
+  const songs: (SongTypeWithAddedBy | null)[] = await Promise.all(
     songsEntries.map(async (entry) => {
       const songElement = JSON.parse(entry) as SongQueueElementType;
       const song = await getSong(songElement.songID);

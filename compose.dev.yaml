@@ -11,8 +11,6 @@ services:
       - 8000:8000
     env_file:
       - .env
-    volumes:
-      - music:/music
     networks:
       - app-network
 
@@ -24,7 +22,6 @@ services:
       - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
     volumes:
       - db:/var/lib/postgresql/data
-      - music:/music
     expose:
       - 5432
     ports:
@@ -67,8 +64,6 @@ services:
       - NODE_ENV=${ENVIRONMENT}
     networks:
       - app-network
-    volumes:
-      - music:/music
     develop:
       watch:
         - action: sync
@@ -97,8 +92,6 @@ volumes:
   db:
     driver: local
   redis:
-    driver: local
-  music:
     driver: local
 
 networks:

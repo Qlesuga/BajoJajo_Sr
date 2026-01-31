@@ -17,10 +17,7 @@ import type {
   TwitchWebhookHeaders,
 } from "types/twitch";
 import { getCurrentSongInfo } from "~/utils/song/getCurrentSongInfo";
-import {
-  addSongToUser,
-  forceAddSongToUser,
-} from "~/server/api/routers/songOLD";
+import { addSongToUser, forceAddSongToUser } from "~/server/api/routers/song";
 import { clearSongQueue } from "~/utils/song/clearSongQueue";
 import { isSrTurnedOn } from "~/utils/isSrTurnedOn";
 import { turnSrOn } from "~/utils/turnSrOn";
@@ -163,7 +160,7 @@ async function handleTwitchMessage(
   } else if (command == "!forceskip") {
     const isMod = isModerator(badges);
     if (isMod) {
-      responseMessage = skipSong(broadcasterID);
+      responseMessage = await skipSong(broadcasterID);
     } else {
       responseMessage =
         "you are unauthorized to use skip, use !voteskip instead";
@@ -186,7 +183,7 @@ async function handleTwitchMessage(
       for (const field of chattersWhoSkipped) {
         redis.hSet(key, field, "0").catch((e) => console.error(e));
       }
-      responseMessage = skipSong(broadcasterID);
+      responseMessage = await skipSong(broadcasterID);
       shouldResponse = false;
     } else {
       responseMessage = `voteskip: ${amontOfChatterWhoSkipped}/${progress}`;
