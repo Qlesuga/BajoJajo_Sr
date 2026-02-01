@@ -41,19 +41,6 @@ services:
       - NODE_ENV=${ENVIRONMENT}
     networks:
       - app-network
-    develop:
-      watch:
-        - action: sync
-          path: .
-          target: /app
-          ignore:
-            - node_modules/
-        - action: rebuild
-          path: package.json
-        - action: rebuild
-          path: .env
-        - action: rebuild
-          path: instrimentation.ts
 
   cloudflared:
     image: cloudflare/cloudflared:latest
