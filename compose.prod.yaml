@@ -12,28 +12,15 @@ services:
     networks:
       - app-network
 
-  redis:
-    image: redis:7.4-alpine
-    restart: always
-    expose:
-      - 6379
-    command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
-    volumes:
-      - redis:/data
-    networks:
-      - app-network
-
   next:
     build: .
     restart: always
     expose:
       - 3000
     depends_on:
-      - redis
       - cloudflared
       - yt-dlp
     links:
-      - redis
       - yt-dlp
     env_file:
       - .env
@@ -51,10 +38,6 @@ services:
     restart: unless-stopped
     networks:
       - app-network
-
-volumes:
-  redis:
-    driver: local
 
 networks:
   app-network:
