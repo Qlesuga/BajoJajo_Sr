@@ -14,9 +14,13 @@ import { type SongTypeWithAddedBy } from "types/song";
 
 type SongQueueProps = {
   Queue?: SongTypeWithAddedBy[];
+  removeSongFromQueue: (songID: string, index: number) => void;
 };
 
-export default function SongQueue({ Queue }: SongQueueProps) {
+export default function SongQueue({
+  Queue,
+  removeSongFromQueue,
+}: SongQueueProps) {
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
@@ -78,7 +82,10 @@ export default function SongQueue({ Queue }: SongQueueProps) {
                   {formatTime(song.songLengthSeconds)}
                 </TableCell>
                 <TableCell className="justify-center px-2 py-1">
-                  <Trash2 className="m-auto block h-6 w-6" />
+                  <Trash2
+                    className="m-auto block h-6 w-6 cursor-pointer"
+                    onClick={() => removeSongFromQueue(song.songID, index)}
+                  />
                 </TableCell>
 
                 <TableCell className="px-2 py-1">
