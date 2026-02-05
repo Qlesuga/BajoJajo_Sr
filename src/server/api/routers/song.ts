@@ -4,7 +4,6 @@ import { z } from "zod";
 import { containsBannedString } from "~/utils/twitch/twitchBannedRegex";
 import { addSongToRedis } from "~/utils/song/addSongToRedis";
 import type { SongQueueElementType, SongType } from "types/song";
-import { getNextSong } from "~/utils/song/getNextSong";
 import { getYouTubeInfo } from "~/utils/utilsYTDL";
 import { getAllSongsWithoutBlob } from "~/utils/song/getAllSongsWithoutBlob";
 import { isSongAlreadyInQueue } from "~/utils/song/isSongAlreadyInQueue";
@@ -93,7 +92,7 @@ export const songRouter = createTRPCRouter({
           } else {
             await redis.lRem(key, 1, rawSong);
             emitToSubscriptedUser(broadcasterID, {
-              type: "new_song",
+              type: "refetch_songs",
             });
           }
           if (process.env.NODE_ENV == "development") {
@@ -264,7 +263,7 @@ export async function addSongToUser(
   await addSongToRedis(broadcasterID, songID, song, addedBy);
 
   emitToSubscriptedUser(broadcasterID, {
-    type: "new_song",
+    type: "refetch_songs",
   });
   return null;
 }
@@ -338,7 +337,7 @@ export async function forceAddSongToUser(
   await addSongToRedis(broadcasterID, songID, song, addedBy);
 
   emitToSubscriptedUser(broadcasterID, {
-    type: "new_song",
+    type: "refetch_songs",
   });
 
   return null;

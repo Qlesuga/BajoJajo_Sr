@@ -48,7 +48,7 @@ export default function Player() {
       }
       if (data.type === "skip") {
         playNextSong(data.value);
-      } else if (data.type === "new_song") {
+      } else if (data.type === "refetch_songs") {
         refetchSongQueue().catch((e) => {
           console.error(e);
         });

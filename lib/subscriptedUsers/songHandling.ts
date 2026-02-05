@@ -18,6 +18,10 @@ export async function skipSong(userID: string): Promise<string> {
   return SKIP_SONG_SUCCESS_MESSAGE;
 }
 
+export async function refetchSongs(userID: string) {
+  emitToSubscriptedUser(userID, { type: "refetch_songs" });
+}
+
 export function playSong(userID: string): null {
   emitToSubscriptedUser(userID, { type: "play" });
   return null;
