@@ -8,11 +8,9 @@ import { api } from "~/trpc/react";
 import { type AvailableEmits } from "types/subscriptedUsers";
 import { emitSongEvent } from "./songEvents";
 import { useEffect, useState } from "react";
-import { useToast } from "~/shadcn/hooks/use-toast";
 
 export default function Player() {
   const [currentSong, setCurrentSong] = useState<null | string>(null);
-  const { toast } = useToast();
 
   const { data: initialCurrentSong } = api.song.getCurrentSong.useQuery();
   useEffect(() => {
@@ -35,12 +33,12 @@ export default function Player() {
     });
 
   const playNextSong = (whatCurrentSongShouldBe: string) => {
-    if (currentSong == whatCurrentSongShouldBe) {
+    console.debug(songQueue);
+    console.debug(whatCurrentSongShouldBe, currentSong);
+    if (whatCurrentSongShouldBe === currentSong) {
       setCurrentSong(songQueue?.[1]?.songID ?? null);
-    } else {
-      setCurrentSong(songQueue?.[0]?.songID ?? null);
+      completeCurrentSong({ songID: whatCurrentSongShouldBe });
     }
-    completeCurrentSong({ songID: whatCurrentSongShouldBe });
   };
 
   api.song.songSubscription.useSubscription(undefined, {
@@ -59,36 +57,6 @@ export default function Player() {
       emitSongEvent(data);
     },
   });
-
-  const { mutate: removeSongFromQueueAPI } =
-    api.song.removeSongFromQueue.useMutation({
-      onSuccess: () => {
-        toast({
-          description: "Successfully removed song from queue",
-        });
-        refetchSongQueue().catch((e) => {
-          console.error(e);
-        });
-      },
-      onError: (error) => {
-        toast({
-          variant: "destructive",
-          description: `Failed to remove song from queue: ${error.message}`,
-        });
-        refetchSongQueue().catch((e) => {
-          console.error(e);
-        });
-      },
-    });
-
-  const removeSongFromQueue = (songID: string, index: number) => {
-    if (index == 0 && songID === currentSong) {
-      playNextSong(songID);
-      return;
-    }
-    removeSongFromQueueAPI({ songID, songIndex: index });
-  };
-
   return (
     <div className="flex h-screen w-screen flex-row gap-4 bg-[var(--background)] p-8">
       <Card className="h-full border-none">
@@ -96,10 +64,7 @@ export default function Player() {
           <h2 className="text-l font-semibold">Song Queue</h2>
         </CardHeader>
         <CardContent className="h-[calc(100%-20px)] px-2">
-          <SongQueue
-            Queue={songQueue}
-            removeSongFromQueue={removeSongFromQueue}
-          />
+          <SongQueue Queue={songQueue} />
         </CardContent>
       </Card>
       <YoutubePlayer

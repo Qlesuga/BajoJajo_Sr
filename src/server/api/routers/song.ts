@@ -69,7 +69,6 @@ export const songRouter = createTRPCRouter({
       }),
     )
     .mutation(async (opts) => {
-      // TODO add handling deleting secound index with skip
       // TODO add removing songs by mods
       const { songID } = opts.input;
       const songIndex = opts.input.songIndex;
@@ -80,8 +79,8 @@ export const songRouter = createTRPCRouter({
           message: "you are not logged in",
         });
       }
-      const providerID = session.account.providerId;
-      const key = `songs:${providerID}`;
+      const broadcasterID = session.account.providerId;
+      const key = `songs:${broadcasterID}`;
       for (let i = 0; i < 3 && songIndex >= 0; i++) {
         const rawSong = await redis.lIndex(key, songIndex - i);
         if (!rawSong) {
@@ -89,9 +88,19 @@ export const songRouter = createTRPCRouter({
         }
         const song = JSON.parse(rawSong) as SongQueueElementType;
         if (song.songID == songID) {
-          await redis.lRem(key, 1, rawSong);
-          if (songIndex == 0) {
-            await skipSong(providerID);
+          if (songIndex - i == 0) {
+            await skipSong(broadcasterID);
+          } else {
+            await redis.lRem(key, 1, rawSong);
+            emitToSubscriptedUser(broadcasterID, {
+              type: "new_song",
+            });
+          }
+          if (process.env.NODE_ENV == "development") {
+            console.log("SONGID", songID);
+            addSongToUser(broadcasterID, songID || "", "loop").catch((e) =>
+              console.error(e),
+            );
           }
           return "successfully removed song";
         }

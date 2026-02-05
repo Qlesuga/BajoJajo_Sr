@@ -11,21 +11,35 @@ import Image from "next/image";
 import { Ban, Trash2 } from "lucide-react";
 import MarqueeText from "~/app/_components/MarqueeText";
 import { type SongTypeWithAddedBy } from "types/song";
+import { api } from "~/trpc/react";
+import { useToast } from "~/shadcn/hooks/use-toast";
 
 type SongQueueProps = {
   Queue?: SongTypeWithAddedBy[];
-  removeSongFromQueue: (songID: string, index: number) => void;
 };
 
-export default function SongQueue({
-  Queue,
-  removeSongFromQueue,
-}: SongQueueProps) {
+export default function SongQueue({ Queue }: SongQueueProps) {
+  const { toast } = useToast();
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
+
+  const { mutate: removeSongFromQueue } =
+    api.song.removeSongFromQueue.useMutation({
+      onSuccess: () => {
+        toast({
+          description: "Successfully removed song from queue",
+        });
+      },
+      onError: (error) => {
+        toast({
+          variant: "destructive",
+          description: `Failed to remove song from queue: ${error.message}`,
+        });
+      },
+    });
 
   return (
     <ScrollArea className="h-full w-full rounded-md border-none">
@@ -84,7 +98,12 @@ export default function SongQueue({
                 <TableCell className="justify-center px-2 py-1">
                   <Trash2
                     className="m-auto block h-6 w-6 cursor-pointer"
-                    onClick={() => removeSongFromQueue(song.songID, index)}
+                    onClick={() =>
+                      removeSongFromQueue({
+                        songID: song.songID,
+                        songIndex: index,
+                      })
+                    }
                   />
                 </TableCell>
 
