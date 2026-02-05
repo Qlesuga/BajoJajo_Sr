@@ -5,19 +5,6 @@ WORKDIR /app
 ARG TARGETARCH
 RUN echo "$TARGETARCH"
 
-RUN if [ "$TARGETARCH" = "amd64" ]; then \
-      wget https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz -O ffmpeg.tar.xz;  \
-    elif [ "$TARGETARCH" = "arm64" ]; then \
-      wget https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linuxarm64-gpl.tar.xz -O ffmpeg.tar.xz; \
-    else \
-      echo "Unknown architecture: $TARGETARCH"; \
-    fi
-
-RUN tar -xf ffmpeg.tar.xz
-RUN mv ffmpeg-* ffmpeg
-RUN mv ./ffmpeg/bin/* /usr/bin/
-RUN rm -r ffmpeg
-
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install fastapi[standard]
