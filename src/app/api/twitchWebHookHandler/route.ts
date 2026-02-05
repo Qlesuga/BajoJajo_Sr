@@ -84,7 +84,7 @@ export async function POST(req: Request): Promise<NextResponse> {
 
 async function handleTwitchMessage(
   bodyJson: TwitchWebhookPayload | WebhookCallbackPayload,
-): Promise<null> {
+): Promise<undefined> {
   const { event, subscription } = bodyJson as TwitchWebhookPayload;
   const badges = event.badges;
   const senderID = event.chatter_user_id;
@@ -102,7 +102,7 @@ async function handleTwitchMessage(
     senderID == process.env.TWITCH_BOT_USER_ID
   ) {
     if (command != "!sron") {
-      return null;
+      return;
     }
   }
 
@@ -117,13 +117,13 @@ async function handleTwitchMessage(
 
   console.info(broadcasterID, splitMessage);
   if (command?.charAt(0) != "!" || splitMessage.length > 2) {
-    return null;
+    return;
   }
   if (command == "!sr" && param) {
     responseMessage = await addSongToUser(
       broadcasterID,
       param,
-      event.chatter_user_name,
+      username,
       event.message_id,
     );
   }
@@ -131,7 +131,7 @@ async function handleTwitchMessage(
     responseMessage = await forceAddSongToUser(
       broadcasterID,
       param,
-      event.chatter_user_name,
+      username,
       event.message_id,
     );
   } else if (command == "!forceskip") {
@@ -185,12 +185,12 @@ async function handleTwitchMessage(
   } else if (command == "!whenmysr") {
     responseMessage = await whenUserSong(
       broadcasterID,
-      event.chatter_user_name,
+      username,
     );
   }
 
   if (!responseMessage || responseMessage == "") {
-    return null;
+    return;
   }
 
   await twitchSendChatMessage(
@@ -199,7 +199,7 @@ async function handleTwitchMessage(
     shouldResponse ? event.message_id : null,
   );
 
-  return null;
+  return;
 }
 
 export const config = {
