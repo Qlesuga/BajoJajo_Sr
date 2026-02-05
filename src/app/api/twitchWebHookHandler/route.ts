@@ -3,12 +3,7 @@
 import { redis } from "lib/redis";
 import { after, NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
-import {
-  playSong,
-  setVolume,
-  stopSong,
-  skipSong,
-} from "lib/subscriptedUsers/songHandling";
+import { playSong, setVolume, stopSong, skipSong } from "lib/subscriptedUsers/songHandling";
 import { twitchSendChatMessage } from "~/utils/twitch/twitchSendChatMessage";
 import type {
   Badge,
@@ -16,6 +11,8 @@ import type {
   WebhookCallbackPayload,
   TwitchWebhookHeaders,
 } from "types/twitch";
+import { hasModeratorBadge } from "~/utils/twitch/hasModeratorBadge";
+import { hasBroadcasterBadge } from "~/utils/twitch/hasBroadcasterBadge";
 import { getCurrentSongInfo } from "~/utils/song/getCurrentSongInfo";
 import { addSongToUser, forceAddSongToUser } from "~/server/api/routers/song";
 import { clearSongQueue } from "~/utils/song/clearSongQueue";
@@ -35,26 +32,6 @@ function verifyMessage(hmac: string, verifySignature?: string): boolean {
   } catch {
     return false;
   }
-}
-
-function isModerator(badges: Badge[]) {
-  let isMod = false;
-  badges.forEach((badge) => {
-    if (badge.set_id == "moderator" || badge.set_id == "broadcaster") {
-      isMod = true;
-    }
-  });
-  return isMod;
-}
-
-function isBroadcaster(badges: Badge[]) {
-  let isBroadcaster = false;
-  badges.forEach((badge) => {
-    if (badge.set_id == "broadcaster") {
-      isBroadcaster = true;
-    }
-  });
-  return isBroadcaster;
 }
 
 const CHATTER_TTL_IN_SECOUNDS = 3 * 60;
@@ -150,7 +127,7 @@ async function handleTwitchMessage(
       event.message_id,
     );
   }
-  if (command == "!forcesr" && param && isModerator(badges)) {
+  if (command == "!forcesr" && param && hasModeratorBadge(badges)) {
     responseMessage = await forceAddSongToUser(
       broadcasterID,
       param,
@@ -158,14 +135,14 @@ async function handleTwitchMessage(
       event.message_id,
     );
   } else if (command == "!forceskip") {
-    const isMod = isModerator(badges);
+    const isMod = hasModeratorBadge(badges);
     if (isMod) {
       responseMessage = await skipSong(broadcasterID);
     } else {
       responseMessage =
         "you are unauthorized to use skip, use !voteskip instead";
     }
-  } else if (command == "!volume" && param && isModerator(badges)) {
+  } else if (command == "!volume" && param && hasModeratorBadge(badges)) {
     responseMessage = setVolume(broadcasterID, param);
   } else if (command == "!srping") {
     responseMessage = "pong :3";
@@ -197,12 +174,12 @@ async function handleTwitchMessage(
     stopSong(broadcasterID);
   } else if (command == "!play") {
     playSong(broadcasterID);
-  } else if (command == "!clear" && isBroadcaster(badges)) {
+  } else if (command == "!clear" && hasBroadcasterBadge(badges)) {
     responseMessage = await clearSongQueue(broadcasterID);
-  } else if (command == "!sron" && isBroadcaster(badges)) {
+  } else if (command == "!sron" && hasBroadcasterBadge(badges)) {
     responseMessage = await turnSrOn(broadcasterID);
     shouldResponse = true;
-  } else if (command == "!sroff" && isBroadcaster(badges)) {
+  } else if (command == "!sroff" && hasBroadcasterBadge(badges)) {
     responseMessage = await turnSrOff(broadcasterID);
     shouldResponse = true;
   } else if (command == "!whenmysr") {
