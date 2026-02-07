@@ -7,15 +7,20 @@ import "~/styles/player.css";
 import { api } from "~/trpc/react";
 import { type AvailableEmits } from "types/subscriptedUsers";
 import { emitSongEvent } from "./songEvents";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-export default function Player() {
-  const [currentSong, setCurrentSong] = useState<null | string>(null);
+interface PlayerComponentProps {
+  initVolumeInPercentage: number;
+  initCurrentSong: string | null;
+}
 
-  const { data: initialCurrentSong } = api.song.getCurrentSong.useQuery();
-  useEffect(() => {
-    setCurrentSong(initialCurrentSong?.songID ?? null);
-  }, [initialCurrentSong]);
+export default function Player({
+  initVolumeInPercentage,
+  initCurrentSong,
+}: PlayerComponentProps) {
+  const [currentSong, setCurrentSong] = useState<null | string>(
+    initCurrentSong,
+  );
 
   const { mutate: completeCurrentSong } =
     api.song.completeCurrentSong.useMutation({
@@ -69,6 +74,7 @@ export default function Player() {
       </Card>
       <YoutubePlayer
         currentSong={currentSong}
+        initVolumeInPercentage={initVolumeInPercentage}
         playNextSongAction={playNextSong}
       />
     </div>

@@ -8,12 +8,15 @@ import { type AvailableEmits } from "types/subscriptedUsers";
 type YoutubePlayerProps = {
   currentSong: string | null;
   playNextSongAction: (whatCurrentSongShouldBe: string) => void;
+  initVolumeInPercentage: number;
 };
 
 export default function YoutubePlayer({
   currentSong,
   playNextSongAction,
+  initVolumeInPercentage,
 }: YoutubePlayerProps) {
+  //! ADD SAVING VOLUME FROM USER CHANGE
   const playerEvent = useRef<YouTubeEvent>(null);
 
   useSongEventListener((event: AvailableEmits) => {
@@ -34,6 +37,8 @@ export default function YoutubePlayer({
 
   const onReady = (event: YouTubeEvent) => {
     playerEvent.current = event;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    playerEvent.current.target.setVolume(initVolumeInPercentage);
     console.debug("Player is ready", event);
   };
 

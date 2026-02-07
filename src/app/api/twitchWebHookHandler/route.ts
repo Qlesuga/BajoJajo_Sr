@@ -3,7 +3,12 @@
 import { redis } from "lib/redis";
 import { after, NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { playSong, setVolume, stopSong, skipSong } from "lib/subscriptedUsers/songHandling";
+import {
+  playSong,
+  setVolume,
+  stopSong,
+  skipSong,
+} from "lib/subscriptedUsers/songHandling";
 import { twitchSendChatMessage } from "~/utils/twitch/twitchSendChatMessage";
 import type {
   Badge,
