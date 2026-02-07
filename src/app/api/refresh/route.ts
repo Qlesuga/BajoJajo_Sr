@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "~/server/db";
 
-export async function POST(req: Request): Promise<NextResponse> {
+export async function POST(): Promise<NextResponse> {
   console.info("REFRESH START");
 
   try {

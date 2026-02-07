@@ -11,7 +11,6 @@ import {
 } from "lib/subscriptedUsers/songHandling";
 import { twitchSendChatMessage } from "~/utils/twitch/twitchSendChatMessage";
 import type {
-  Badge,
   TwitchWebhookPayload,
   WebhookCallbackPayload,
   TwitchWebhookHeaders,
