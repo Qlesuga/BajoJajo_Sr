@@ -15,9 +15,7 @@ ydl_opts = {
     "skip_download": True,
     "skipdownload": True,
     "cookiefile": "cookies.txt",
-    "remote-components": "ejs:github",
-    "remote_components": "ejs:github",
-    "remotecomponents": "ejs:github",
+    "remote_components": ["ejs:github"],
 }
 
 
