@@ -8,7 +8,13 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
-ydl_opts = {"noplaylist": True, "nodownload": True}
+ydl_opts = {
+    "noplaylist": True,
+    "nodownload": True,
+    "nodownload": True,
+    "skip_download": True,
+    "skipdownload": True,
+}
 
 
 def get_video_info(url: str, ydl: yt_dlp.YoutubeDL):
