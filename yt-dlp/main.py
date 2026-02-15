@@ -14,6 +14,7 @@ ydl_opts = {
     "nodownload": True,
     "skip_download": True,
     "skipdownload": True,
+    "cookiefile": "cookies.txt",
 }
 
 
