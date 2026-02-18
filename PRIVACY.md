@@ -12,7 +12,7 @@ The following data is collected:
 - Session cookies (used to maintain login state),
 - Twitch chat messages (temporarily read in real time but not stored),
 - Song queue and request history (linked to user ID),
-- User preferences or settings (e.g. filters, request limits).
+- User preferences or settings
 
 ## 3. Purpose of Data Processing
 
@@ -48,15 +48,7 @@ You have the right to:
 - Access your data,
 - Correct your data,
 - Request deletion,
-- Restrict processing.
-
-To exercise your rights, contact: contact@qles.dev
 
 ## 8. Data Security
 
-Appropriate technical and organizational measures are in place to safeguard your data.  
 No personal data is used for profiling or advertising.
-
-## 9. Contact
-
-For privacy-related questions, please reach out via emial: contact@qles.dev
