@@ -67,7 +67,7 @@ export default function SongQueue({ Queue }: SongQueueProps) {
                   <div className="flex max-w-sm items-center gap-3">
                     <div className="relative h-10 w-10 overflow-hidden rounded-md">
                       <Image
-                        src={`https://i.ytimg.com/vi_webp/${song.songID}/maxresdefault.webp`}
+                        src={song.songThumbnail}
                         alt="mikumiku"
                         sizes="40px"
                         fill
