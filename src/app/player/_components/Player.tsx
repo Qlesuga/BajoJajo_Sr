@@ -7,7 +7,7 @@ import "~/styles/player.css";
 import { api } from "~/trpc/react";
 import { type AvailableEmits } from "types/subscriptedUsers";
 import { emitSongEvent } from "./songEvents";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface PlayerComponentProps {
   initVolumeInPercentage: number;
@@ -31,20 +31,27 @@ export default function Player({
       },
     });
 
-  const { data: songQueue, refetch: refetchSongQueue } =
-    api.song.getAllMySongs.useQuery(undefined, {
-      refetchInterval: 15000,
-      refetchIntervalInBackground: true,
-    });
+  const {
+    data: songQueue,
+    refetch: refetchSongQueue,
+    status: refetchSongStatus,
+  } = api.song.getAllMySongs.useQuery(undefined, {
+    refetchInterval: 15000,
+    refetchIntervalInBackground: true,
+  });
 
   const playNextSong = (whatCurrentSongShouldBe: string) => {
-    console.debug(songQueue);
-    console.debug(whatCurrentSongShouldBe, currentSong);
     if (whatCurrentSongShouldBe === currentSong) {
       setCurrentSong(songQueue?.[1]?.songID ?? null);
       completeCurrentSong({ songID: whatCurrentSongShouldBe });
     }
   };
+
+  useEffect(() => {
+    if (refetchSongStatus !== "success") return;
+    if (currentSong) return;
+    setCurrentSong(songQueue?.[1]?.songID ?? null);
+  }, [currentSong, refetchSongStatus]);
 
   api.song.songSubscription.useSubscription(undefined, {
     onData: (data: AvailableEmits) => {

@@ -37,8 +37,9 @@ export default function YoutubePlayer({
 
   const onReady = (event: YouTubeEvent) => {
     playerEvent.current = event;
+
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    playerEvent.current.target.setVolume(initVolumeInPercentage);
+    event.target.setVolume(initVolumeInPercentage);
     console.debug("Player is ready", event);
   };
 
