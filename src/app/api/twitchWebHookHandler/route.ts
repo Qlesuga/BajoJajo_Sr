@@ -140,7 +140,7 @@ async function handleCommand(
 
   // Moderator-only commands
   if (command === "!volume" && param && isMod) {
-    const message = setVolume(broadcasterID, param);
+    const message = await setVolume(broadcasterID, param);
     return { message };
   }
 

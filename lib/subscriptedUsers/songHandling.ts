@@ -1,6 +1,9 @@
 import { getCurrentSongInfo } from "~/utils/song/getCurrentSongInfo";
 import { emitToSubscriptedUser } from "./subscripedUsers";
 import { setUserVolumeSetting } from "~/utils/setUserVolumeSetting";
+import z from "zod";
+import { getUserPlayerSettings } from "~/utils/getUserPlayerSettings";
+import { finalize } from "zod/v4/core";
 
 export function stopSong(userID: string): null {
   emitToSubscriptedUser(userID, { type: "stop" });
@@ -32,18 +35,46 @@ export function clearQueueOnFrontend(broadcasterID: string): null {
   return null;
 }
 
-const SET_VOLUME_ERROR_MESSAGE = "volume must be a number between 0 and 100";
+const SET_VOLUME_ERROR_MESSAGE =
+  "volume must be a number between 0 and 100 or a string in format +10 or -5";
 const SET_VOLUME_SUCCESS_MESSAGE = "volume got set to:";
-export function setVolume(broadcasterID: string, value: string): string {
-  const volume = parseInt(value);
+const VOLUME_NUMBER_SCHEMA = z.number().min(0).max(100);
+const VOLUME_STRING_SCHEMA = z
+  .string()
+  .min(2)
+  .max(4)
+  .regex(/^[+-][0-9][0-9]?|^[+-]100/);
+export async function setVolume(
+  broadcasterID: string,
+  value: string,
+): Promise<string> {
+  let volume = 0;
 
-  if (isNaN(volume) || volume > 100 || volume < 0) {
+  const volumeNumberParsed = VOLUME_NUMBER_SCHEMA.safeParse(parseInt(value));
+  if (volumeNumberParsed.success) {
+    volume = volumeNumberParsed.data;
+  }
+
+  const volumeStringParsed = VOLUME_STRING_SCHEMA.safeParse(value);
+  if (volumeStringParsed.success) {
+    const currentVolume =
+      (await getUserPlayerSettings(broadcasterID))!.volumeInPercentage ?? 0;
+    console.log(currentVolume);
+
+    volume = eval(`${currentVolume}${volumeStringParsed.data}`) as number;
+  }
+
+  if (!volumeNumberParsed.success && !volumeStringParsed.success) {
     return SET_VOLUME_ERROR_MESSAGE;
   }
+
+  volume = Math.max(0, Math.min(100, volume));
+
   setUserVolumeSetting(broadcasterID, volume).catch((e) => console.error(e));
   emitToSubscriptedUser(broadcasterID, {
     type: "volume",
     value: volume,
   });
+
   return `${SET_VOLUME_SUCCESS_MESSAGE} ${volume}%`;
 }
