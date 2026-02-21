@@ -38,25 +38,13 @@ export const admingRouter = createTRPCRouter({
 
     const redisKeys = await redis.keys("*");
 
-    const pathToDirectory = "/music";
-    const filesCount = await new Promise((resolve, reject) => {
-      readdir(pathToDirectory, (error, files) => {
-        if (error) {
-          console.log(error);
-          reject(error);
-        } else {
-          resolve(files.length);
-        }
-      });
-    });
-
     return {
       usersCount,
       postgresRowCount,
       redisKeys: redisKeys.length,
-      filesCount,
     };
   }),
+
   getRedisKeys: publicProcedure.query(async () => {
     const session = await auth();
     const isAdmin = session?.account.providerId === process.env.ADMIN_TWITCH_ID;

@@ -1,12 +1,11 @@
 "use client";
 
-import { Database, Key, BarChart3, Home, Folder } from "lucide-react";
+import { Database, Key, Home } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -14,21 +13,9 @@ import {
   SidebarRail,
 } from "~/shadcn/components/ui/sidebar";
 
-const navigation = [
-  {
-    title: "Overview",
-    items: [
-      { title: "Dashboard", icon: Home, id: "dashboard" },
-      { title: "Analytics", icon: BarChart3, id: "analytics" },
-    ],
-  },
-  {
-    title: "Database",
-    items: [
-      { title: "Redis Keys", icon: Key, id: "redis-keys" },
-      { title: "Music Files", icon: Folder, id: "files" },
-    ],
-  },
+const navigationItems = [
+  { title: "Dashboard", icon: Home, id: "dashboard" },
+  { title: "Redis Keys", icon: Key, id: "redis-keys" },
 ];
 
 interface AppSidebarProps {
@@ -46,26 +33,23 @@ export function AppSidebar({ activeView, onViewChange }: AppSidebarProps) {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        {navigation.map((section) => (
-          <SidebarGroup key={section.title}>
-            <SidebarGroupLabel>{section.title}</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {section.items.map((item) => (
-                  <SidebarMenuItem key={item.id}>
-                    <SidebarMenuButton
-                      isActive={activeView === item.id}
-                      onClick={() => onViewChange(item.id)}
-                    >
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {navigationItems.map((item) => (
+                <SidebarMenuItem key={item.id}>
+                  <SidebarMenuButton
+                    isActive={activeView === item.id}
+                    onClick={() => onViewChange(item.id)}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.title}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarRail />
     </Sidebar>

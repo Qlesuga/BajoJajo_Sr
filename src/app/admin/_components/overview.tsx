@@ -22,11 +22,6 @@ const stats = [
     icon: Table,
   },
   {
-    title: "Music Files",
-    key: "filesCount",
-    icon: Music,
-  },
-  {
     title: "Users Amount",
     key: "usersCount",
     icon: Users,
