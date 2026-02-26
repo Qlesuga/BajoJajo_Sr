@@ -116,6 +116,7 @@ export default function SongTable({
                         removeSongFromQueue.mutate({
                           songID: song.songID,
                           songIndex: index,
+                          broadcasterID: userID,
                         })
                       }
                     >

@@ -65,6 +65,7 @@ export const songRouter = createTRPCRouter({
       z.object({
         songID: z.string(),
         songIndex: z.number(),
+        broadcasterID: z.string().optional(),
       }),
     )
     .mutation(async (opts) => {
@@ -72,13 +73,35 @@ export const songRouter = createTRPCRouter({
       const { songID } = opts.input;
       const songIndex = opts.input.songIndex;
       const session = await auth();
+      let { broadcasterID } = opts.input;
+
+      //Check if user is logged in
       if (!session) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
           message: "you are not logged in",
         });
       }
-      const broadcasterID = session.account.providerId;
+
+      //Check if user is broadcaster or app admin
+      if (
+        broadcasterID != session.account.providerId &&
+        broadcasterID != process.env.ADMIN_TWITCH_ID
+      ) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "you don't have permission to remove this song",
+        });
+      }
+
+      //If broadcasterID is not provided, default to session account providerId
+      //Usefull when streamer deletes song from thier queue in player
+      if (!broadcasterID) {
+        broadcasterID = session.account.providerId;
+      }
+
+      //Check if song is in still in the right place in the queue, only check 3 songs back to avoid iterating through the whole queue
+      //This is to prevent issues with songs being added and removed while the broadcaster tries to remove a song
       const key = `songs:${broadcasterID}`;
       for (let i = 0; i < 3 && songIndex >= 0; i++) {
         const rawSong = await redis.lIndex(key, songIndex - i);

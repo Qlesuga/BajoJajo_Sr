@@ -18,7 +18,11 @@ async function SongList({ params }: { params: Promise<{ user: string }> }) {
       <h1 className="mb-6 text-2xl font-bold capitalize">{user} queue</h1>
       <SongTable
         userID={userID}
-        showDeleteButton={session?.account.providerId == userID}
+        showDeleteButton={
+          true
+          //session?.account.providerId == userID ||
+          //session?.account.providerId == process.env.ADMIN_TWITCH_ID
+        }
       />
     </div>
   );
