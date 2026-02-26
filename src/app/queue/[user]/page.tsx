@@ -19,9 +19,8 @@ async function SongList({ params }: { params: Promise<{ user: string }> }) {
       <SongTable
         userID={userID}
         showDeleteButton={
-          true
-          //session?.account.providerId == userID ||
-          //session?.account.providerId == process.env.ADMIN_TWITCH_ID
+          session?.account.providerId == userID ||
+          session?.account.providerId == process.env.ADMIN_TWITCH_ID
         }
       />
     </div>
