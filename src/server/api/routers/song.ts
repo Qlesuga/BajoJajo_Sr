@@ -86,7 +86,7 @@ export const songRouter = createTRPCRouter({
       //Check if user is broadcaster or app admin
       if (
         broadcasterID != session.account.providerId &&
-        broadcasterID != process.env.ADMIN_TWITCH_ID
+        session.account.providerId != process.env.ADMIN_TWITCH_ID
       ) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
