@@ -4,7 +4,7 @@ import { z } from "zod";
 import { containsBannedString } from "~/utils/twitch/twitchBannedRegex";
 import { addSongToRedis } from "~/utils/song/addSongToRedis";
 import type { SongQueueElementType, SongType } from "types/song";
-import { getYouTubeInfo } from "~/utils/utilsYTDL";
+import { getYouTubeInfo } from "~/utils/utilsYT";
 import { getAllSongsWithoutBlob } from "~/utils/song/getAllSongsWithoutBlob";
 import { isSongAlreadyInQueue } from "~/utils/song/isSongAlreadyInQueue";
 import {

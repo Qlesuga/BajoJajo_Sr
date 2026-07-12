@@ -1,17 +1,4 @@
 services:
-  yt-dlp:
-    image: python
-    restart: always
-    build: ./yt-dlp/
-    environment:
-      - ENVIRONMENT=${ENVIRONMENT}
-    expose:
-      - 8000
-    env_file:
-      - .env
-    networks:
-      - app-network
-
   next:
     build: .
     restart: always
@@ -19,9 +6,6 @@ services:
       - 3000
     depends_on:
       - cloudflared
-      - yt-dlp
-    links:
-      - yt-dlp
     env_file:
       - .env
     environment:

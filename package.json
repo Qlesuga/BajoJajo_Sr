@@ -46,6 +46,8 @@
     "fontawesome-free": "^1.0.4",
     "framer-motion": "^12.33.0",
     "geist": "^1.7.0",
+    "get-video-id": "^4.2.0",
+    "iso8601-duration": "^2.1.4",
     "lucide-react": "^0.561.0",
     "next": "^15.5.12",
     "next-auth": "5.0.0-beta.25",

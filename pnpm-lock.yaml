@@ -83,6 +83,12 @@ importers:
       geist:
         specifier: ^1.7.0
         version: 1.7.0(next@15.5.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+      get-video-id:
+        specifier: ^4.2.0
+        version: 4.2.0
+      iso8601-duration:
+        specifier: ^2.1.4
+        version: 2.1.4
       lucide-react:
         specifier: ^0.561.0
         version: 0.561.0(react@18.3.1)
@@ -1778,6 +1784,10 @@ packages:
   get-tsconfig@4.13.6:
     resolution: {integrity: sha512-shZT/QMiSHc/YBLxxOkMtgSid5HFoauqCE3/exfsEcwg1WkeqjG+V40yBbBrsD+jW2HDXcs28xOfcbm2jI8Ddw==}
 
+  get-video-id@4.2.0:
+    resolution: {integrity: sha512-jRGMts6wFqruMF85oEHY0aLqdn9Eo/AL/VVEwxJk8SWY5nNJDOK4fj1WUPO9/+CnhexZh2l3sZ4S+qGIJJJ8YA==}
+    engines: {node: ^20.19.0 || >=22.0.0}
+
   glob-parent@5.1.2:
     resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
     engines: {node: '>= 6'}
@@ -2007,6 +2017,9 @@ packages:
 
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
+
+  iso8601-duration@2.1.4:
+    resolution: {integrity: sha512-2TuWcuR6W0OhFZQDAY+jDUp9FC2fVTDgxTtbN0nFBfwmUA6HTqXc0wx2tIBVd/FhRp4CnJbDgCv3sCeTPMQbew==}
 
   iterator.prototype@1.1.5:
     resolution: {integrity: sha512-H0dkQoCa3b2VEeKQBOxFph+JAbcrQdE7KC0UkqwpLmv2EC4P41QXP+rqo9wYodACiG5/WM5s9oDApTU8utwj9g==}
@@ -4626,6 +4639,8 @@ snapshots:
     dependencies:
       resolve-pkg-maps: 1.0.0
 
+  get-video-id@4.2.0: {}
+
   glob-parent@5.1.2:
     dependencies:
       is-glob: 4.0.3
@@ -4866,6 +4881,8 @@ snapshots:
   isarray@2.0.5: {}
 
   isexe@2.0.0: {}
+
+  iso8601-duration@2.1.4: {}
 
   iterator.prototype@1.1.5:
     dependencies:

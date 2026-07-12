@@ -25,6 +25,7 @@ export const env = createEnv({
     DATABASE_URL: z.string(),
     REDIS_PASSWORD: z.string(),
     REDIS_HOST: z.string(),
+    YOUTUBE_KEY: z.string(),
     CLOUDFLARE_TOKEN:
       process.env.NODE_ENV === "production"
         ? z.string()
@@ -61,6 +62,7 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     REDIS_PASSWORD: process.env.REDIS_PASSWORD,
     REDIS_HOST: process.env.REDIS_HOST,
+    YOUTUBE_KEY: process.env.YOUTUBE_KEY,
     CLOUDFLARE_TOKEN: process.env.CLOUDFLARE_TOKEN,
     NODE_ENV: process.env.NODE_ENV,
   },
