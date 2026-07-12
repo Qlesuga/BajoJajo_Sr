@@ -1,6 +1,6 @@
 import { redis } from "lib/redis";
 import { type SongTypeInRedis, type SongType } from "types/song";
-import { getYouTubeInfo, type InfoApiResponse } from "../utilsYTDL";
+import { getYouTubeInfo, type InfoApiResponse } from "../utilsYT";
 import { db } from "~/server/db";
 
 export async function getSongInfo(songID: string): Promise<SongType | null> {
