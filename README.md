@@ -29,7 +29,7 @@
 
 **Client:** React, TailwindCSS, Shadcn
 
-**Server:** Nextjs, Python, Redis, PosgreSQL, Cloudflare Tunnel, yt-dlp
+**Server:** Nextjs, Redis, PosgreSQL, Cloudflare Tunnel
 
 ## Run Locally
 
